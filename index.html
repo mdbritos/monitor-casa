@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Monitor da Casa</title>
+<style>
+  :root{--bg:#1e222a;--card:#2e3440;--card2:#3b4252;--txt:#eceff4;--mut:#a7b1c2;--ok:#a3be8c;--warn:#ebcb8b;--bad:#bf616a;--acc:#88c0d0}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:18px 20px;background:linear-gradient(135deg,#2e3440,#434c5e 50%,#5e81ac)}
+  h1{margin:0;font-size:1.35em} .mut{color:var(--mut);font-size:.85em}
+  main{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
+  h2{font-size:1em;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:26px 0 10px}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+  .card{background:var(--card);border:1px solid #434c5e;border-radius:14px;padding:14px}
+  .card .t{font-weight:700} .card .v{font-size:1.6em;font-weight:800;margin-top:4px}
+  .vlan{border-left:6px solid var(--c)} .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--mut)}
+  .up{background:var(--ok)} .down{background:var(--bad)}
+  table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden}
+  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid #3b4252;font-size:.9em} th{color:var(--mut);font-weight:600}
+  .vazio{padding:14px;color:var(--mut);background:var(--card);border-radius:14px}
+  .al{display:flex;gap:10px;align-items:flex-start;background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:8px;border-left:5px solid var(--warn)}
+  .al.n1{border-left-color:var(--bad)} .al.novo{box-shadow:0 0 0 2px var(--bad)} .tag{font-size:.7em;font-weight:800;padding:2px 7px;border-radius:999px;background:var(--bad);color:#fff;margin-left:6px}
+  .faixa{display:none;margin:0 0 14px;padding:12px 14px;border-radius:12px;background:var(--bad);font-weight:700}
+  button,input{font:inherit;border-radius:10px;border:1px solid #4c566a;background:var(--card2);color:var(--txt);padding:10px 14px}
+  button{cursor:pointer;background:var(--acc);color:#1e222a;font-weight:700;border:0}
+  #login{max-width:360px;margin:12vh auto;padding:26px;background:var(--card);border-radius:18px;text-align:center}
+  #login input{width:100%;margin:14px 0}
+  #painel{display:none}
+</style>
+</head>
+<body>
+<div id="login">
+  <div style="font-size:48px">🛡️</div>
+  <h1>Monitor da Casa</h1>
+  <p class="mut">Os dados chegam criptografados. Digite a senha para abrir.</p>
+  <input id="senha" type="password" placeholder="Senha" autocomplete="current-password">
+  <label class="mut"><input id="lembrar" type="checkbox" style="width:auto;margin:0 6px 0 0">Lembrar neste aparelho</label><br><br>
+  <button onclick="entrar()">Abrir</button>
+  <p id="erro" style="color:var(--bad)"></p>
+</div>
+
+<div id="painel">
+  <header>
+    <div><h1>🛡️ Monitor da Casa</h1><div class="mut" id="atual">—</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="ativarAvisos()" id="btnAvisos">🔔 Ativar avisos</button>
+      <button onclick="sair()" style="background:var(--card2);color:var(--txt)">Sair</button>
+    </div>
+  </header>
+  <main>
+    <div class="faixa" id="faixa"></div>
+    <h2>🌐 Internet e pfSense</h2><div class="grid" id="resumo"></div>
+    <h2>🗺️ Redes da casa</h2><div class="grid" id="redes"></div>
+    <h2>🔐 Conectados na VPN</h2><div id="vpn"></div>
+    <h2>🚨 Alertas</h2><div id="alertas"></div>
+    <h2>🕒 Entradas e saídas da VPN</h2><div id="eventos"></div>
+  </main>
+</div>
+
+<script>
+/* ====== CONFIGURE AQUI ====== */
+const GIST_ID = "fdbe72018cc9cf1c7e7fd70db45fb997";
+const INTERVALO_S = 90;          // a API do GitHub aceita 60 leituras/hora sem login
+/* ============================ */
+
+const CORES = {GERENCIA:"#f59e0b",CABEADA:"#22c55e",WIFI:"#06b6d4",GAMES:"#a855f7",IOT:"#eab308",
+  SERVIDORES:"#3b82f6",CONVIDADOS:"#ec4899",EMPRESA:"#ef4444",WAN:"#94a3b8"};
+let SENHA = null, timer = null;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const ls = {get(k){try{return localStorage.getItem(k)}catch(e){return null}},
+            set(k,v){try{localStorage.setItem(k,v)}catch(e){}}, del(k){try{localStorage.removeItem(k)}catch(e){}}};
+
+async function decifrar(p, senha){
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(senha), "PBKDF2", false, ["deriveKey"]);
+  const chave = await crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(p.salt), iterations:p.iter, hash:"SHA-256"},
+    base, {name:"AES-GCM", length:256}, false, ["decrypt"]);
+  const txt = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(p.iv)}, chave, b64(p.ct));
+  return JSON.parse(new TextDecoder().decode(txt));
+}
+
+async function buscar(){
+  const r = await fetch("https://api.github.com/gists/" + GIST_ID, {cache:"no-store"});
+  if(!r.ok) throw new Error("GitHub respondeu " + r.status);
+  const f = (await r.json()).files["monitor.json"];
+  const conteudo = f.truncated ? await (await fetch(f.raw_url, {cache:"no-store"})).text() : f.content;
+  return decifrar(JSON.parse(conteudo), SENHA);
+}
+
+async function entrar(){
+  $("erro").textContent = "";
+  SENHA = $("senha").value || ls.get("monitor_senha");
+  try{
+    const d = await buscar();
+    if($("lembrar").checked) ls.set("monitor_senha", SENHA);
+    $("login").style.display = "none"; $("painel").style.display = "block";
+    desenhar(d); clearInterval(timer); timer = setInterval(atualizar, INTERVALO_S*1000);
+  }catch(e){ $("erro").textContent = e.name === "OperationError" ? "Senha errada." : ("Erro: " + e.message); }
+}
+async function atualizar(){ try{ desenhar(await buscar()); }catch(e){ console.warn(e); } }
+function sair(){ ls.del("monitor_senha"); location.reload(); }
+
+function tempoDesde(iso){
+  const s = Math.round((Date.now() - new Date(iso))/1000);
+  return s < 60 ? s + " s" : s < 3600 ? Math.round(s/60) + " min" : Math.round(s/3600) + " h";
+}
+
+function avisar(titulo, corpo){
+  try{ if(Notification.permission === "granted") new Notification(titulo, {body:corpo}); }catch(e){}
+  try{ const a = new AudioContext(), o = a.createOscillator(); o.frequency.value = 880; o.connect(a.destination);
+       o.start(); setTimeout(() => {o.stop(); a.close();}, 250); }catch(e){}
+}
+async function ativarAvisos(){
+  try{ const p = await Notification.requestPermission(); $("btnAvisos").textContent = p === "granted" ? "🔔 Avisos ligados" : "🔕 Avisos bloqueados"; }catch(e){}
+}
+
+function desenhar(d){
+  const idade = (Date.now() - new Date(d.gerado))/1000;
+  $("atual").textContent = "Atualizado há " + tempoDesde(d.gerado) + " · renova a cada " + INTERVALO_S + " s";
+  const f = $("faixa");
+  f.style.display = idade > 300 ? "block" : "none";
+  f.textContent = "⚠️ O coletor não envia dados há " + tempoDesde(d.gerado) + ". Confira o container monitor.";
+
+  const r = d.rede || {}, wan = (r.gateways || [])[0] || {};
+  const online = /online|none/i.test(wan.status || "");
+  $("resumo").innerHTML = [
+    ["🌍 Internet", online ? "Online" : (wan.status || "?"), online ? "up" : "down"],
+    ["⏱️ Latência", wan.atraso || "—"], ["📉 Perda", wan.perda || "—"],
+    ["🧠 CPU", r.cpu != null ? r.cpu + "%" : "—"], ["💾 Memória", r.memoria != null ? r.memoria + "%" : "—"],
+    ["🔐 Na VPN", (d.vpn || []).length]
+  ].map(([t,v,s]) => `<div class="card"><div class="t">${s?`<span class="dot ${s}"></span>`:""}${esc(t)}</div><div class="v">${esc(v)}</div></div>`).join("");
+
+  $("redes").innerHTML = (r.redes || []).map(n => {
+    const nome = String(n.nome).toUpperCase(), cor = CORES[nome] || "#88c0d0", up = /up|associated/i.test(n.status);
+    return `<div class="card vlan" style="--c:${cor}"><div class="t"><span class="dot ${up?"up":"down"}"></span>${esc(n.nome)}</div>
+            <div class="mut">${esc(n.ip || "")}</div></div>`;
+  }).join("") || '<div class="vazio">Sem dados das redes.</div>';
+
+  const vpn = d.vpn || [];
+  $("vpn").innerHTML = vpn.length ? `<table><tr><th>Usuário</th><th>De onde</th><th>IP na VPN</th><th>Desde</th></tr>${
+    vpn.map(u => `<tr><td>${esc(u.usuario)}</td><td>${esc(u.origem)}</td><td>${esc(u.ip_vpn)}</td><td>${esc(u.desde)}</td></tr>`).join("")}</table>`
+    : '<div class="vazio">Ninguém conectado agora.</div>';
+
+  const vistos = new Set(JSON.parse(ls.get("monitor_vistos") || "[]")), primeira = !ls.get("monitor_vistos");
+  const al = d.alertas || [];
+  $("alertas").innerHTML = al.length ? al.map(a => {
+    const novo = !vistos.has(a.id);
+    if(novo && !primeira) avisar(a.tipo === "ataque" ? "🚨 Ataque detectado" : "⚠️ Tentativa de login", a.mensagem);
+    return `<div class="al n${a.nivel} ${novo && !primeira ? "novo" : ""}"><div>${a.tipo === "ataque" ? "🚨" : "⚠️"}</div>
+      <div><b>${esc(a.mensagem)}</b>${novo && !primeira ? '<span class="tag">NOVO</span>' : ""}
+      <div class="mut">${esc(a.quando)} · ${esc(a.origem)} → ${esc(a.destino)} · nível ${esc(a.nivel)}</div></div></div>`;
+  }).join("") : '<div class="vazio">Nenhum alerta. 🎉</div>';
+
+  const ev = d.eventos || [];
+  ev.forEach(e => { const k = "ev:" + e.quando + e.usuario; if(!vistos.has(k) && !primeira) avisar("🔐 VPN", e.usuario + (e.tipo === "vpn-entrou" ? " conectou" : " desconectou")); vistos.add(k); });
+  al.forEach(a => vistos.add(a.id));
+  ls.set("monitor_vistos", JSON.stringify([...vistos].slice(-800)));
+  $("eventos").innerHTML = ev.length ? `<table><tr><th>Quando</th><th>Evento</th><th>Usuário</th><th>De onde</th></tr>${
+    ev.slice(0,20).map(e => `<tr><td>${esc(new Date(e.quando).toLocaleString("pt-BR"))}</td><td>${e.tipo === "vpn-entrou" ? "🟢 Entrou" : "⚪ Saiu"}</td><td>${esc(e.usuario)}</td><td>${esc(e.origem)}</td></tr>`).join("")}</table>`
+    : '<div class="vazio">Sem entradas ou saídas registradas.</div>';
+}
+
+if(ls.get("monitor_senha")){ $("lembrar").checked = true; entrar(); }
+$("senha").addEventListener("keydown", e => { if(e.key === "Enter") entrar(); });
+</script>
+</body>
+</html>
