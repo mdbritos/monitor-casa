@@ -126,7 +126,8 @@
 <script>
 /* ====== CONFIGURE AQUI ====== */
 const GIST_ID = "fdbe72018cc9cf1c7e7fd70db45fb997";
-const INTERVALO_S = 90;          // a API do GitHub aceita 60 leituras/hora sem login
+const GIST_DONO = "mdbritos";    // usuário do GitHub dono do gist
+const INTERVALO_S = 60;          // lê o arquivo direto do gist (sem o limite de 60/hora da API)
 /* ============================ */
 
 const CORES = {GERENCIA:"#f59e0b",CABEADA:"#22c55e",WIFI:"#06b6d4",GAMES:"#a855f7",IOT:"#eab308",
@@ -147,10 +148,19 @@ async function decifrar(p, senha){
 }
 
 async function buscar(){
-  const r = await fetch("https://api.github.com/gists/" + GIST_ID, {cache:"no-store"});
-  if(!r.ok) throw new Error("GitHub respondeu " + r.status);
-  const f = (await r.json()).files["monitor.json"];
-  const conteudo = f.truncated ? await (await fetch(f.raw_url, {cache:"no-store"})).text() : f.content;
+  // 1º: arquivo direto do gist (sem limite de leituras). 2º: API do GitHub (limite de 60/hora), só se o 1º falhar.
+  let conteudo = null;
+  try{
+    const r = await fetch(`https://gist.githubusercontent.com/${GIST_DONO}/${GIST_ID}/raw/monitor.json?t=${Date.now()}`, {cache:"no-store"});
+    if(r.ok) conteudo = await r.text();
+  }catch(e){ console.warn("raw falhou", e); }
+  if(conteudo === null){
+    const r = await fetch("https://api.github.com/gists/" + GIST_ID, {cache:"no-store"});
+    if(r.status === 403 || r.status === 429) throw new Error("o GitHub limitou as leituras por agora. Tente de novo em alguns minutos.");
+    if(!r.ok) throw new Error("GitHub respondeu " + r.status);
+    const f = (await r.json()).files["monitor.json"];
+    conteudo = f.truncated ? await (await fetch(f.raw_url, {cache:"no-store"})).text() : f.content;
+  }
   return decifrar(JSON.parse(conteudo), SENHA);
 }
 
