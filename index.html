@@ -39,7 +39,28 @@
   .barra i{display:block;height:100%;background:var(--acc)}
   .uso-cab{display:grid;grid-template-columns:1.6fr 1fr .8fr 1.4fr;gap:8px;padding:0 14px 6px 20px;color:var(--mut);font-size:.8em;font-weight:600}
   .aviso{font-size:.8em;color:var(--mut);margin:6px 2px 0}
-  @media (max-width:640px){.uso summary,.uso-cab{grid-template-columns:1.4fr .9fr .8fr}.uso summary .top,.uso-cab .top{display:none}}
+  .grade-uso{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));align-items:start}
+  .grade-uso .uso{margin:0;border-left:0;border-top:5px solid var(--c,#88c0d0);transition:transform .15s,box-shadow .15s}
+  .grade-uso .uso:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+  .grade-uso .uso summary{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:14px;text-align:left}
+  .grade-uso .uso .det table th,.grade-uso .uso .det table td{padding:7px 6px;font-size:.84em}
+  .grade-uso .uso .det table td:nth-child(n+2){white-space:nowrap}
+  @media (max-width:640px){.grade-uso{grid-template-columns:1fr 1fr;gap:10px}.grade-uso .uso summary{padding:11px}.grade-uso .uso .mb{font-size:1.2em}
+    .grade-uso .uso .rod{flex-direction:column;gap:2px}.grade-uso .uso .rod .top{max-width:100%}.grade-uso .uso[open]{grid-column:1/-1}}
+  .grade-uso .uso .cab{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .grade-uso .uso .mb{font-size:1.5em}
+  .grade-uso .uso .rod{display:flex;justify-content:space-between;gap:8px;font-size:.88em}
+  .grade-uso .uso .rod .top{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
+  .grade-uso .uso .ver{font-size:.78em;text-align:center;margin-top:2px}
+  .grade-uso .uso[open] .ver{visibility:hidden;height:0;margin:0}
+  .vpn2{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+  .vpn2 .col{background:var(--card);border-radius:14px;overflow:hidden}
+  .vpn2 .col h3{margin:0;padding:11px 14px;font-size:.95em;border-bottom:1px solid #3b4252}
+  .vpn2 .col.ent h3{border-top:4px solid var(--ok)} .vpn2 .col.sai h3{border-top:4px solid var(--mut)}
+  .vpn2 .ev{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;padding:9px 14px;border-bottom:1px solid #3b4252;font-size:.9em}
+  .vpn2 .ev:last-child{border-bottom:0} .vpn2 .ev .q{color:var(--mut);font-size:.85em;white-space:nowrap} .vpn2 .ev b{word-break:break-all}
+  .vpn2 .nada{padding:12px 14px;color:var(--mut);font-size:.9em}
+  @media (max-width:640px){.vpn2{grid-template-columns:1fr}}
   .uso summary{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
   .uso summary .info{display:inline-block;margin-left:6px;font-size:.8em;color:var(--mut);border:1px solid #4c566a;border-radius:99px;width:18px;height:18px;text-align:center;line-height:16px}
   #ficha{position:fixed;z-index:50;display:none;width:360px;max-width:calc(100vw - 24px);max-height:80vh;overflow:auto;background:#353c4a;border:1px solid #4c566a;border-left:6px solid var(--c,#88c0d0);border-radius:16px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.55);font-size:.9em}
@@ -229,22 +250,23 @@ function desenharUso(u){
   const hosts = (u && u.hosts) || [];
   if(!hosts.length){ el.innerHTML = '<div class="vazio">Sem dados de uso ainda (precisa do ntopng no pfSense).</div>'; return; }
   const maior = Math.max(...hosts.map(h => h.bytes || 0), 1);
-  el.innerHTML = `<div class="uso-cab"><span>Usuário / aparelho</span><span>Gasto hoje</span><span>Tempo online</span><span class="top">Site mais usado</span></div>` +
+  el.innerHTML = `<div class="grade-uso">` +
     hosts.map(h => {
       const cor = CORES[String(h.rede || "").toUpperCase()] || "#88c0d0", top = (h.sites || [])[0];
       const maiorSite = Math.max(...(h.sites || []).map(s => s.bytes || 0), 1);
       return `<details class="uso" style="--c:${cor}" data-ip="${esc(h.ip)}" ${abertos.has(h.ip) ? "open" : ""}>
         <summary>
-          <span><span class="nome">${esc(h.nome || h.ip)}</span><span class="info" title="Ficha do usuário">i</span><div class="mut">${esc(h.rede || "")} · ${esc(h.ip)}</div></span>
-          <span><span class="mb">${mb(h.bytes)}</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></span>
-          <span>${tempo(h.minutos)}</span>
-          <span class="top">${top ? esc(top.dominio) + ' <span class="mut">· ' + mb(top.bytes) + '</span>' : "—"}</span>
+          <div class="cab"><span class="nome">${esc(h.nome || h.ip)}</span><span class="info" title="Ficha do usuário">i</span></div>
+          <div class="mut">${esc(h.rede || "")} · ${esc(h.ip)}</div>
+          <div><span class="mb">${mb(h.bytes)}</span> <span class="mut">hoje</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></div>
+          <div class="rod"><span>⏱️ ${tempo(h.minutos)}</span><span class="top">🏆 ${top ? esc(top.dominio) : "—"}</span></div>
+          <div class="ver mut">▾ ver sites</div>
         </summary>
         <div class="det">${(h.sites || []).length ? `<table><tr><th>Site</th><th>Gasto</th><th>Tempo</th></tr>${
           h.sites.map(s => `<tr><td>${esc(s.dominio)}<div class="barra"><i style="width:${Math.max(2, 100*(s.bytes||0)/maiorSite)}%"></i></div></td><td>${mb(s.bytes)}</td><td>${tempo(s.minutos)}</td></tr>`).join("")}</table>`
           : '<div class="mut">Nenhum site registrado.</div>'}</div>
       </details>`;
-    }).join("") +
+    }).join("") + `</div>` +
     `<p class="aviso">Passe o mouse (no PC) ou segure o dedo (no celular) sobre um usuário para ver a ficha dele. Clique para abrir a lista de sites. Valores de hoje desde ${esc(u.desde || "00:00")}. Tempo = minutos com tráfego para o site (estimativa). Em sites com HTTPS aparece só o domínio, nunca a página.</p>`;
 }
 
@@ -292,9 +314,11 @@ function desenhar(d){
   ev.forEach(e => { const k = "ev:" + e.quando + e.usuario; if(!vistos.has(k) && !primeira) avisar("🔐 VPN", e.usuario + (e.tipo === "vpn-entrou" ? " conectou" : " desconectou")); vistos.add(k); });
   al.forEach(a => vistos.add(a.id));
   ls.set("monitor_vistos", JSON.stringify([...vistos].slice(-800)));
-  $("eventos").innerHTML = ev.length ? `<table><tr><th>Quando</th><th>Evento</th><th>Usuário</th><th>De onde</th></tr>${
-    ev.slice(0,20).map(e => `<tr><td>${esc(new Date(e.quando).toLocaleString("pt-BR"))}</td><td>${e.tipo === "vpn-entrou" ? "🟢 Entrou" : "⚪ Saiu"}</td><td>${esc(e.usuario)}</td><td>${esc(e.origem)}</td></tr>`).join("")}</table>`
-    : '<div class="vazio">Sem entradas ou saídas registradas.</div>';
+  const coluna = (titulo, classe, lista) => `<div class="col ${classe}"><h3>${titulo} <span class="mut">(${lista.length})</span></h3>${
+    lista.length ? lista.slice(0, 15).map(e => `<div class="ev"><span class="q">${esc(new Date(e.quando).toLocaleDateString("pt-BR", {day:"2-digit", month:"2-digit"}))}<br>${esc(new Date(e.quando).toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"}))}</span>
+      <span><b>${esc(e.usuario)}</b><div class="mut">${e.origem ? "de " + esc(e.origem) : ""}</div></span></div>`).join("")
+    : '<div class="nada">Nenhuma registrada.</div>'}</div>`;
+  $("eventos").innerHTML = `<div class="vpn2">${coluna("🟢 Entradas", "ent", ev.filter(e => e.tipo === "vpn-entrou"))}${coluna("⚪ Saídas", "sai", ev.filter(e => e.tipo !== "vpn-entrou"))}</div>`;
 }
 
 if(ls.get("monitor_senha")){ $("lembrar").checked = true; entrar(); }
