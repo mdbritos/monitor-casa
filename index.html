@@ -53,6 +53,18 @@
   .grade-uso .uso .rod .top{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
   .grade-uso .uso .ver{font-size:.78em;text-align:center;margin-top:2px}
   .grade-uso .uso[open] .ver{visibility:hidden;height:0;margin:0}
+  #vpn{overflow-x:auto;border-radius:14px} body{overflow-x:hidden}
+  .pastas-acoes{display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 10px}
+  button.mini{background:var(--card2);color:var(--txt);font-weight:600;font-size:.82em;padding:6px 12px}
+  .pasta{background:var(--card);border-radius:14px;margin-bottom:10px;border-left:6px solid var(--c,#88c0d0)}
+  .pasta > summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 16px;-webkit-user-select:none;user-select:none}
+  .pasta > summary::-webkit-details-marker{display:none}
+  .pasta .pico{font-size:1.6em;line-height:1} .pasta .ptit,.pasta .pmb{display:flex;flex-direction:column;gap:2px}
+  .pasta .pmb{text-align:right} .pasta .pmb b{font-size:1.15em} .pasta .pon{color:var(--ok);font-weight:700}
+  .pasta .pseta{color:var(--mut);transition:transform .2s;font-size:1.1em}
+  .pasta[open] .pseta{transform:rotate(90deg)} .pasta[open] > summary{border-bottom:1px solid #3b4252}
+  .pasta > .grade-uso{padding:12px}
+  @media (max-width:640px){.pasta > summary{grid-template-columns:auto 1fr auto;gap:10px;padding:11px 12px}.pasta .pseta{display:none}.pasta .pmb .mut{display:none}.pasta > .grade-uso{padding:10px}}
   .vpn2{display:grid;gap:12px;grid-template-columns:1fr 1fr}
   .vpn2 .col{background:var(--card);border-radius:14px;overflow:hidden}
   .vpn2 .col h3{margin:0;padding:11px 14px;font-size:.95em;border-bottom:1px solid #3b4252}
@@ -241,33 +253,73 @@ function fecharFicha(){ $("ficha").style.display = "none"; $("veu").style.displa
   document.addEventListener("keydown", e => { if(e.key === "Escape") fecharFicha(); });
 })();
 
+const PASTAS = {
+  CABEADA:["🖥️","Cabeada"], WIFI:["📶","Wi-Fi"], GAMES:["🎮","Games"], VPN:["🔐","VPN"], EMPRESA:["🏢","Empresa"],
+  CONVIDADOS:["👋","Convidados"], SERVIDORES:["🗄️","Servidores"], IOT:["💡","IoT · casa inteligente"], GERENCIA:["🔧","Gerência"]};
+const ORDEM = ["CABEADA","WIFI","GAMES","VPN","EMPRESA","CONVIDADOS","SERVIDORES","GERENCIA","IOT"];
+let pastasAbertas = new Set(JSON.parse(ls.get("monitor_pastas") || "[]"));
+function salvarPastas(){ ls.set("monitor_pastas", JSON.stringify([...pastasAbertas])); }
+
+function cartaoUso(h, maior){
+  const cor = CORES[String(h.rede || "").toUpperCase()] || "#88c0d0", top = (h.sites || [])[0];
+  const maiorSite = Math.max(...(h.sites || []).map(s => s.bytes || 0), 1);
+  return `<details class="uso" style="--c:${cor}" data-ip="${esc(h.ip)}" ${abertos.has(h.ip) ? "open" : ""}>
+    <summary>
+      <div class="cab"><span class="nome">${esc(h.nome || h.ip)}</span><span class="info" title="Ficha do usuário">i</span></div>
+      <div class="mut">${esc(h.rede || "")} · ${esc(h.ip)}</div>
+      <div><span class="mb">${mb(h.bytes)}</span> <span class="mut">hoje</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></div>
+      <div class="rod"><span>⏱️ ${tempo(h.minutos)}</span><span class="top">🏆 ${top ? esc(top.dominio) : "—"}</span></div>
+      <div class="ver mut">▾ ver sites</div>
+    </summary>
+    <div class="det">${(h.sites || []).length ? `<table><tr><th>Site</th><th>Gasto</th><th>Tempo</th></tr>${
+      h.sites.map(s => `<tr><td>${esc(s.dominio)}<div class="barra"><i style="width:${Math.max(2, 100*(s.bytes||0)/maiorSite)}%"></i></div></td><td>${mb(s.bytes)}</td><td>${tempo(s.minutos)}</td></tr>`).join("")}</table>`
+      : '<div class="mut">Nenhum site registrado.</div>'}</div>
+  </details>`;
+}
+
 function desenharUso(u){
   const el = $("uso");
   HOSTS = {}; ((u && u.hosts) || []).forEach(h => HOSTS[h.ip] = h);
   if(fichaIp && HOSTS[fichaIp]) $("ficha").innerHTML = fichaHTML(HOSTS[fichaIp]);
-  el.querySelectorAll("details[open]").forEach(x => abertos.add(x.dataset.ip));
-  el.querySelectorAll("details:not([open])").forEach(x => abertos.delete(x.dataset.ip));
+  el.querySelectorAll("details.uso[open]").forEach(x => abertos.add(x.dataset.ip));
+  el.querySelectorAll("details.uso:not([open])").forEach(x => abertos.delete(x.dataset.ip));
   const hosts = (u && u.hosts) || [];
   if(!hosts.length){ el.innerHTML = '<div class="vazio">Sem dados de uso ainda (precisa do ntopng no pfSense).</div>'; return; }
   const maior = Math.max(...hosts.map(h => h.bytes || 0), 1);
-  el.innerHTML = `<div class="grade-uso">` +
-    hosts.map(h => {
-      const cor = CORES[String(h.rede || "").toUpperCase()] || "#88c0d0", top = (h.sites || [])[0];
-      const maiorSite = Math.max(...(h.sites || []).map(s => s.bytes || 0), 1);
-      return `<details class="uso" style="--c:${cor}" data-ip="${esc(h.ip)}" ${abertos.has(h.ip) ? "open" : ""}>
+
+  // monta as pastas: a do apelidos.txt (Nome|Pasta) ou a rede (VLAN)
+  const grupos = {};
+  hosts.forEach(h => { const k = (h.grupo || "").trim() ? "G:" + h.grupo.trim() : "R:" + String(h.rede || "OUTROS").toUpperCase();
+    (grupos[k] = grupos[k] || []).push(h); });
+  const peso = k => k.startsWith("G:") ? -1 : (ORDEM.indexOf(k.slice(2)) + 1 || 99);
+  const chaves = Object.keys(grupos).sort((a, b) => peso(a) - peso(b) || a.localeCompare(b));
+  const online = h => h.ultimo && GERADO && (new Date(GERADO) - new Date(h.ultimo)) < 180000;
+
+  el.innerHTML = `<div class="pastas-acoes"><button class="mini" onclick="todasPastas(true)">📂 Abrir todas</button><button class="mini" onclick="todasPastas(false)">📁 Fechar todas</button></div>` +
+    chaves.map(k => {
+      const lista = grupos[k], custom = k.startsWith("G:"), nome = k.slice(2);
+      const [ico, titulo] = custom ? ["📁", nome] : (PASTAS[nome] || ["📁", nome]);
+      const cor = custom ? "#88c0d0" : (CORES[nome] || "#88c0d0");
+      const total = lista.reduce((t, h) => t + (h.bytes || 0), 0), on = lista.filter(online).length;
+      const maiorUso = lista[0];
+      return `<details class="pasta" data-pasta="${esc(k)}" style="--c:${cor}" ${pastasAbertas.has(k) ? "open" : ""}>
         <summary>
-          <div class="cab"><span class="nome">${esc(h.nome || h.ip)}</span><span class="info" title="Ficha do usuário">i</span></div>
-          <div class="mut">${esc(h.rede || "")} · ${esc(h.ip)}</div>
-          <div><span class="mb">${mb(h.bytes)}</span> <span class="mut">hoje</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></div>
-          <div class="rod"><span>⏱️ ${tempo(h.minutos)}</span><span class="top">🏆 ${top ? esc(top.dominio) : "—"}</span></div>
-          <div class="ver mut">▾ ver sites</div>
+          <span class="pico">${ico}</span>
+          <span class="ptit"><b>${esc(titulo)}</b><span class="mut">${lista.length} ${lista.length === 1 ? "aparelho" : "aparelhos"} · ${on ? `<span class="pon">● ${on} online</span>` : "ninguém online"}</span></span>
+          <span class="pmb"><b>${mb(total)}</b><span class="mut">mais uso: ${esc(maiorUso.nome || maiorUso.ip)}</span></span>
+          <span class="pseta">▸</span>
         </summary>
-        <div class="det">${(h.sites || []).length ? `<table><tr><th>Site</th><th>Gasto</th><th>Tempo</th></tr>${
-          h.sites.map(s => `<tr><td>${esc(s.dominio)}<div class="barra"><i style="width:${Math.max(2, 100*(s.bytes||0)/maiorSite)}%"></i></div></td><td>${mb(s.bytes)}</td><td>${tempo(s.minutos)}</td></tr>`).join("")}</table>`
-          : '<div class="mut">Nenhum site registrado.</div>'}</div>
+        <div class="grade-uso">${lista.map(h => cartaoUso(h, maior)).join("")}</div>
       </details>`;
-    }).join("") + `</div>` +
-    `<p class="aviso">Passe o mouse (no PC) ou segure o dedo (no celular) sobre um usuário para ver a ficha dele. Clique para abrir a lista de sites. Valores de hoje desde ${esc(u.desde || "00:00")}. Tempo = minutos com tráfego para o site (estimativa). Em sites com HTTPS aparece só o domínio, nunca a página.</p>`;
+    }).join("") +
+    `<p class="aviso">Clique numa pasta para abrir. Passe o mouse (no PC) ou segure o dedo (no celular) sobre um usuário para ver a ficha dele; clique nele para ver a lista de sites. Valores de hoje desde ${esc(u.desde || "00:00")}. Tempo = minutos com tráfego para o site (estimativa). Em sites com HTTPS aparece só o domínio, nunca a página.</p>`;
+
+  el.querySelectorAll("details.pasta").forEach(d => d.addEventListener("toggle", () => {
+    d.open ? pastasAbertas.add(d.dataset.pasta) : pastasAbertas.delete(d.dataset.pasta); salvarPastas(); }));
+}
+function todasPastas(abrir){
+  document.querySelectorAll("#uso details.pasta").forEach(d => { d.open = abrir; abrir ? pastasAbertas.add(d.dataset.pasta) : pastasAbertas.delete(d.dataset.pasta); });
+  salvarPastas();
 }
 
 function desenhar(d){
