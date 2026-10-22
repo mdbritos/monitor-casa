@@ -28,6 +28,18 @@
   #login{max-width:360px;margin:12vh auto;padding:26px;background:var(--card);border-radius:18px;text-align:center}
   #login input{width:100%;margin:14px 0}
   #painel{display:none}
+  .uso{background:var(--card);border-radius:14px;margin-bottom:8px;border-left:6px solid var(--c,#88c0d0)}
+  .uso summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:1.6fr 1fr .8fr 1.4fr;gap:8px;align-items:center;padding:11px 14px}
+  .uso summary::-webkit-details-marker{display:none}
+  .uso summary .nome{font-weight:700} .uso summary .mb{font-weight:800}
+  .uso[open] summary{border-bottom:1px solid #3b4252}
+  .uso .det{padding:6px 10px 12px}
+  .uso .det table{background:transparent}
+  .barra{height:6px;border-radius:99px;background:#3b4252;overflow:hidden;margin-top:3px}
+  .barra i{display:block;height:100%;background:var(--acc)}
+  .uso-cab{display:grid;grid-template-columns:1.6fr 1fr .8fr 1.4fr;gap:8px;padding:0 14px 6px 20px;color:var(--mut);font-size:.8em;font-weight:600}
+  .aviso{font-size:.8em;color:var(--mut);margin:6px 2px 0}
+  @media (max-width:640px){.uso summary,.uso-cab{grid-template-columns:1.4fr .9fr .8fr}.uso summary .top,.uso-cab .top{display:none}}
 </style>
 </head>
 <body>
@@ -54,6 +66,7 @@
     <h2>🌐 Internet e pfSense</h2><div class="grid" id="resumo"></div>
     <h2>🗺️ Redes da casa</h2><div class="grid" id="redes"></div>
     <h2>🔐 Conectados na VPN</h2><div id="vpn"></div>
+    <h2>👥 Uso por usuário · hoje</h2><div id="uso"></div>
     <h2>🚨 Alertas</h2><div id="alertas"></div>
     <h2>🕒 Entradas e saídas da VPN</h2><div id="eventos"></div>
   </main>
@@ -117,6 +130,35 @@ async function ativarAvisos(){
   try{ const p = await Notification.requestPermission(); $("btnAvisos").textContent = p === "granted" ? "🔔 Avisos ligados" : "🔕 Avisos bloqueados"; }catch(e){}
 }
 
+const mb = b => { const m = (b || 0) / 1048576; return m >= 1024 ? (m/1024).toFixed(2) + " GB" : (m >= 10 ? m.toFixed(0) : m.toFixed(1)) + " MB"; };
+const tempo = min => { min = Math.round(min || 0); return min < 60 ? min + " min" : Math.floor(min/60) + "h " + String(min%60).padStart(2,"0"); };
+let abertos = new Set();
+function desenharUso(u){
+  const el = $("uso");
+  el.querySelectorAll("details[open]").forEach(x => abertos.add(x.dataset.ip));
+  el.querySelectorAll("details:not([open])").forEach(x => abertos.delete(x.dataset.ip));
+  const hosts = (u && u.hosts) || [];
+  if(!hosts.length){ el.innerHTML = '<div class="vazio">Sem dados de uso ainda (precisa do ntopng no pfSense).</div>'; return; }
+  const maior = Math.max(...hosts.map(h => h.bytes || 0), 1);
+  el.innerHTML = `<div class="uso-cab"><span>Usuário / aparelho</span><span>Gasto hoje</span><span>Tempo online</span><span class="top">Site mais usado</span></div>` +
+    hosts.map(h => {
+      const cor = CORES[String(h.rede || "").toUpperCase()] || "#88c0d0", top = (h.sites || [])[0];
+      const maiorSite = Math.max(...(h.sites || []).map(s => s.bytes || 0), 1);
+      return `<details class="uso" style="--c:${cor}" data-ip="${esc(h.ip)}" ${abertos.has(h.ip) ? "open" : ""}>
+        <summary>
+          <span><span class="nome">${esc(h.nome || h.ip)}</span><div class="mut">${esc(h.rede || "")} · ${esc(h.ip)}</div></span>
+          <span><span class="mb">${mb(h.bytes)}</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></span>
+          <span>${tempo(h.minutos)}</span>
+          <span class="top">${top ? esc(top.dominio) + ' <span class="mut">· ' + mb(top.bytes) + '</span>' : "—"}</span>
+        </summary>
+        <div class="det">${(h.sites || []).length ? `<table><tr><th>Site</th><th>Gasto</th><th>Tempo</th></tr>${
+          h.sites.map(s => `<tr><td>${esc(s.dominio)}<div class="barra"><i style="width:${Math.max(2, 100*(s.bytes||0)/maiorSite)}%"></i></div></td><td>${mb(s.bytes)}</td><td>${tempo(s.minutos)}</td></tr>`).join("")}</table>`
+          : '<div class="mut">Nenhum site registrado.</div>'}</div>
+      </details>`;
+    }).join("") +
+    `<p class="aviso">Clique num usuário para ver os sites. Valores de hoje desde ${esc(u.desde || "00:00")}. Tempo = minutos com tráfego para o site (estimativa). Em sites com HTTPS aparece só o domínio, nunca a página.</p>`;
+}
+
 function desenhar(d){
   const idade = (Date.now() - new Date(d.gerado))/1000;
   $("atual").textContent = "Atualizado há " + tempoDesde(d.gerado) + " · renova a cada " + INTERVALO_S + " s";
@@ -143,6 +185,8 @@ function desenhar(d){
   $("vpn").innerHTML = vpn.length ? `<table><tr><th>Usuário</th><th>De onde</th><th>IP na VPN</th><th>Desde</th></tr>${
     vpn.map(u => `<tr><td>${esc(u.usuario)}</td><td>${esc(u.origem)}</td><td>${esc(u.ip_vpn)}</td><td>${esc(u.desde)}</td></tr>`).join("")}</table>`
     : '<div class="vazio">Ninguém conectado agora.</div>';
+
+  desenharUso(d.uso);
 
   const vistos = new Set(JSON.parse(ls.get("monitor_vistos") || "[]")), primeira = !ls.get("monitor_vistos");
   const al = d.alertas || [];
