@@ -60,6 +60,12 @@
   .lado.externo{color:#bf616a;border-color:#bf616a}
   .lado.desc{color:#d8dee9;border-color:#4c566a}
   .mini.ativo{background:#5e81ac;color:#fff}
+  .btn-corrigir{background:#ebcb8b;color:#2e3440;font-weight:700}
+  .corrigir{margin-top:8px}
+  .corrigir > summary{cursor:pointer;list-style:none;display:inline-block}
+  .corrigir > summary::-webkit-details-marker{display:none}
+  .corrigir ol{margin:8px 0 8px 18px;padding:0;line-height:1.5}
+  .corrigir ol li{margin-bottom:4px}
   button.mini{background:var(--card2);color:var(--txt);font-weight:600;font-size:.82em;padding:6px 12px}
   .pasta{background:var(--card);border-radius:14px;margin-bottom:10px;border-left:6px solid var(--c,#88c0d0)}
   .pasta > summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 16px;-webkit-user-select:none;user-select:none}
@@ -394,6 +400,33 @@ function traduzirAlerta(msg){
   return mudou ? t : m;
 }
 
+// ---- Saúde: problemas de funcionamento (não são ataques) com botão de correção ----
+let SAUDE_ATUAL = [];
+const corrigirAbertos = new Set();
+function pastaSaude(lista, abrir){
+  SAUDE_ATUAL = lista;
+  if(!lista.length) return "";
+  const itens = lista.map((s, i) => `<div class="al n${s.grav || 2}"><div>🛠️</div>
+      <div><b>${esc(s.titulo)}</b><div class="mut">${esc(s.detalhe || "")}</div>
+      <details class="corrigir" data-id="${esc(s.id)}" ${corrigirAbertos.has(s.id) ? "open" : ""}>
+        <summary><span class="mini btn-corrigir">🛠️ Corrigir</span></summary>
+        <ol>${(s.correcao || []).map(p => `<li>${esc(p)}</li>`).join("")}</ol>
+        <button class="mini" onclick="copiarPassos(${i})">📋 Copiar passos</button>
+      </details></div></div>`).join("");
+  return `<details class="pasta" data-pasta="A:S" style="--c:#ebcb8b" ${abrir ? "open" : ""}>
+      <summary><span class="pico">🛠️</span>
+        <span class="ptit"><b>Precisam de correção</b><span class="mut">problemas de funcionamento (não são ataques)</span></span>
+        <span class="pmb"><b>${lista.length}</b><span class="mut">${lista.length > 1 ? "itens" : "item"}</span></span>
+        <span class="pseta">▸</span></summary>
+      <div style="padding:12px">${itens}</div></details>`;
+}
+function copiarPassos(i){
+  const s = SAUDE_ATUAL[i]; if(!s) return;
+  const txt = s.titulo + "\n" + (s.correcao || []).map((p, n) => (n + 1) + ". " + p).join("\n");
+  if(navigator.clipboard) navigator.clipboard.writeText(txt).then(() => alert("Passos copiados.")).catch(() => prompt("Copie os passos:", txt));
+  else prompt("Copie os passos:", txt);
+}
+
 // ---- Alertas: IP interno x externo, filtro e botão de limpar ----
 let ULTIMO = null;
 const RE_IPV4 = /\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b/;
@@ -481,8 +514,8 @@ function desenhar(d){
   const limpos = limposSet();
   const base = al.filter(a => !limpos.has(a.id));
   const alVis = base.filter(a => filtroAlertas === "todos" || a._lado === filtroAlertas);
-  const abrirAlerta = k => pastasAbertas.has(k) || (k === "A:1" && !ls.get("monitor_pastas"));
-  $("alertas").innerHTML = barraAlertas(base, al.length - base.length) + (alVis.length ? FAIXAS.map(([k, ico, tit, sub, cor, filtro]) => {
+  const abrirAlerta = k => pastasAbertas.has(k) || ((k === "A:1" || k === "A:S") && !ls.get("monitor_pastas"));
+  $("alertas").innerHTML = pastaSaude(d.saude || [], abrirAlerta("A:S")) + barraAlertas(base, al.length - base.length) + (alVis.length ? FAIXAS.map(([k, ico, tit, sub, cor, filtro]) => {
     const lista = alVis.filter(filtro), novos = lista.filter(a => a._novo).length;
     return `<details class="pasta" data-pasta="${k}" style="--c:${cor}" ${abrirAlerta(k) ? "open" : ""}>
         <summary>
@@ -494,6 +527,8 @@ function desenhar(d){
         <div style="padding:12px">${lista.length ? lista.map(itemAlerta).join("") : '<div class="vazio">Nenhum alerta nesta pasta.</div>'}</div>
       </details>`;
   }).join("") : '<div class="vazio">' + (al.length ? "Nenhum alerta nesta visão. 🧹" : "Nenhum alerta. 🎉") + '</div>');
+  $("alertas").querySelectorAll("details.corrigir").forEach(x => x.addEventListener("toggle", () => {
+    x.open ? corrigirAbertos.add(x.dataset.id) : corrigirAbertos.delete(x.dataset.id); }));
   $("alertas").querySelectorAll("details.pasta").forEach(x => x.addEventListener("toggle", () => {
     x.open ? pastasAbertas.add(x.dataset.pasta) : pastasAbertas.delete(x.dataset.pasta); salvarPastas(); }));
 
