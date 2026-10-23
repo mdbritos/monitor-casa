@@ -55,6 +55,11 @@
   .grade-uso .uso[open] .ver{visibility:hidden;height:0;margin:0}
   #vpn{overflow-x:auto;border-radius:14px} body{overflow-x:hidden}
   .pastas-acoes{display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 10px}
+  .lado{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;font-size:.78em;font-weight:700;border:1px solid}
+  .lado.interno{color:#a3be8c;border-color:#a3be8c}
+  .lado.externo{color:#bf616a;border-color:#bf616a}
+  .lado.desc{color:#d8dee9;border-color:#4c566a}
+  .mini.ativo{background:#5e81ac;color:#fff}
   button.mini{background:var(--card2);color:var(--txt);font-weight:600;font-size:.82em;padding:6px 12px}
   .pasta{background:var(--card);border-radius:14px;margin-bottom:10px;border-left:6px solid var(--c,#88c0d0)}
   .pasta > summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 16px;-webkit-user-select:none;user-select:none}
@@ -389,7 +394,43 @@ function traduzirAlerta(msg){
   return mudou ? t : m;
 }
 
+// ---- Alertas: IP interno x externo, filtro e botão de limpar ----
+let ULTIMO = null;
+const RE_IPV4 = /\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b/;
+function ipInterno(ip){
+  const p = ip.split(".").map(Number);
+  if(p.some(n => n > 255)) return null;
+  return p[0] === 10 || (p[0] === 172 && p[1] >= 16 && p[1] <= 31) || (p[0] === 192 && p[1] === 168) || p[0] === 127 || (p[0] === 169 && p[1] === 254);
+}
+function ladoAlerta(a){
+  const m = String(a.origem || "").match(RE_IPV4) || String(a.mensagem || "").match(RE_IPV4);
+  if(!m) return "desc";
+  const r = ipInterno(m[1]);
+  return r === null ? "desc" : (r ? "interno" : "externo");
+}
+const ROTULO_LADO = { interno: "🏠 IP INTERNO", externo: "🌐 IP EXTERNO", desc: "❔ SEM IP" };
+const ladoTag = a => `<span class="lado ${a._lado}">${ROTULO_LADO[a._lado]}</span>`;
+let filtroAlertas = ls.get("monitor_filtro_alertas") || "todos";
+function limposSet(){ return new Set(JSON.parse(ls.get("monitor_limpos") || "[]")); }
+function barraAlertas(base, nLimpos){
+  const c = f => base.filter(a => f === "todos" || a._lado === f).length;
+  const bt = (f, t) => `<button class="mini ${filtroAlertas === f ? "ativo" : ""}" onclick="filtrarAlertas('${f}')">${t} (${c(f)})</button>`;
+  return `<div class="pastas-acoes" style="justify-content:space-between;flex-wrap:wrap;margin:0 0 10px">
+    <span>${bt("todos", "Todos")} ${bt("interno", "🏠 Internos")} ${bt("externo", "🌐 Externos")}</span>
+    <span><button class="mini" onclick="limparAlertas()">🧹 Limpar alertas</button>${nLimpos ? ` <button class="mini" onclick="restaurarAlertas()">↩ Restaurar (${nLimpos})</button>` : ""}</span></div>`;
+}
+function filtrarAlertas(f){ filtroAlertas = f; ls.set("monitor_filtro_alertas", f); if(ULTIMO) desenhar(ULTIMO); }
+function limparAlertas(){
+  if(!confirm("Limpar os alertas desta tela? Eles somem só neste aparelho; os alertas novos continuam aparecendo.")) return;
+  const s = limposSet();
+  ((ULTIMO && ULTIMO.alertas) || []).forEach(a => s.add(a.id));
+  ls.set("monitor_limpos", JSON.stringify([...s].slice(-2000)));
+  if(ULTIMO) desenhar(ULTIMO);
+}
+function restaurarAlertas(){ ls.set("monitor_limpos", "[]"); if(ULTIMO) desenhar(ULTIMO); }
+
 function desenhar(d){
+  ULTIMO = d;
   GERADO = d.gerado;
   const idade = (Date.now() - new Date(d.gerado))/1000;
   $("atual").textContent = "Atualizado há " + tempoDesde(d.gerado) + " · renova a cada " + INTERVALO_S + " s";
@@ -425,20 +466,24 @@ function desenhar(d){
   al.forEach(a => {
     a._novo = !vistos.has(a.id) && !primeira;
     a._pt = traduzirAlerta(a.mensagem);
+    a._lado = ladoAlerta(a);
     if(a._novo) avisar(a.tipo === "ataque" ? "🚨 Ataque detectado" : "⚠️ Tentativa de login", a._pt);
   });
   const itemAlerta = a => `<div class="al n${a.nivel} ${a._novo ? "novo" : ""}"><div>${a.tipo === "ataque" ? "🚨" : "⚠️"}</div>
       <div><b title="${esc(a.mensagem)}">${esc(a._pt)}</b>${a._novo ? '<span class="tag">NOVO</span>' : ""}
-      <div class="mut">${esc(a.quando)} · ${esc(a.origem)} → ${esc(a.destino)} · nível ${esc(a.nivel)}</div></div></div>`;
+      <div class="mut">${esc(a.quando)} · ${esc(a.origem)} → ${esc(a.destino)} · nível ${esc(a.nivel)}${ladoTag(a)}</div></div></div>`;
   const FAIXAS = [
     ["A:1", "🔴", "Crítico", "nível 1", "#bf616a", a => a.tipo === "ataque" && nvl(a) <= 1],
     ["A:2", "🟠", "Alto", "nível 2", "#d08770", a => a.tipo === "ataque" && nvl(a) === 2],
     ["A:3", "🟡", "Médio e baixo", "nível 3 ou mais", "#ebcb8b", a => a.tipo === "ataque" && nvl(a) >= 3],
     ["A:L", "⚠️", "Tentativas de login", "pfSense", "#b48ead", a => a.tipo !== "ataque"]
   ];
+  const limpos = limposSet();
+  const base = al.filter(a => !limpos.has(a.id));
+  const alVis = base.filter(a => filtroAlertas === "todos" || a._lado === filtroAlertas);
   const abrirAlerta = k => pastasAbertas.has(k) || (k === "A:1" && !ls.get("monitor_pastas"));
-  $("alertas").innerHTML = al.length ? FAIXAS.map(([k, ico, tit, sub, cor, filtro]) => {
-    const lista = al.filter(filtro), novos = lista.filter(a => a._novo).length;
+  $("alertas").innerHTML = barraAlertas(base, al.length - base.length) + (alVis.length ? FAIXAS.map(([k, ico, tit, sub, cor, filtro]) => {
+    const lista = alVis.filter(filtro), novos = lista.filter(a => a._novo).length;
     return `<details class="pasta" data-pasta="${k}" style="--c:${cor}" ${abrirAlerta(k) ? "open" : ""}>
         <summary>
           <span class="pico">${ico}</span>
@@ -448,7 +493,7 @@ function desenhar(d){
         </summary>
         <div style="padding:12px">${lista.length ? lista.map(itemAlerta).join("") : '<div class="vazio">Nenhum alerta nesta pasta.</div>'}</div>
       </details>`;
-  }).join("") : '<div class="vazio">Nenhum alerta. 🎉</div>';
+  }).join("") : '<div class="vazio">' + (al.length ? "Nenhum alerta nesta visão. 🧹" : "Nenhum alerta. 🎉") + '</div>');
   $("alertas").querySelectorAll("details.pasta").forEach(x => x.addEventListener("toggle", () => {
     x.open ? pastasAbertas.add(x.dataset.pasta) : pastasAbertas.delete(x.dataset.pasta); salvarPastas(); }));
 
