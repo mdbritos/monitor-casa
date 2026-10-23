@@ -353,6 +353,42 @@ function todasPastas(abrir){
   salvarPastas();
 }
 
+// Traduz as mensagens de alerta (Suricata e logs do pfSense) para português; o original fica no balão (title).
+const REGRAS_ALERTA = [
+  [/Attack from "?([^"\s]+)"? on service (.+?) with danger (\d+)/i, (x, ip, srv, p) => `Ataque vindo de ${ip} contra ${/unknown service/i.test(srv) ? "um serviço não identificado" : "o serviço " + srv} (perigo ${p})`],
+  [/Now monitoring attacks/i, () => "Proteção contra invasões (sshguard) ativada: monitorando ataques"],
+  [/Exiting on signal/i, () => "Proteção contra invasões (sshguard) encerrada"],
+  [/webConfigurator authentication error for user '([^']*)' from:? (\S+)/i, (x, u, ip) => `Falha de login no painel web do pfSense (usuário ${u}, de ${ip})`],
+  [/Failed password for (?:invalid user )?(\S+) from (\S+)/i, (x, u, ip) => `Senha incorreta no SSH (usuário ${u}, de ${ip})`],
+  [/Invalid user (\S+) from (\S+)/i, (x, u, ip) => `Usuário inexistente no SSH (${u}, de ${ip})`],
+  [/Connection closed by (?:authenticating user )?(\S+) (\S+)/i, (x, u, ip) => `Conexão SSH encerrada (${u}, de ${ip})`]
+];
+const PREFIXOS_ALERTA = [
+  [/^ET SCAN\b\s*/i, "Varredura de portas: "], [/^ET EXPLOIT\b\s*/i, "Tentativa de exploração: "],
+  [/^ET DOS\b\s*/i, "Negação de serviço: "], [/^ET DROP\b\s*/i, "IP malicioso conhecido (DROP): "],
+  [/^ET CINS\b\s*/i, "IP malicioso conhecido (CINS): "], [/^ET COMPROMISED\b\s*/i, "IP comprometido conhecido: "],
+  [/^ET MALWARE\b\s*/i, "Malware: "], [/^ET TROJAN\b\s*/i, "Trojan: "], [/^ET POLICY\b\s*/i, "Política de rede: "],
+  [/^ET INFO\b\s*/i, "Informação: "], [/^ET WEB_SERVER\b\s*/i, "Servidor web: "],
+  [/^GPL ATTACK_RESPONSE\b\s*/i, "Resposta de ataque: "], [/^SURICATA STREAM\b\s*/i, "Suricata · fluxo TCP: "],
+  [/^SURICATA TCP\b\s*/i, "Suricata · TCP: "], [/^SURICATA UDP\b\s*/i, "Suricata · UDP: "], [/^SURICATA\s+/i, "Suricata: "]
+];
+const TERMOS_ALERTA = [
+  [/Packet with invalid timestamp/i, "pacote com carimbo de tempo inválido"], [/Packet with invalid ack/i, "pacote com ACK inválido"],
+  [/Packet out of window/i, "pacote fora da janela"], [/excessive retransmissions/i, "retransmissões em excesso"],
+  [/reassembly depth reached/i, "limite de remontagem atingido"], [/invalid checksum/i, "checksum inválido"],
+  [/Possible (?:inbound )?port scan/i, "possível varredura de portas"], [/Potentially Bad Traffic/i, "tráfego potencialmente perigoso"],
+  [/Attempted Information Leak/i, "tentativa de vazamento de informações"], [/Attempted Denial of Service/i, "tentativa de negação de serviço"],
+  [/Attempted Administrator Privilege Gain/i, "tentativa de obter privilégio de administrador"]
+];
+function traduzirAlerta(msg){
+  const m = String(msg || "").replace(/^\S+\s+[\w.\-\/]+(\[\d+\])?:\s*/, "").trim();
+  for(const [re, fn] of REGRAS_ALERTA){ const r = m.match(re); if(r) return fn(...r); }
+  let t = m, mudou = false;
+  for(const [re, pt] of PREFIXOS_ALERTA){ if(re.test(t)){ t = t.replace(re, pt); mudou = true; break; } }
+  for(const [re, pt] of TERMOS_ALERTA){ if(re.test(t)){ t = t.replace(re, pt); mudou = true; } }
+  return mudou ? t : m;
+}
+
 function desenhar(d){
   GERADO = d.gerado;
   const idade = (Date.now() - new Date(d.gerado))/1000;
@@ -384,14 +420,37 @@ function desenhar(d){
   desenharUso(d.uso);
 
   const vistos = new Set(JSON.parse(ls.get("monitor_vistos") || "[]")), primeira = !ls.get("monitor_vistos");
-  const al = d.alertas || [];
-  $("alertas").innerHTML = al.length ? al.map(a => {
-    const novo = !vistos.has(a.id);
-    if(novo && !primeira) avisar(a.tipo === "ataque" ? "🚨 Ataque detectado" : "⚠️ Tentativa de login", a.mensagem);
-    return `<div class="al n${a.nivel} ${novo && !primeira ? "novo" : ""}"><div>${a.tipo === "ataque" ? "🚨" : "⚠️"}</div>
-      <div><b>${esc(a.mensagem)}</b>${novo && !primeira ? '<span class="tag">NOVO</span>' : ""}
+  const nvl = a => Number(a.nivel) || 3;
+  const al = (d.alertas || []).slice().sort((a, b) => nvl(a) - nvl(b) || String(b.quando).localeCompare(String(a.quando)));
+  al.forEach(a => {
+    a._novo = !vistos.has(a.id) && !primeira;
+    a._pt = traduzirAlerta(a.mensagem);
+    if(a._novo) avisar(a.tipo === "ataque" ? "🚨 Ataque detectado" : "⚠️ Tentativa de login", a._pt);
+  });
+  const itemAlerta = a => `<div class="al n${a.nivel} ${a._novo ? "novo" : ""}"><div>${a.tipo === "ataque" ? "🚨" : "⚠️"}</div>
+      <div><b title="${esc(a.mensagem)}">${esc(a._pt)}</b>${a._novo ? '<span class="tag">NOVO</span>' : ""}
       <div class="mut">${esc(a.quando)} · ${esc(a.origem)} → ${esc(a.destino)} · nível ${esc(a.nivel)}</div></div></div>`;
+  const FAIXAS = [
+    ["A:1", "🔴", "Crítico", "nível 1", "#bf616a", a => a.tipo === "ataque" && nvl(a) <= 1],
+    ["A:2", "🟠", "Alto", "nível 2", "#d08770", a => a.tipo === "ataque" && nvl(a) === 2],
+    ["A:3", "🟡", "Médio e baixo", "nível 3 ou mais", "#ebcb8b", a => a.tipo === "ataque" && nvl(a) >= 3],
+    ["A:L", "⚠️", "Tentativas de login", "pfSense", "#b48ead", a => a.tipo !== "ataque"]
+  ];
+  const abrirAlerta = k => pastasAbertas.has(k) || (k === "A:1" && !ls.get("monitor_pastas"));
+  $("alertas").innerHTML = al.length ? FAIXAS.map(([k, ico, tit, sub, cor, filtro]) => {
+    const lista = al.filter(filtro), novos = lista.filter(a => a._novo).length;
+    return `<details class="pasta" data-pasta="${k}" style="--c:${cor}" ${abrirAlerta(k) ? "open" : ""}>
+        <summary>
+          <span class="pico">${ico}</span>
+          <span class="ptit"><b>${tit}</b><span class="mut">${sub}</span></span>
+          <span class="pmb"><b>${lista.length}</b><span class="mut">${novos ? novos + " novo" + (novos > 1 ? "s" : "") : "alertas"}</span></span>
+          <span class="pseta">▸</span>
+        </summary>
+        <div style="padding:12px">${lista.length ? lista.map(itemAlerta).join("") : '<div class="vazio">Nenhum alerta nesta pasta.</div>'}</div>
+      </details>`;
   }).join("") : '<div class="vazio">Nenhum alerta. 🎉</div>';
+  $("alertas").querySelectorAll("details.pasta").forEach(x => x.addEventListener("toggle", () => {
+    x.open ? pastasAbertas.add(x.dataset.pasta) : pastasAbertas.delete(x.dataset.pasta); salvarPastas(); }));
 
   const ev = d.eventos || [];
   ev.forEach(e => { const k = "ev:" + e.quando + e.usuario; if(!vistos.has(k) && !primeira) avisar("🔐 VPN", e.usuario + (e.tipo === "vpn-entrou" ? " conectou" : " desconectou")); vistos.add(k); });
