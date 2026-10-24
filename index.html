@@ -218,6 +218,7 @@ async function ativarAvisos(){
   try{ const p = await Notification.requestPermission(); $("btnAvisos").textContent = p === "granted" ? "🔔 Avisos ligados" : "🔕 Avisos bloqueados"; }catch(e){}
 }
 
+const nomeRede = r => { const k = String(r || "").toUpperCase(), p = PASTAS[k]; return p ? p[0] + " " + p[1] : (r || "—"); };
 const mb = b => { const m = (b || 0) / 1048576; return m >= 1024 ? (m/1024).toFixed(2) + " GB" : (m >= 10 ? m.toFixed(0) : m.toFixed(1)) + " MB"; };
 const tempo = min => { min = Math.round(min || 0); return min < 60 ? min + " min" : Math.floor(min/60) + "h " + String(min%60).padStart(2,"0"); };
 let abertos = new Set();
@@ -233,8 +234,8 @@ function fichaHTML(h){
       <span class="pill ${on ? "on" : ""}">${on ? '<span class="pulso"></span>Online agora' : "⚪ Visto por último às " + hora(h.ultimo)}</span></div>
       <span><span class="fixada">📌 fixada</span> <button class="fechar" onclick="fecharFicha()" title="Fechar (Esc)">✕</button></span></div>
     <h4>🪪 Identificação</h4><dl>
-      ${linha("IP", h.ip)}${linha("MAC", h.mac || "—")}${linha("Fabricante", h.fabricante || "—")}
-      ${linha("Nome na rede", h.nome_rede || "—")}${linha("Sistema", h.sistema)}${linha("Rede", h.rede)}
+      ${linha("Rede", nomeRede(h.rede))}${linha("IP", h.ip)}${linha("Equipamento", h.nome_rede || "—")}
+      ${linha("MAC", h.mac || "—")}${linha("Fabricante", h.fabricante || "—")}${linha("Sistema", h.sistema)}
     </dl>
     ${v ? `<h4>🔐 VPN</h4><dl>${linha("Usuário", v.usuario)}${linha("Conectou de", v.origem)}${linha("Desde", v.desde)}
       ${linha("Recebido", mb(v.recebido))}${linha("Enviado", mb(v.enviado))}</dl>` : ""}
@@ -322,7 +323,7 @@ function cartaoUso(h, maior){
   return `<details class="uso" style="--c:${cor}" data-ip="${esc(h.ip)}" ${abertos.has(h.ip) ? "open" : ""}>
     <summary>
       <div class="cab"><span class="nome">${esc(h.nome || h.ip)}</span><span class="info" title="Ficha do usuário">i</span></div>
-      <div class="mut">${esc(h.rede || "")} · ${esc(h.ip)}</div>
+      <div class="mut">${esc(nomeRede(h.rede))} · ${esc(h.ip)}</div>
       <div><span class="mb">${mb(h.bytes)}</span> <span class="mut">hoje</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></div>
       <div class="rod"><span>⏱️ ${tempo(h.minutos)}</span><span class="top">🏆 ${top ? esc(top.dominio) : "—"}</span></div>
       <div class="ver mut">▾ ver sites</div>
