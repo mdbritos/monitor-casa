@@ -53,7 +53,16 @@
   .grade-uso .uso .rod .top{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
   .grade-uso .uso .ver{font-size:.78em;text-align:center;margin-top:2px}
   .grade-uso .uso[open] .ver{visibility:hidden;height:0;margin:0}
-  #vpn{overflow-x:auto;border-radius:14px} body{overflow-x:hidden}
+  body{overflow-x:hidden}
+  .vpn-res{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 2px 10px}
+  .vcard .agora{display:flex;flex-direction:column;gap:3px;margin-top:2px;padding-top:7px;border-top:1px dashed #4c566a;font-size:.84em}
+  .vcard .agora .l{display:flex;justify-content:space-between;gap:8px} .vcard .agora .l span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vcard .agora .vel{font-weight:800;color:var(--acc);white-space:nowrap}
+  .vcard .fluxo{display:flex;gap:14px;font-size:.84em}
+  .vcard .pon{color:var(--ok);font-weight:700}
+  .ap-tab{overflow-x:auto} .ap-tab table{border-radius:0;background:transparent}
+  .pasta .pmb.ap b{font-size:1.05em}
+  @media (max-width:640px){.hm{display:none}}
   .pastas-acoes{display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 10px}
   .lado{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;font-size:.78em;font-weight:700;border:1px solid}
   .lado.interno{color:#a3be8c;border-color:#a3be8c}
@@ -149,7 +158,7 @@ const INTERVALO_S = 60;          // lê o arquivo direto do gist (sem o limite d
 /* ============================ */
 
 const CORES = {GERENCIA:"#f59e0b",CABEADA:"#22c55e",WIFI:"#06b6d4",GAMES:"#a855f7",IOT:"#eab308",
-  SERVIDORES:"#3b82f6",CONVIDADOS:"#ec4899",EMPRESA:"#ef4444",WAN:"#94a3b8"};
+  SERVIDORES:"#3b82f6",CONVIDADOS:"#ec4899",EMPRESA:"#ef4444",WAN:"#94a3b8",VPN:"#b48ead"};
 let SENHA = null, timer = null;
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -260,11 +269,12 @@ let fichaFixa = false;
 function fecharFicha(){ const f = $("ficha"); f.style.display = "none"; f.classList.remove("fixa"); $("veu").style.display = "none"; fichaIp = null; fichaFixa = false; }
 
 (function ligarFicha(){
-  const uso = document.getElementById("uso"), mouse = matchMedia("(hover:hover) and (pointer:fine)").matches;
+  const zonas = [document.getElementById("uso"), document.getElementById("vpn")], mouse = matchMedia("(hover:hover) and (pointer:fine)").matches;
   let tempoHover = null, tempoToque = null, tempoFixar = null, segurou = false, x0 = 0, y0 = 0;
   const alvo = e => e.target.closest && e.target.closest("details.uso > summary");
   if(mouse){
     document.body.classList.add("tem-mouse");
+    zonas.forEach(uso => {
     uso.addEventListener("mouseover", e => { if(fichaFixa) return; const s = alvo(e); if(!s) return;
       clearTimeout(tempoHover); const ip = s.parentElement.dataset.ip;
       tempoHover = setTimeout(() => { if(!fichaFixa) mostrarFicha(ip, e.clientX, e.clientY, false); }, 250); });
@@ -279,11 +289,13 @@ function fecharFicha(){ const f = $("ficha"); f.style.display = "none"; f.classL
         if(fichaIp !== ip) mostrarFicha(ip, x, y, false);
         fichaFixa = true; $("ficha").classList.add("fixa");
       }, 400); });
+    });
     document.addEventListener("mouseup", () => clearTimeout(tempoFixar));
     // com a ficha fixa: clicar fora (ou Esc, ou ✕) fecha
     document.addEventListener("mousedown", e => {
       if(fichaFixa && !e.target.closest("#ficha") && !(alvo(e) && alvo(e).parentElement.dataset.ip === fichaIp)) fecharFicha(); });
   }
+  zonas.forEach(uso => {
   uso.addEventListener("touchstart", e => { const s = alvo(e); if(!s) return;
     segurou = false; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
     tempoToque = setTimeout(() => { segurou = true; if(navigator.vibrate) navigator.vibrate(30);
@@ -292,6 +304,7 @@ function fecharFicha(){ const f = $("ficha"); f.style.display = "none"; f.classL
   uso.addEventListener("touchend", e => { clearTimeout(tempoToque); if(segurou){ e.preventDefault(); } });
   uso.addEventListener("click", e => { if(segurou && alvo(e)){ e.preventDefault(); segurou = false; } }, true);
   uso.addEventListener("contextmenu", e => { if(alvo(e)) e.preventDefault(); });
+  });
   $("veu").addEventListener("click", fecharFicha);
   document.addEventListener("keydown", e => { if(e.key === "Escape") fecharFicha(); });
 })();
@@ -314,10 +327,50 @@ function cartaoUso(h, maior){
       <div class="rod"><span>⏱️ ${tempo(h.minutos)}</span><span class="top">🏆 ${top ? esc(top.dominio) : "—"}</span></div>
       <div class="ver mut">▾ ver sites</div>
     </summary>
-    <div class="det">${(h.sites || []).length ? `<table><tr><th>Site</th><th>Gasto</th><th>Tempo</th></tr>${
-      h.sites.map(s => `<tr><td>${esc(s.dominio)}<div class="barra"><i style="width:${Math.max(2, 100*(s.bytes||0)/maiorSite)}%"></i></div></td><td>${mb(s.bytes)}</td><td>${tempo(s.minutos)}</td></tr>`).join("")}</table>`
-      : '<div class="mut">Nenhum site registrado.</div>'}</div>
+    <div class="det">${tabelaSites(h)}</div>
   </details>`;
+}
+function tabelaSites(h){
+  const sites = (h && h.sites) || [], maiorSite = Math.max(...sites.map(s => s.bytes || 0), 1);
+  return sites.length ? `<table><tr><th>Site</th><th>Gasto</th><th>Tempo</th></tr>${
+    sites.map(s => `<tr><td>${esc(s.dominio)}<div class="barra"><i style="width:${Math.max(2, 100*(s.bytes||0)/maiorSite)}%"></i></div></td><td>${mb(s.bytes)}</td><td>${tempo(s.minutos)}</td></tr>`).join("")}</table>`
+    : '<div class="mut">Nenhum site registrado hoje.</div>';
+}
+
+// ---- Conectados na VPN: um card por pessoa, com o consumo de hoje e o que está acessando ----
+function desenharVpn(vpn, u){
+  const el = $("vpn"), hosts = (u && u.hosts) || [], porIp = {}; hosts.forEach(h => porIp[h.ip] = h);
+  if(!vpn.length){ el.innerHTML = '<div class="vazio">Ninguém conectado agora.</div>'; return; }
+  const maior = Math.max(...hosts.map(h => h.bytes || 0), 1), cor = CORES.VPN || "#88c0d0";
+  const lista = vpn.map(p => {
+    const ip = String(p.ip_vpn || "").split(":")[0];
+    let h = porIp[ip];
+    if(!h){ h = HOSTS[ip] = {ip, nome: "VPN · " + p.usuario, rede: "VPN", bytes: 0, minutos: 0, sites: [], agora: [], vpn: p}; }  // sem tráfego medido ainda
+    return {p, h, ip};
+  }).sort((a, b) => (b.h.bytes || 0) - (a.h.bytes || 0));
+  const total = lista.reduce((t, x) => t + (x.h.bytes || 0), 0);
+  const card = ({p, h, ip}) => {
+    const ag = [...(h.agora || [])].sort((a, b) => (b.bps || 0) - (a.bps || 0)).slice(0, 3), top = (h.sites || [])[0];
+    const ativo = h.ultimo && GERADO && (new Date(GERADO) - new Date(h.ultimo)) < 180000;
+    return `<details class="uso vcard" style="--c:${cor}" data-ip="${esc(ip)}" ${abertos.has(ip) ? "open" : ""}>
+      <summary>
+        <div class="cab"><span class="nome">🔐 ${esc(p.usuario)}</span><span class="info" title="Ficha do usuário">i</span></div>
+        <div class="mut">de ${esc(p.origem || "?")} · VPN ${esc(ip)}</div>
+        <div class="mut">conectou: ${esc(p.desde || "—")}</div>
+        <div><span class="mb">${mb(h.bytes)}</span> <span class="mut">hoje</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></div>
+        <div class="fluxo"><span title="Baixado pelo usuário nesta conexão">⬇ ${mb(p.enviado)}</span><span title="Enviado pelo usuário nesta conexão">⬆ ${mb(p.recebido)}</span><span>⏱️ ${tempo(h.minutos)}</span></div>
+        <div class="agora">${ag.length ? `<div class="mut"><span class="pon">● acessando agora</span></div>` + ag.map(a =>
+            `<div class="l"><span>${esc(a.dominio)}${a.app ? `<span class="chip">${esc(a.app)}</span>` : ""}</span><span class="vel">${vel(a.bps)}</span></div>`).join("")
+          : `<div class="mut">${ativo ? "Sem tráfego no último minuto" : "Sem atividade agora"}${top ? " · 🏆 " + esc(top.dominio) : ""}</div>`}</div>
+        <div class="ver mut">▾ ver sites de hoje</div>
+      </summary>
+      <div class="det">${tabelaSites(h)}</div>
+    </details>`;
+  };
+  el.innerHTML = `<div class="vpn-res mut"><span>${lista.length} ${lista.length === 1 ? "conectado" : "conectados"}</span><span>${mb(total)} hoje no total</span></div>
+    <div class="grade-uso">${lista.map(card).join("")}</div>
+    <p class="aviso">Passe o mouse (no PC) ou segure o dedo (no celular) sobre um card para ver a ficha. Clique para ver os sites de hoje. ⬇/⬆ = desta conexão VPN; "hoje" = tudo que a pessoa usou desde ${esc((u && u.desde) || "00:00")}.</p>`;
+  el.querySelectorAll("details.uso").forEach(d => d.addEventListener("toggle", () => { d.open ? abertos.add(d.dataset.ip) : abertos.delete(d.dataset.ip); }));
 }
 
 function desenharUso(u){
@@ -326,9 +379,11 @@ function desenharUso(u){
   if(fichaIp && HOSTS[fichaIp] && !fichaFixa) $("ficha").innerHTML = fichaHTML(HOSTS[fichaIp]); // fixa: não mexe (não perde a seleção)
   el.querySelectorAll("details.uso[open]").forEach(x => abertos.add(x.dataset.ip));
   el.querySelectorAll("details.uso:not([open])").forEach(x => abertos.delete(x.dataset.ip));
-  const hosts = (u && u.hosts) || [];
-  if(!hosts.length){ el.innerHTML = '<div class="vazio">Sem dados de uso ainda (precisa do ntopng no pfSense).</div>'; return; }
-  const maior = Math.max(...hosts.map(h => h.bytes || 0), 1);
+  const todos = (u && u.hosts) || [];
+  if(!todos.length){ el.innerHTML = '<div class="vazio">Sem dados de uso ainda (precisa do ntopng no pfSense).</div>'; return; }
+  const maior = Math.max(...todos.map(h => h.bytes || 0), 1);
+  const hosts = todos.filter(h => !h.vpn);   // quem está na VPN agora aparece nos cards de "Conectados na VPN"
+  if(!hosts.length){ el.innerHTML = '<div class="vazio">Só há tráfego de quem está na VPN agora (veja os cards acima).</div>'; return; }
 
   // monta as pastas: a do apelidos.txt (Nome|Pasta) ou a rede (VLAN)
   const grupos = {};
@@ -341,7 +396,8 @@ function desenharUso(u){
   el.innerHTML = `<div class="pastas-acoes"><button class="mini" onclick="todasPastas(true)">📂 Abrir todas</button><button class="mini" onclick="todasPastas(false)">📁 Fechar todas</button></div>` +
     chaves.map(k => {
       const lista = grupos[k], custom = k.startsWith("G:"), nome = k.slice(2);
-      const [ico, titulo] = custom ? ["📁", nome] : (PASTAS[nome] || ["📁", nome]);
+      let [ico, titulo] = custom ? ["📁", nome] : (PASTAS[nome] || ["📁", nome]);
+      if(!custom && nome === "VPN") titulo = "VPN · já saíram hoje";
       const cor = custom ? "#88c0d0" : (CORES[nome] || "#88c0d0");
       const total = lista.reduce((t, h) => t + (h.bytes || 0), 0), on = lista.filter(online).length;
       const maiorUso = lista[0];
@@ -360,8 +416,8 @@ function desenharUso(u){
   el.querySelectorAll("details.pasta").forEach(d => d.addEventListener("toggle", () => {
     d.open ? pastasAbertas.add(d.dataset.pasta) : pastasAbertas.delete(d.dataset.pasta); salvarPastas(); }));
 }
-function todasPastas(abrir){
-  document.querySelectorAll("#uso details.pasta").forEach(d => { d.open = abrir; abrir ? pastasAbertas.add(d.dataset.pasta) : pastasAbertas.delete(d.dataset.pasta); });
+function todasPastas(abrir, alvo){
+  document.querySelectorAll((alvo || "#uso") + " details.pasta").forEach(d => { d.open = abrir; abrir ? pastasAbertas.add(d.dataset.pasta) : pastasAbertas.delete(d.dataset.pasta); });
   salvarPastas();
 }
 
@@ -468,12 +524,30 @@ function desenharAparelhos(lista){
   const el = $("aparelhos");
   if(!lista.length){ el.innerHTML = '<div class="vazio">Nenhum aparelho visto ainda.</div>'; return; }
   const on = lista.filter(x => x.online).length;
-  el.innerHTML = `<div class="mut" style="margin-bottom:8px">${on} online · ${lista.length - on} offline · vem da tabela ARP e das reservas DHCP do pfSense (online = falou nos últimos 30 min)</div>
-    <table><tr><th></th><th>Aparelho</th><th>IP</th><th>Rede</th><th>MAC</th><th>Fabricante</th><th>Visto</th></tr>${
-    lista.map(x => `<tr><td><span class="dot ${x.online ? "up" : "down"}"></span></td>
+  const grupos = {};
+  lista.forEach(x => { const k = String(x.rede || "OUTROS").toUpperCase(); (grupos[k] = grupos[k] || []).push(x); });
+  const chaves = Object.keys(grupos).sort((a, b) => (ORDEM.indexOf(a) + 1 || 99) - (ORDEM.indexOf(b) + 1 || 99) || a.localeCompare(b));
+  const linha = x => `<tr><td><span class="dot ${x.online ? "up" : "down"}"></span></td>
       <td><b>${esc(x.nome || "Sem nome")}</b>${x.privado ? ' <span class="mut" title="MAC aleatório (celular/notebook com endereço privado)">🔒</span>' : ""}</td>
-      <td>${esc(x.ip)}</td><td>${esc(x.rede)}</td><td class="mut">${esc(x.mac)}</td><td class="mut">${esc(x.fabricante || "")}</td>
-      <td class="mut">${x.online ? "agora" : (x.ultimo ? esc(tempoDesde(x.ultimo)) : "nunca")}</td></tr>`).join("")}</table>`;
+      <td>${esc(x.ip)}</td><td class="mut hm">${esc(x.mac)}</td><td class="mut hm">${esc(x.fabricante || "")}</td>
+      <td class="mut">${x.online ? "agora" : (x.ultimo ? esc(tempoDesde(x.ultimo)) : "nunca")}</td></tr>`;
+  el.innerHTML = `<div class="pastas-acoes"><button class="mini" onclick="todasPastas(true,'#aparelhos')">📂 Abrir todas</button><button class="mini" onclick="todasPastas(false,'#aparelhos')">📁 Fechar todas</button></div>
+    <div class="mut" style="margin:0 2px 10px">${on} online · ${lista.length - on} offline · vem da tabela ARP e das reservas DHCP do pfSense (online = falou nos últimos 30 min)</div>` +
+    chaves.map(k => {
+      const itens = grupos[k].slice().sort((a, b) => (b.online - a.online) || String(a.nome || "~").localeCompare(String(b.nome || "~")) || String(a.ip).localeCompare(String(b.ip), undefined, {numeric:true}));
+      const [ico, titulo] = PASTAS[k] || ["📁", k], n = itens.filter(x => x.online).length, id = "D:" + k;
+      return `<details class="pasta" data-pasta="${esc(id)}" style="--c:${CORES[k] || "#88c0d0"}" ${pastasAbertas.has(id) ? "open" : ""}>
+        <summary>
+          <span class="pico">${ico}</span>
+          <span class="ptit"><b>${esc(titulo)}</b><span class="mut">${itens.length} ${itens.length === 1 ? "aparelho" : "aparelhos"}</span></span>
+          <span class="pmb ap"><b>${n ? `<span class="pon">● ${n} online</span>` : '<span class="mut">ninguém online</span>'}</b><span class="mut">${itens.length - n} offline</span></span>
+          <span class="pseta">▸</span>
+        </summary>
+        <div class="ap-tab"><table><tr><th></th><th>Aparelho</th><th>IP</th><th class="hm">MAC</th><th class="hm">Fabricante</th><th>Visto</th></tr>${itens.map(linha).join("")}</table></div>
+      </details>`;
+    }).join("");
+  el.querySelectorAll("details.pasta").forEach(d => d.addEventListener("toggle", () => {
+    d.open ? pastasAbertas.add(d.dataset.pasta) : pastasAbertas.delete(d.dataset.pasta); salvarPastas(); }));
 }
 
 function desenhar(d){
@@ -501,13 +575,9 @@ function desenhar(d){
             <div class="mut">${esc(n.ip || "")}</div></div>`;
   }).join("") || '<div class="vazio">Sem dados das redes.</div>';
 
-  const vpn = d.vpn || [];
-  $("vpn").innerHTML = vpn.length ? `<table><tr><th>Usuário</th><th>De onde</th><th>IP na VPN</th><th>Desde</th></tr>${
-    vpn.map(u => `<tr><td>${esc(u.usuario)}</td><td>${esc(u.origem)}</td><td>${esc(u.ip_vpn)}</td><td>${esc(u.desde)}</td></tr>`).join("")}</table>`
-    : '<div class="vazio">Ninguém conectado agora.</div>';
-
   desenharAparelhos(d.dispositivos);
   desenharUso(d.uso);
+  desenharVpn(d.vpn || [], d.uso);
 
   const vistos = new Set(JSON.parse(ls.get("monitor_vistos") || "[]")), primeira = !ls.get("monitor_vistos");
   const nvl = a => Number(a.nivel) || 3;
