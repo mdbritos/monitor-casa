@@ -132,6 +132,7 @@
     <h2>🌐 Internet e pfSense</h2><div class="grid" id="resumo"></div>
     <h2>🗺️ Redes da casa</h2><div class="grid" id="redes"></div>
     <h2>🔐 Conectados na VPN</h2><div id="vpn"></div>
+    <h2>📡 Aparelhos na rede</h2><div id="aparelhos"></div>
     <h2>👥 Uso por usuário · hoje</h2><div id="uso"></div>
     <h2>🚨 Alertas</h2><div id="alertas"></div>
     <h2>🕒 Entradas e saídas da VPN</h2><div id="eventos"></div>
@@ -462,6 +463,19 @@ function limparAlertas(){
 }
 function restaurarAlertas(){ ls.set("monitor_limpos", "[]"); if(ULTIMO) desenhar(ULTIMO); }
 
+function desenharAparelhos(lista){
+  lista = lista || [];
+  const el = $("aparelhos");
+  if(!lista.length){ el.innerHTML = '<div class="vazio">Nenhum aparelho visto ainda.</div>'; return; }
+  const on = lista.filter(x => x.online).length;
+  el.innerHTML = `<div class="mut" style="margin-bottom:8px">${on} online · ${lista.length - on} offline · vem da tabela ARP e das reservas DHCP do pfSense (online = falou nos últimos 30 min)</div>
+    <table><tr><th></th><th>Aparelho</th><th>IP</th><th>Rede</th><th>MAC</th><th>Fabricante</th><th>Visto</th></tr>${
+    lista.map(x => `<tr><td><span class="dot ${x.online ? "up" : "down"}"></span></td>
+      <td><b>${esc(x.nome || "Sem nome")}</b>${x.privado ? ' <span class="mut" title="MAC aleatório (celular/notebook com endereço privado)">🔒</span>' : ""}</td>
+      <td>${esc(x.ip)}</td><td>${esc(x.rede)}</td><td class="mut">${esc(x.mac)}</td><td class="mut">${esc(x.fabricante || "")}</td>
+      <td class="mut">${x.online ? "agora" : (x.ultimo ? esc(tempoDesde(x.ultimo)) : "nunca")}</td></tr>`).join("")}</table>`;
+}
+
 function desenhar(d){
   ULTIMO = d;
   GERADO = d.gerado;
@@ -472,10 +486,11 @@ function desenhar(d){
   f.textContent = "⚠️ O coletor não envia dados há " + tempoDesde(d.gerado) + ". Confira o container monitor.";
 
   const r = d.rede || {}, wan = (r.gateways || [])[0] || {};
-  const online = /online|none/i.test(wan.status || "");
+  const online = r.internet_ok != null ? r.internet_ok : /online|none/i.test(wan.status || "");
+  const semMonitor = online && parseFloat(wan.perda) >= 100;   // o ping do gateway falhou, mas a internet responde
   $("resumo").innerHTML = [
-    ["🌍 Internet", online ? "Online" : (wan.status || "?"), online ? "up" : "down"],
-    ["⏱️ Latência", wan.atraso || "—"], ["📉 Perda", wan.perda || "—"],
+    ["🌍 Internet", online ? "Online" : "Fora do ar", online ? "up" : "down"],
+    ["⏱️ Latência", semMonitor ? "—" : (wan.atraso || "—")], ["📉 Perda", semMonitor ? "—" : (wan.perda || "—")],
     ["🧠 CPU", r.cpu != null ? r.cpu + "%" : "—"], ["💾 Memória", r.memoria != null ? r.memoria + "%" : "—"],
     ["🔐 Na VPN", (d.vpn || []).length]
   ].map(([t,v,s]) => `<div class="card"><div class="t">${s?`<span class="dot ${s}"></span>`:""}${esc(t)}</div><div class="v">${esc(v)}</div></div>`).join("");
@@ -491,6 +506,7 @@ function desenhar(d){
     vpn.map(u => `<tr><td>${esc(u.usuario)}</td><td>${esc(u.origem)}</td><td>${esc(u.ip_vpn)}</td><td>${esc(u.desde)}</td></tr>`).join("")}</table>`
     : '<div class="vazio">Ninguém conectado agora.</div>';
 
+  desenharAparelhos(d.dispositivos);
   desenharUso(d.uso);
 
   const vistos = new Set(JSON.parse(ls.get("monitor_vistos") || "[]")), primeira = !ls.get("monitor_vistos");
