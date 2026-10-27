@@ -115,6 +115,11 @@
   #ficha.fixa .fixada{display:inline}
   #ficha .pulso{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;animation:pulso 1.4s infinite}
   @keyframes pulso{0%{box-shadow:0 0 0 0 rgba(163,190,140,.7)}70%{box-shadow:0 0 0 8px rgba(163,190,140,0)}100%{box-shadow:0 0 0 0 rgba(163,190,140,0)}}
+  .sites-barra{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 10px}
+  .sites-dias{display:flex;flex-wrap:wrap;gap:6px}
+  #sitesBusca{flex:1 1 220px;max-width:340px;padding:8px 12px}
+  #sitesSec .ap-tab table td:nth-child(n+2){white-space:nowrap}
+  #sitesSec .aviso{padding:8px 12px 10px}
 </style>
 </head>
 <body>
@@ -143,6 +148,23 @@
     <h2>🔐 Conectados na VPN</h2><div id="vpn"></div>
     <h2>📡 Aparelhos na rede</h2><div id="aparelhos"></div>
     <h2>👥 Uso por usuário · hoje</h2><div id="uso"></div>
+    <h2>🌐 Sites por aparelho</h2>
+    <details class="pasta" id="sitesSec" style="--c:#b48ead">
+      <summary>
+        <span class="pico">🌐</span>
+        <span class="ptit"><b>Sites acessados por aparelho</b><span class="mut">histórico de DNS · dado sensível · só abre quando você clicar</span></span>
+        <span class="pmb"><b id="sitesRes">—</b><span class="mut" id="sitesRes2"></span></span>
+        <span class="pseta">▸</span>
+      </summary>
+      <div style="padding:12px">
+        <div class="sites-barra">
+          <div class="sites-dias" id="sitesDias"></div>
+          <input id="sitesBusca" type="search" placeholder="🔎 Quem acessou? (ex.: xvideos)" autocomplete="off">
+        </div>
+        <div class="mut" id="sitesInfo" style="margin:0 2px 10px"></div>
+        <div id="sitesLista"></div>
+      </div>
+    </details>
     <h2>🚨 Alertas</h2><div id="alertas"></div>
     <h2>🕒 Entradas e saídas da VPN</h2><div id="eventos"></div>
   </main>
@@ -550,6 +572,103 @@ function desenharAparelhos(lista){
   el.querySelectorAll("details.pasta").forEach(d => d.addEventListener("toggle", () => {
     d.open ? pastasAbertas.add(d.dataset.pasta) : pastasAbertas.delete(d.dataset.pasta); salvarPastas(); }));
 }
+
+// ---- Sites por aparelho: histórico de DNS (vem do CT 110), num arquivo cifrado à parte (sites.json) ----
+let SITES = null, SITES_ERRO = "", SITES_DIA = null, SITES_BUSCA = "", sitesTimer = null;
+const sitesAbertos = new Set();
+async function buscarArquivo(nome){
+  let conteudo = null;
+  try{
+    const r = await fetch(`https://gist.githubusercontent.com/${GIST_DONO}/${GIST_ID}/raw/${nome}?t=${Date.now()}`, {cache:"no-store"});
+    if(r.ok) conteudo = await r.text();
+  }catch(e){ console.warn("raw falhou", e); }
+  if(conteudo === null){
+    const r = await fetch("https://api.github.com/gists/" + GIST_ID, {cache:"no-store"});
+    if(r.status === 403 || r.status === 429) throw new Error("o GitHub limitou as leituras por agora");
+    if(!r.ok) throw new Error("GitHub respondeu " + r.status);
+    const f = (await r.json()).files[nome];
+    if(!f) return null;
+    conteudo = f.truncated ? await (await fetch(f.raw_url, {cache:"no-store"})).text() : f.content;
+  }
+  return decifrar(JSON.parse(conteudo), SENHA);
+}
+async function carregarSites(){
+  if(!SITES) $("sitesInfo").textContent = "Carregando…";
+  try{ SITES = await buscarArquivo("sites.json"); SITES_ERRO = ""; }
+  catch(e){ SITES_ERRO = e.name === "OperationError" ? "senha não confere com a do histórico" : e.message; }
+  desenharSites();
+}
+function rotuloDia(dia){
+  const sp = ms => new Date(ms).toLocaleDateString("sv-SE", {timeZone:"America/Sao_Paulo"});
+  if(dia === sp(Date.now())) return "Hoje";
+  if(dia === sp(Date.now() - 864e5)) return "Ontem";
+  const [a, m, d] = dia.split("-");
+  return d + "/" + m + " " + ["dom","seg","ter","qua","qui","sex","sáb"][new Date(+a, +m - 1, +d).getDay()];
+}
+function linhaSite(s, maior){   // s = [site, minutos, consultas, primeira, última]
+  return `<tr><td>${esc(s[0])}<div class="barra"><i style="width:${Math.max(2, 100*s[1]/maior)}%"></i></div></td>
+    <td>${tempo(s[1])}</td><td>${esc(s[2])}</td><td class="mut hm">${esc(s[3])}–${esc(s[4])}</td></tr>`;
+}
+function desenharSites(){
+  const info = $("sitesInfo"), lista = $("sitesLista"), dias = $("sitesDias");
+  const nomes = SITES && SITES.dias ? Object.keys(SITES.dias).sort().reverse() : [];
+  if(!nomes.length){
+    dias.innerHTML = ""; $("sitesRes").textContent = "sem dados"; $("sitesRes2").textContent = "";
+    info.textContent = SITES_ERRO ? "Não deu para ler o histórico: " + SITES_ERRO + "." : "";
+    lista.innerHTML = '<div class="vazio">Sem dados de sites ainda. O histórico vem do CT 110 (registro de DNS do pfSense) e chega a cada ~5 minutos; se este aviso continuar, confira o serviço dns-sites-export no CT 110.</div>';
+    return;
+  }
+  if(!SITES_DIA || !SITES.dias[SITES_DIA]) SITES_DIA = nomes[0];
+  const idade = (Date.now() - new Date(SITES.gerado)) / 1000, t = SITES_BUSCA.trim().toLowerCase();
+  dias.innerHTML = nomes.map(x => `<button class="mini ${x === SITES_DIA && !t ? "ativo" : ""}" data-dia="${esc(x)}">${esc(rotuloDia(x))}</button>`).join("");
+  info.innerHTML = (idade > 1200 ? "⚠️ sem dados novos há " + esc(tempoDesde(SITES.gerado)) + " (o CT 110 pode estar fora do ar) · " : "atualizado há " + esc(tempoDesde(SITES.gerado)) + " · ")
+    + "tempo = minutos com consulta de DNS (aproximado) · não pega quem usa DNS privado/VPN" + (SITES_ERRO ? " · ⚠️ " + esc(SITES_ERRO) : "");
+  const doDia = SITES.dias[SITES_DIA] || {};
+  const nAp = Object.keys(doDia).length;
+  $("sitesRes").textContent = nAp + (nAp === 1 ? " aparelho" : " aparelhos");
+  $("sitesRes2").textContent = rotuloDia(SITES_DIA).toLowerCase();
+  if(t){   // busca: em todos os dias guardados
+    const achados = [];
+    nomes.forEach(dia => Object.entries(SITES.dias[dia]).forEach(([ip, h]) => h.s.forEach(s => {
+      if(String(s[0]).toLowerCase().includes(t)) achados.push({dia, ip, h, s}); })));
+    achados.sort((a, b) => b.dia.localeCompare(a.dia) || b.s[1] - a.s[1] || b.s[2] - a.s[2]);
+    const ap = new Set(achados.map(x => x.ip)).size;
+    lista.innerHTML = achados.length
+      ? `<div class="mut" style="margin:0 2px 8px">${achados.length} ${achados.length === 1 ? "registro" : "registros"} de "${esc(SITES_BUSCA.trim())}" em ${ap} ${ap === 1 ? "aparelho" : "aparelhos"} (todos os dias guardados)</div>
+         <div class="ap-tab"><table><tr><th>Dia</th><th>Aparelho</th><th>Site</th><th>Tempo</th><th>Consultas</th><th class="hm">Horário</th></tr>${
+         achados.slice(0, 300).map(x => `<tr><td>${esc(rotuloDia(x.dia))}</td><td><b>${esc(x.h.n || x.ip)}</b><div class="mut">${esc(x.ip)}</div></td>
+           <td>${esc(x.s[0])}</td><td>${tempo(x.s[1])}</td><td>${esc(x.s[2])}</td><td class="mut hm">${esc(x.s[3])}–${esc(x.s[4])}</td></tr>`).join("")}</table></div>`
+      : `<div class="vazio">Ninguém acessou nada parecido com "${esc(SITES_BUSCA.trim())}" nos dias guardados (só os ~25 sites mais usados de cada aparelho por dia entram aqui).</div>`;
+    return;
+  }
+  const hosts = Object.entries(doDia).map(([ip, h]) => Object.assign({ip}, h)).sort((a, b) => b.m - a.m || b.q - a.q);
+  lista.innerHTML = hosts.map(h => {
+    const cor = CORES[String(h.r || "").toUpperCase()] || "#88c0d0", maior = Math.max(...h.s.map(s => s[1]), 1);
+    return `<details class="pasta" data-ip="${esc(h.ip)}" style="--c:${cor}" ${sitesAbertos.has(h.ip) ? "open" : ""}>
+      <summary>
+        <span class="pico">📱</span>
+        <span class="ptit"><b>${esc(h.n || h.ip)}</b><span class="mut">${esc(h.r ? nomeRede(h.r) + " · " : "")}${esc(h.ip)}</span></span>
+        <span class="pmb"><b>${h.t} ${h.t === 1 ? "site" : "sites"}</b><span class="mut">${h.q} consultas</span></span>
+        <span class="pseta">▸</span>
+      </summary>
+      <div class="ap-tab"><table><tr><th>Site</th><th>Tempo</th><th>Consultas</th><th class="hm">Horário</th></tr>${h.s.map(s => linhaSite(s, maior)).join("")}</table>
+        ${h.t > h.s.length ? `<div class="aviso">+ ${h.t - h.s.length} sites menores não mostrados</div>` : ""}</div>
+    </details>`;
+  }).join("") || '<div class="vazio">Nenhum acesso registrado neste dia.</div>';
+  lista.querySelectorAll("details.pasta").forEach(x => x.addEventListener("toggle", () => {
+    x.open ? sitesAbertos.add(x.dataset.ip) : sitesAbertos.delete(x.dataset.ip); }));
+}
+(function ligarSites(){
+  const sec = $("sitesSec");
+  sec.addEventListener("toggle", () => {
+    clearInterval(sitesTimer); sitesTimer = null;
+    if(!sec.open) return;
+    carregarSites(); sitesTimer = setInterval(() => { if(!document.hidden) carregarSites(); }, 300000);
+  });
+  $("sitesDias").addEventListener("click", e => { const b = e.target.closest("button[data-dia]"); if(!b) return;
+    SITES_DIA = b.dataset.dia; SITES_BUSCA = ""; $("sitesBusca").value = ""; desenharSites(); });
+  $("sitesBusca").addEventListener("input", e => { SITES_BUSCA = e.target.value; desenharSites(); });
+})();
 
 function desenhar(d){
   ULTIMO = d;
