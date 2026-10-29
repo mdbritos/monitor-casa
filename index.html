@@ -8,48 +8,50 @@
 <meta name="color-scheme" content="dark light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Monitor">
 <title>Monitor da Casa</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='.55' stop-color='%23818cf8'/%3E%3Cstop offset='1' stop-color='%23f472b6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23060a14'/%3E%3Cpath d='M32 10 14 18v13c0 11 7.5 19 18 23 10.5-4 18-12 18-23V18z' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M23 33l6 6 12-13' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<script>try{var t=localStorage.getItem("monitor_tema");if(t==="claro"){document.documentElement.setAttribute("data-tema","claro");document.querySelector('meta[name=theme-color]').content="#eef2fb"}}catch(e){}</script>
+<script>try{var t=localStorage.getItem("monitor_tema");var c=t?t==="claro":!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);if(c){document.documentElement.setAttribute("data-tema","claro");document.querySelector('meta[name=theme-color]').content="#f2f2f7"}else{document.querySelector('meta[name=theme-color]').content="#000000"}}catch(e){}</script>
 <style>
 /* --- 00-tokens.css --- */
-/* ===== 00 · Tokens do tema "Aurora Glass" =====
-   Tudo que é cor, raio, sombra e espaçamento vive aqui. Os nomes antigos (--card, --acc...) ficam como apelidos
-   porque o JS usa var(--ok), var(--bad), var(--mut), var(--c) em estilos inline. Não remova. */
+/* ===== 00 · Tokens do tema "iOS limpo" =====
+   Cores do sistema da Apple (claro e escuro), cantos arredondados, sombras quase nulas.
+   Os nomes antigos (--card, --acc...) ficam como apelidos porque o JS usa var(--ok), var(--bad), var(--mut), var(--c)
+   em estilos inline. Não remova. Escuro é o padrão do CSS; o claro vem de :root[data-tema="claro"] (o padrão do site). */
 :root{
   color-scheme:dark;
-  --bg:#060a14; --bg-2:#0b1220;
-  --glass:rgba(255,255,255,.045); --glass-2:rgba(255,255,255,.075); --glass-3:rgba(255,255,255,.11);
-  --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.16);
-  --txt:#e9eef9; --txt-2:#c3cce0; --mut:#8793ae;
-  --ok:#34d399; --warn:#fbbf24; --bad:#fb7185; --info:#60a5fa;
-  --a1:#5eead4; --a2:#818cf8; --a3:#f472b6;               /* acentos do degradê */
-  --grad:linear-gradient(135deg,var(--a1),var(--a2) 55%,var(--a3));
-  --grad-suave:linear-gradient(135deg,rgba(94,234,212,.16),rgba(129,140,248,.16) 55%,rgba(244,114,182,.12));
-  --r-sm:10px; --r:16px; --r-lg:22px; --r-pill:999px;
-  --sombra:0 1px 0 rgba(255,255,255,.06) inset,0 10px 30px -12px rgba(0,0,0,.65);
-  --sombra-alta:0 24px 60px -20px rgba(0,0,0,.8);
-  --blur:blur(18px) saturate(140%);
-  --fonte:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  --mono:ui-monospace,"JetBrains Mono","SF Mono",Consolas,monospace;
-  --side:248px; --topo:64px;
+  --bg:#000000; --bg-2:#000000;
+  --glass:#1c1c1e; --glass-2:#2c2c2e; --glass-3:rgba(235,235,245,.12);
+  --line:rgba(84,84,88,.5); --line-2:rgba(120,120,128,.55);
+  --txt:#ffffff; --txt-2:rgba(235,235,245,.78); --mut:#8e8e93;
+  --ok:#30d158; --warn:#ff9f0a; --bad:#ff453a; --info:#0a84ff;
+  --a1:#0a84ff; --a2:#0a84ff; --a3:#5e5ce6;
+  --grad:linear-gradient(135deg,#0a84ff,#0a84ff);
+  --grad-suave:rgba(10,132,255,.14);
+  --r-sm:10px; --r:14px; --r-lg:20px; --r-pill:999px;
+  --sombra:none;
+  --sombra-alta:0 18px 50px -18px rgba(0,0,0,.7);
+  --blur:none;
+  --fonte:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --side:0px; --topo:56px;
   --ease:cubic-bezier(.2,.8,.2,1);
   /* apelidos legados (usados pelo JS e por estilos inline) */
   --card:var(--glass); --card2:var(--glass-2); --acc:var(--a1);
 }
 :root[data-tema="claro"]{
   color-scheme:light;
-  --bg:#eef2fb; --bg-2:#e4eaf7;
-  --glass:rgba(255,255,255,.72); --glass-2:rgba(255,255,255,.9); --glass-3:rgba(15,23,42,.06);
-  --line:rgba(15,23,42,.1); --line-2:rgba(15,23,42,.2);
-  --txt:#0f172a; --txt-2:#334155; --mut:#5b6882;
-  --ok:#059669; --warn:#b45309; --bad:#e11d48; --info:#2563eb;
-  --a1:#0d9488; --a2:#4f46e5; --a3:#db2777;
-  --grad-suave:linear-gradient(135deg,rgba(13,148,136,.12),rgba(79,70,229,.12) 55%,rgba(219,39,119,.1));
-  --sombra:0 1px 0 rgba(255,255,255,.9) inset,0 10px 30px -14px rgba(30,41,90,.25);
-  --sombra-alta:0 24px 60px -20px rgba(30,41,90,.35);
+  --bg:#f2f2f7; --bg-2:#f2f2f7;
+  --glass:#ffffff; --glass-2:#f7f7fa; --glass-3:rgba(120,120,128,.12);
+  --line:rgba(60,60,67,.14); --line-2:rgba(60,60,67,.26);
+  --txt:#000000; --txt-2:rgba(60,60,67,.85); --mut:#6c6c70;
+  --ok:#248a3d; --warn:#c93400; --bad:#d70015; --info:#0071e3;
+  --a1:#007aff; --a2:#007aff; --a3:#5856d6;
+  --grad:linear-gradient(135deg,#007aff,#007aff);
+  --grad-suave:rgba(0,122,255,.09);
+  --sombra:none;
+  --sombra-alta:0 18px 50px -18px rgba(0,0,0,.25);
 }
 
 /* --- 01-base.css --- */
@@ -1119,6 +1121,189 @@ main{max-width:1240px;margin:0 auto;padding:6px 32px 70px}
   #sitesSec .st-achados{padding:9px 12px}
 }
 @media (prefers-reduced-motion:reduce){#aparelhos .dot.up,#aparelhos .ap-prop i{animation:none!important}}
+
+/* --- 99-ios.css --- */
+/* ===== 99 · Camada "iOS limpo": carrega por último e simplifica tudo =====
+   Uma coluna central (como o app Ajustes do iPhone), título grande, listas agrupadas com cantos arredondados,
+   seções em sanfona, sem vidro, sem brilho, sem degradê. */
+body::before,body::after{display:none!important}
+html{scroll-behavior:smooth}
+body{font:16px/1.45 var(--fonte);font-feature-settings:normal;background:var(--bg)}
+b,strong{font-weight:600}
+.mut{font-size:.86em}
+
+/* ---- Estrutura: uma coluna, sem menu lateral nem abas ---- */
+.side,.abas{display:none!important}
+.app{display:block}
+.coluna{margin:0 auto;max-width:760px;padding:0 16px}
+main{max-width:none;padding:4px 0 56px}
+.topo{position:sticky;top:0;z-index:30;height:auto;margin:0 -16px;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px 10px;
+  background:color-mix(in srgb,var(--bg) 78%,transparent);-webkit-backdrop-filter:saturate(180%) blur(22px);backdrop-filter:saturate(180%) blur(22px);
+  border-bottom:.5px solid transparent;align-items:flex-end}
+.topo.rolou{border-bottom-color:var(--line)}
+.topo h1{font-size:2.05rem;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.topo .atual-linha{margin-top:3px;font-size:.82rem}
+.topo-chip{height:32px;padding:0 13px 0 11px;font-size:.8rem;font-weight:600;background:var(--glass);border:0;box-shadow:none;border-radius:var(--r-pill)}
+.topo-acoes{display:flex!important;gap:6px}
+button.icone{width:38px;height:38px;border-radius:50%;background:var(--glass);border:0;box-shadow:none;color:var(--a1)}
+.faixa{margin:6px 0 12px;border-radius:var(--r);background:color-mix(in srgb,var(--warn) 14%,var(--glass));border:0;color:var(--txt);padding:12px 14px;font-size:.9rem}
+
+/* ---- Seções em sanfona (lista agrupada) ---- */
+.sec{margin:0 0 16px;scroll-margin-top:calc(var(--topo) + 18px)}
+.sec[hidden]{display:none!important}
+.sec-t{margin:0;font-size:1rem;font-weight:500;letter-spacing:0;text-transform:none;color:var(--txt)}
+.sec-t::after{display:none}
+.sec.acc{background:var(--glass);border-radius:var(--r);overflow:hidden}
+.sec.acc>.sec-t{display:flex;align-items:center;gap:12px;min-height:54px;padding:10px 14px 10px 14px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:background .15s}
+.sec.acc>.sec-t:active{background:var(--glass-3)}
+.sec.acc>.sec-t:focus-visible{outline-offset:-2px}
+.sec-t svg.acc-ico,.acc-ico{flex:none;width:30px;height:30px;padding:6px;border-radius:8px;background:var(--a1);stroke:#fff!important;color:#fff!important;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#sec-alertas .acc-ico{background:#ff9500}#sec-vpn .acc-ico{background:#34c759}#sec-uso .acc-ico{background:#5856d6}
+#sec-aparelhos .acc-ico{background:#007aff}#sec-sites .acc-ico{background:#af52de}#sec-eventos .acc-ico{background:#8e8e93}#sec-redes .acc-ico{background:#30b0c7}
+.acc-tit{flex:1;min-width:0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-res{flex:none;color:var(--mut);font-size:.92rem;white-space:nowrap}
+.acc-res[data-tom="bad"]{color:var(--bad);font-weight:600}
+.acc-chev{flex:none;display:grid;place-items:center;width:18px;color:var(--mut);transition:transform .25s var(--ease)}
+.acc-chev svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.sec.aberta>.sec-t .acc-chev{transform:rotate(90deg)}
+.sec.aberta>.sec-t{border-bottom:.5px solid var(--line)}
+.acc-corpo{display:none;padding:12px}
+.sec.aberta>.acc-corpo{display:block;animation:acc-abre .28s var(--ease)}
+@keyframes acc-abre{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* ---- Superfícies: cartões planos ---- */
+.card,.pasta,.uso,.vpn2 .col,.al,.vazio,.ap-tab,table{background:var(--glass-2);border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-tema="claro"] .card,:root[data-tema="claro"] .pasta,:root[data-tema="claro"] .uso,:root[data-tema="claro"] .vpn2 .col,:root[data-tema="claro"] .al,:root[data-tema="claro"] .vazio{background:var(--bg)}
+.card{border-radius:var(--r);transition:none}
+.card:hover{transform:none;background:var(--glass-2)}
+.card::before,.card.m::before{display:none!important}
+.vazio{border:0;color:var(--mut);padding:18px;border-radius:var(--r)}
+.dot.up,.dot.down{box-shadow:none}
+.dot{width:8px;height:8px}
+.grid{gap:10px}
+tbody tr:hover td,table tr:hover td{background:transparent}
+th{background:transparent;letter-spacing:.04em;font-size:.7rem}
+th,td{border-bottom-color:var(--line)}
+
+/* ---- Resumo: estado geral + 4 medidas ---- */
+#sec-resumo{margin:6px 0 16px}
+.hero{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:18px;border-radius:var(--r);background:var(--glass)!important;border:0!important;box-shadow:none!important;overflow:visible}
+.hero::before,.hero::after,.hero-ico::after{display:none!important}
+.hero-ico{width:52px;height:52px;border-radius:50%!important;background:color-mix(in srgb,var(--tc,var(--ok)) 16%,transparent)!important;border:0!important;box-shadow:none!important}
+.hero-ico svg{width:26px;height:26px;filter:none!important}
+.hero-txt{flex:1;min-width:180px}
+.hero-ey{display:none}
+.hero h3{font-size:1.35rem;font-weight:700;letter-spacing:-.02em;margin:0 0 2px}
+.hero p{font-size:.9rem;color:var(--mut)}
+.hero-chips{flex-direction:row;flex-wrap:wrap;align-items:center;width:100%;gap:6px}
+.hero-chips:empty{display:none}
+.chip-h{height:28px;padding:0 11px;font-size:.78rem;font-weight:600;background:var(--glass-3);border:0!important;box-shadow:none!important;color:var(--txt-2)}
+.chip-h.bad{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.res-grid{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(112px,1fr))}
+.card.m{min-height:0;padding:14px 14px 12px;background:var(--glass)!important;align-items:flex-start;text-align:left;border-radius:var(--r)}
+.card.m .t{justify-content:flex-start;font-size:.78rem;letter-spacing:0;text-transform:none;font-weight:600;color:var(--mut)}
+.card.m .t svg{width:15px;height:15px}
+.m-corpo{align-items:flex-start;justify-content:flex-start;padding:8px 0 4px;gap:8px}
+.m-leg{font-size:.84rem;color:var(--txt-2)}
+.num b,.med b{background:none!important;-webkit-text-fill-color:currentColor!important;color:var(--txt);font-size:2rem;font-weight:700;letter-spacing:-.03em}
+.anel{width:64px;height:64px}
+.anel circle{stroke-width:8}
+.anel .arco{filter:none}
+.anel-v{padding-top:20px;font-size:.95rem}
+.orb{width:56px;height:56px;box-shadow:none!important;background:color-mix(in srgb,var(--tc,var(--ok)) 16%,transparent)!important;border:0!important}
+.orb::before,.orb::after{display:none!important}
+
+/* ---- Redes (só as no ar) ---- */
+#redes{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.rede-st,.card.rede::after,.card.rede.fora::after{display:none!important}
+.card.rede{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--bg)!important}
+:root:not([data-tema="claro"]) .card.rede{background:var(--glass-2)!important}
+.rede-ico{width:32px;height:32px;border-radius:9px;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c)}
+.rede-txt b{font-size:.92rem;font-weight:600}
+.rede-ip{font-size:.72rem;color:var(--mut)}
+.rede-st{margin-left:auto;font-size:.72rem}
+.rede-st span.dot{margin-right:4px}
+
+/* ---- Alertas ---- */
+.sec .al{border-radius:var(--r)}
+.mini,.pa-btn,button.mini{background:var(--glass-3);border:0;color:var(--a1);border-radius:var(--r-pill);font-weight:600;box-shadow:none}
+.mini.ativo{background:var(--a1);color:#fff}
+.mini.ativo *{color:#fff}
+
+/* ---- Pastas, cartões de uso e VPN ---- */
+.pasta{border-radius:var(--r);margin:0 0 8px;overflow:hidden}
+.pasta>summary{padding:11px 12px}
+.pico{background:transparent!important;box-shadow:none!important}
+.uso,.vcard{border-radius:var(--r)}
+.uso .barra,.pshare,.ap-prop,.ap-mb{background:var(--glass-3)}
+.uso .barra i,.pshare i,.ap-prop i,.ap-mb i{background:var(--a1)!important;box-shadow:none!important}
+.avlive{box-shadow:none}
+.vchip,.ap-chip,.pc,.pon{box-shadow:none}
+.ap-chip{background:var(--glass-3);border:0}
+.vchips .vchip{background:var(--glass-3);border:0}
+.vpn2 .col h3,.ev{border-color:var(--line)}
+
+/* ---- Entrada (login) ---- */
+#login{background:var(--bg)}
+.login-fundo{display:none}
+.login-card{background:var(--glass)!important;border:0!important;box-shadow:var(--sombra-alta)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-radius:var(--r-lg)!important}
+.login-card h1{background:none!important;-webkit-text-fill-color:currentColor!important;color:var(--txt);font-weight:700}
+.login-logo{background:transparent!important;box-shadow:none!important;border:0!important}
+.campo{background:var(--glass-3)!important;border:0!important;border-radius:12px!important}
+.btn-entrar{background:var(--a1)!important;color:#fff!important;box-shadow:none!important;border-radius:14px!important;font-weight:600}
+
+/* ---- Rodapé e ficha ---- */
+.rodape{font-size:.74rem;padding-top:10px}
+#ficha{border-radius:var(--r-lg)}
+@media (max-width:560px){
+  .coluna{padding:0 12px}.topo{margin:0 -12px;padding-left:12px;padding-right:12px}
+  .topo h1{font-size:1.8rem}.topo-chip .txt{display:none}.topo-chip{padding:0 11px}
+  .acc-corpo{padding:10px}
+  .res-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){.acc-chev,.sec.aberta>.acc-corpo{animation:none;transition:none}}
+
+/* ---- Achatar o que sobrou do visual antigo (faixas coloridas, degradês, brilhos) ---- */
+:root{--sub:var(--glass-2)}
+:root[data-tema="claro"]{--sub:var(--bg)}
+#painel *{text-shadow:none!important}
+#painel .card,#painel .pasta,#painel .uso,#painel .vcard,#painel .al,#painel .col,#painel .ap-tab,#painel .vazio,#painel table,#painel .sites-aviso,#painel details#sitesSec{
+  background:var(--sub)!important;background-image:none!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+#painel .card.m,#painel .hero{background:var(--glass)!important}
+#painel .pasta::before,#painel .uso::before,#painel .al::before,#painel .vlan::before,#painel .pasta.saude::before{display:none!important}
+#painel .pasta>summary,#painel .pasta>summary:hover,#painel .pasta[open]>summary,#painel details#sitesSec>summary{background:transparent!important}
+#painel .pasta .pico,#painel .pico{background:transparent!important;border:0!important}
+#painel .barra i,#painel .pshare i,#painel .ap-prop i,#painel .ap-mb i,#painel .mbar i,#painel .agora .barra i{background:var(--a1)!important}
+#painel .barra,#painel .pshare,#painel .ap-prop,#painel .ap-mb,#painel .mbar{background:var(--glass-3)!important;box-shadow:none!important}
+#painel .vcard.live .agora,#painel .agora{background:var(--glass-3)!important;border:0!important}
+#painel .pseta{background:transparent!important;border:0!important;color:var(--mut)}
+#painel .pastas-acoes{display:flex;gap:8px;margin:0 0 10px}
+#painel .pastas-acoes .mini{flex:1;height:34px;font-size:.82rem}
+#painel .pastas-acoes{justify-content:flex-start}
+#painel .chip-h.warn{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn)}
+#painel .aviso,#painel .ap-nota,#painel .sites-aviso{font-size:.78rem;color:var(--mut)}
+#painel .tag,#painel .chip,#painel .pill{box-shadow:none!important}
+#painel .vchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+#painel .ev::before,#painel .col .ev .pt{box-shadow:none!important}
+
+/* ---- Detalhes finais ---- */
+#painel .rchip,#painel .rchip.zero{background:var(--sub)!important;border:0!important;box-shadow:none!important;border-radius:var(--r)!important}
+#painel .rchip .rico{background:color-mix(in srgb,var(--c) 16%,transparent)!important;box-shadow:none!important;border:0!important}
+#painel .rchip.zero{opacity:.55}
+#painel .rnovo{background:var(--a1)!important;color:#fff!important;box-shadow:none!important}
+#painel .pasta>summary{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:10px}
+#painel .pasta>summary .pmb .mut{display:none}
+#painel .pasta>summary .pmb{text-align:right;white-space:nowrap}
+#painel .pasta>summary .pshare{display:block;margin-top:6px}
+#painel .pasta>summary .ptit{min-width:0}
+#painel .pasta>summary .pmeta{display:flex;flex-wrap:wrap;gap:4px 10px}
+.acc-res{min-width:0;overflow:hidden;text-overflow:ellipsis}
+#painel .al{padding-left:12px}
+#painel .grade-uso{gap:8px}
+#painel details#sitesSec>summary{display:none!important}
+#painel #sitesSec .sites-corpo{padding:0}
+#painel .ap-prop{display:none}
+.login-card::before,.login-card::after{display:none!important}
 </style>
 </head>
 <body>
@@ -1165,7 +1350,7 @@ main{max-width:1240px;margin:0 auto;padding:6px 32px 70px}
 
   <div class="coluna">
     <header class="topo">
-      <div class="topo-tit"><h1>Visão geral</h1><div class="atual-linha"><span class="ao-vivo" aria-hidden="true"></span><span class="mut" id="atual">—</span></div></div>
+      <div class="topo-tit"><h1>Monitor</h1><div class="atual-linha"><span class="ao-vivo" aria-hidden="true"></span><span class="mut" id="atual">—</span></div></div>
       <div class="topo-dir">
         <div class="topo-chip" id="topoChip"><span class="dot"></span><span class="txt">conectando…</span></div>
         <div class="topo-acoes">
@@ -1206,7 +1391,7 @@ main{max-width:1240px;margin:0 auto;padding:6px 32px 70px}
           </div>
         </details>
       </section>
-      <section class="sec" id="sec-eventos"><h2 class="sec-t"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Entradas e saídas da VPN</h2><div id="eventos"></div></section>
+      <section class="sec" id="sec-eventos"><h2 class="sec-t"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Entradas e saídas</h2><div id="eventos"></div></section>
       <footer class="rodape mut">Monitor da Casa · só leitura · os dados chegam criptografados</footer>
     </main>
   </div>
@@ -1297,7 +1482,7 @@ const linha = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : "";
 // ===== Cabeçalho, faixa de aviso, resumo (Internet/pfSense) e redes (VLANs) =====
 function desenharCabecalho(d){
   const idade = (Date.now() - new Date(d.gerado))/1000;
-  $("atual").innerHTML = 'Atualizado há <b data-idade>' + esc(tempoDesde(d.gerado)) + '</b> · renova a cada ' + INTERVALO_S + ' s';
+  $("atual").innerHTML = 'Atualizado há <b data-idade>' + esc(tempoDesde(d.gerado)) + '</b>';
   const f = $("faixa");
   f.style.display = idade > 300 ? "block" : "none";
   f.textContent = "⚠️ O coletor não envia dados há " + tempoDesde(d.gerado) + ". Confira o container monitor.";
@@ -1389,8 +1574,9 @@ function desenharResumo(d){
     sub = "Internet no ar, conexão estável e pfSense com folga de CPU e memória.";
   }
   const chips = [];
-  if(redes.length) chips.push(`<span class="chip-h ${noAr === redes.length ? "ok" : "bad"}"><span class="dot ${noAr === redes.length ? "up" : "down"}"></span>${noAr} de ${redes.length} redes no ar</span>`);
-  chips.push(`<span class="chip-h"><svg viewBox="0 0 24 24">${IC_RES.vpn}</svg>${nVpn} na VPN</span>`);
+  const redesFora = redes.filter(n => !/up|associated/i.test(n.status));   // rede fora do ar não vira cartão: só este aviso
+  if(redesFora.length) chips.push(`<span class="chip-h warn"><span class="dot down"></span>${esc(redesFora.map(n => n.nome).join(", "))} fora do ar</span>`);
+  if(nVpn) chips.push(`<span class="chip-h"><svg viewBox="0 0 24 24">${IC_RES.vpn}</svg>${nVpn} na VPN</span>`);
   const hero = `<div class="hero anim t-${tom}" style="--i:0"><div class="hero-ico">${svgRes(icone)}</div>
     <div class="hero-txt"><div class="hero-ey">Estado geral</div><h3>${esc(titulo)}</h3><p>${esc(sub)}</p></div>
     <div class="hero-chips">${chips.join("")}</div></div>`;
@@ -1400,28 +1586,28 @@ function desenharResumo(d){
   const cards = [
     cartao("Internet", "globe", `<div class="orb t-${tomNet}">${svgRes(online ? "globe" : "off")}</div>`,
       `<span class="dot ${online ? "up" : "down"}"></span><b>${online ? "Online" : "Fora do ar"}</b>`, tomNet, 1),
-    cartao("Latência", "tempo", medida(semMonitor ? "—" : (wan.atraso || "—"), tLat, isNaN(lat) ? null : lat / 2),
+    isNaN(lat) ? null : cartao("Latência", "tempo", medida(semMonitor ? "—" : (wan.atraso || "—"), tLat, isNaN(lat) ? null : lat / 2),
       isNaN(lat) ? '<span class="mut">sem medição</span>' : `<b>${tLat === "ok" ? "Ótima" : tLat === "warn" ? "Alta" : "Muito alta"}</b>`, tLat, 2),
-    cartao("Perda", "perda", medida(semMonitor ? "—" : (wan.perda || "—"), tPerda, isNaN(perda) ? null : perda * 10),
+    (tPerda === "ok" || tPerda === "nd") ? null : cartao("Perda", "perda", medida(semMonitor ? "—" : (wan.perda || "—"), tPerda, isNaN(perda) ? null : perda * 10),
       isNaN(perda) ? '<span class="mut">sem medição</span>' : `<b>${tPerda === "ok" ? "Sem perdas" : tPerda === "warn" ? "Perdendo pacotes" : "Perda alta"}</b>`, tPerda, 3),
-    cartao("CPU", "cpu", anel(cpu, tCpu, 4), cpu != null ? `<b>${TXT_TOM[tCpu]}</b>` : '<span class="mut">sem dado</span>', tCpu, 4),
-    cartao("Memória", "mem", anel(mem, tMem, 5), mem != null ? `<b>${TXT_TOM[tMem]}</b>` : '<span class="mut">sem dado</span>', tMem, 5),
-    cartao("Na VPN", "vpn", `<div class="num"><b>${nVpn}</b></div>`,
+    cpu == null ? null : cartao("CPU", "cpu", anel(cpu, tCpu, 4), cpu != null ? `<b>${TXT_TOM[tCpu]}</b>` : '<span class="mut">sem dado</span>', tCpu, 4),
+    mem == null ? null : cartao("Memória", "mem", anel(mem, tMem, 5), mem != null ? `<b>${TXT_TOM[tMem]}</b>` : '<span class="mut">sem dado</span>', tMem, 5),
+    !nVpn ? null : cartao("Na VPN", "vpn", `<div class="num"><b>${nVpn}</b></div>`,
       nVpn ? `<b>${nVpn === 1 ? "pessoa conectada" : "pessoas conectadas"}</b>` : '<span class="mut">ninguém conectado</span>', nVpn ? "info" : "nd", 6)
-  ];
+  ].filter(Boolean);
   entrada("resumo");
   $("resumo").innerHTML = hero + `<div class="res-grid">${cards.join("")}</div>`;
 }
 function desenharRedes(d){
   const r = d.rede || {};
   entrada("redes");
-  $("redes").innerHTML = (r.redes || []).map((n, i) => {
+  $("redes").innerHTML = (r.redes || []).filter(n => /up|associated/i.test(n.status)).map((n, i) => {
     const nome = String(n.nome).toUpperCase(), cor = CORES[nome] || "#88c0d0", up = /up|associated/i.test(n.status);
     return `<div class="card rede anim ${up ? "" : "fora"}" style="--c:${cor};--i:${Math.min(i, 12)}" title="${esc(n.status || "")}">
       <span class="rede-ico">${svgRes(IC_RES[nome] ? nome : "rede")}</span>
       <div class="rede-txt"><b>${esc(n.nome)}</b><span class="rede-ip">${esc(n.ip || "—")}</span></div>
       <span class="rede-st ${up ? "on" : "off"}"><span class="dot ${up ? "up" : "down"}"></span>${up ? "no ar" : "fora do ar"}</span></div>`;
-  }).join("") || '<div class="vazio">Sem dados das redes.</div>';
+  }).join("") || '<div class="vazio">Nenhuma rede no ar.</div>';
 }
 
 /* --- 10-ficha.js --- */
@@ -1632,8 +1818,8 @@ function desenharUso(u){
   const todos = (u && u.hosts) || [];
   if(!todos.length){ el.innerHTML = estadoVazio("chart", "Sem dados de uso ainda", "Assim que o ntopng no pfSense começar a medir, o consumo de cada aparelho aparece aqui."); return; }
   const maior = Math.max(...todos.map(h => h.bytes || 0), 1);
-  const hosts = todos.filter(h => !h.vpn);   // quem está na VPN agora aparece nos cards de "Conectados na VPN"
-  if(!hosts.length){ el.innerHTML = estadoVazio("lock", "Só há tráfego de quem está na VPN", "Veja os cartões em “Conectados na VPN”, logo acima."); return; }
+  const hosts = todos.filter(h => !h.vpn && estaOnline(h));   // só quem está online agora   // quem está na VPN agora aparece nos cards de "Conectados na VPN"
+  if(!hosts.length){ el.innerHTML = estadoVazio("lock", "Ninguém online agora", "Quando um aparelho voltar à rede, ele aparece aqui."); return; }
 
   // monta as pastas: a do apelidos.txt (Nome|Pasta) ou a rede (VLAN)
   const grupos = {};
@@ -1869,9 +2055,9 @@ function desenharEventos(d, vistos, primeira){
 
 /* --- 40-aparelhos-sites.js --- */
 function desenharAparelhos(lista){
-  lista = lista || [];
+  lista = (lista || []).filter(x => x.online);   // só quem está online agora
   const el = $("aparelhos");
-  if(!lista.length){ el.innerHTML = '<div class="vazio">Nenhum aparelho visto ainda.</div>'; return; }
+  if(!lista.length){ el.innerHTML = '<div class="vazio">Nenhum aparelho online agora.</div>'; return; }
   const on = lista.filter(x => x.online).length;
   const grupos = {};
   lista.forEach(x => { const k = String(x.rede || "OUTROS").toUpperCase(); (grupos[k] = grupos[k] || []).push(x); });
@@ -1884,12 +2070,9 @@ function desenharAparelhos(lista){
   el.innerHTML = `<div class="ap-resumo">
       <div class="ap-chips">
         <span class="ap-chip ch-on"><i class="dot up"></i><b>${on}</b> online</span>
-        <span class="ap-chip ch-off"><i class="dot down"></i><b>${lista.length - on}</b> offline</span>
-        <span class="ap-chip ch-tot"><b>${lista.length}</b> ${lista.length === 1 ? "aparelho" : "aparelhos"}</span>
         <span class="pastas-acoes"><button class="mini" onclick="todasPastas(true,'#aparelhos')">📂 Abrir todas</button><button class="mini" onclick="todasPastas(false,'#aparelhos')">📁 Fechar todas</button></span>
       </div>
       <div class="ap-prop" role="img" aria-label="${on} de ${lista.length} online"><i style="width:${pOn}%"></i></div>
-      <div class="mut ap-nota">Vem da tabela ARP e das reservas DHCP do pfSense · online = falou nos últimos 30 min</div>
     </div>` +
     chaves.map(k => {
       const itens = grupos[k].slice().sort((a, b) => (b.online - a.online) || String(a.nome || "~").localeCompare(String(b.nome || "~")) || String(a.ip).localeCompare(String(b.ip), undefined, {numeric:true}));
@@ -1898,7 +2081,7 @@ function desenharAparelhos(lista){
         <summary>
           <span class="pico">${ico}</span>
           <span class="ptit"><b>${esc(titulo)}</b><span class="mut">${itens.length} ${itens.length === 1 ? "aparelho" : "aparelhos"}</span></span>
-          <span class="pmb ap"><b>${n ? `<span class="pon">● ${n} online</span>` : '<span class="mut">ninguém online</span>'}</b><span class="mut">${itens.length - n} offline</span><span class="ap-mb" aria-hidden="true"><i style="width:${Math.round(100 * n / itens.length)}%"></i></span></span>
+          <span class="pmb ap"><b>${n ? `<span class="pon">● ${n} online</span>` : '<span class="mut">ninguém online</span>'}</b><span class="ap-mb" aria-hidden="true"><i style="width:${Math.round(100 * n / itens.length)}%"></i></span></span>
           <span class="pseta">▸</span>
         </summary>
         <div class="ap-tab"><table class="tb-ap"><tr><th></th><th>Aparelho</th><th>IP</th><th class="hm">MAC</th><th class="hm">Fabricante</th><th>Visto</th></tr>${itens.map(linha).join("")}</table></div>
@@ -2034,7 +2217,7 @@ function alternarTema(){
   const claro = document.documentElement.getAttribute("data-tema") !== "claro";
   if(claro) document.documentElement.setAttribute("data-tema", "claro"); else document.documentElement.removeAttribute("data-tema");
   ls.set("monitor_tema", claro ? "claro" : "escuro");
-  const m = document.querySelector("meta[name=theme-color]"); if(m) m.content = claro ? "#eef2fb" : "#060a14";
+  const m = document.querySelector("meta[name=theme-color]"); if(m) m.content = claro ? "#f2f2f7" : "#000000";
 }
 (function ligarCasca(){
   const nav = $("nav"), abas = $("abas");
@@ -2043,7 +2226,6 @@ function alternarTema(){
   const secs = [...nav.querySelectorAll("a")].map(a => $(a.dataset.sec)).filter(Boolean);
   const titulos = {}; secs.forEach(s => titulos[s.id] = s.querySelector(".sec-t").textContent.trim());
   const marcar = id => { links.forEach(a => a.classList.toggle("ativo", a.dataset.sec === id));
-    const t = document.querySelector(".topo h1"); if(t && id) t.textContent = titulos[id] || "Visão geral";
     const ativa = abas.querySelector("a.ativo"); if(ativa && abas.scrollWidth > abas.clientWidth) ativa.scrollIntoView({inline:"center", block:"nearest"}); };
   let ticking = false;
   const espiar = () => { ticking = false; let atual = secs[0] && secs[0].id; const y = innerHeight * .3;
@@ -2100,6 +2282,61 @@ setInterval(() => { if(!GERADO) return; document.querySelectorAll("[data-idade]"
   new MutationObserver(() => { if($("login").style.display === "none") livre(); }).observe($("login"), {attributes:true, attributeFilter:["style"]});
 })();
 
+/* --- 70-ios.js --- */
+// ===== Estilo iPhone: seções em sanfona (abrem e fecham com um toque), resumo à direita e seções vazias escondidas =====
+const ACC_PADRAO = {"sec-resumo": true, "sec-redes": true};   // o resto começa fechado
+let ACC = {};
+try{ ACC = JSON.parse(ls.get("monitor_acc") || "null") || {}; }catch(e){ ACC = {}; }
+const ABRIR_TESTE = (location.search.match(/[?&]abrir(?:=([^&]*))?/) || null);   // ?abrir ou ?abrir=sec-vpn,sec-uso: só para fotos de teste
+const accAberta = id => ABRIR_TESTE ? (!ABRIR_TESTE[1] || ABRIR_TESTE[1].split(",").includes(id)) : (id in ACC ? !!ACC[id] : !!ACC_PADRAO[id]);
+
+(function ligarSanfona(){
+  document.querySelectorAll("main > section.sec").forEach(sec => {
+    const h = sec.querySelector(":scope > h2.sec-t"); if(!h || sec.id === "sec-resumo") return;
+    sec.classList.add("acc");
+    const corpo = document.createElement("div"); corpo.className = "acc-corpo";
+    [...sec.children].filter(c => c !== h).forEach(c => corpo.appendChild(c));
+    sec.appendChild(corpo);
+    const rotulo = h.textContent.trim();
+    h.setAttribute("role", "button"); h.setAttribute("tabindex", "0");
+    h.innerHTML = h.querySelector("svg").outerHTML.replace("<svg", '<svg class="acc-ico"') +
+      `<span class="acc-tit">${esc(rotulo)}</span><span class="acc-res" data-res></span><span class="acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span>`;
+    const alternar = () => { const abrir = !sec.classList.contains("aberta"); definir(sec, abrir); ACC[sec.id] = abrir; ls.set("monitor_acc", JSON.stringify(ACC)); };
+    h.addEventListener("click", alternar);
+    h.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); alternar(); } });
+    definir(sec, accAberta(sec.id));
+  });
+  function definir(sec, abrir){
+    sec.classList.toggle("aberta", abrir);
+    sec.querySelector(":scope > h2").setAttribute("aria-expanded", abrir ? "true" : "false");
+    // "Sites": o painel interno é um <details>; abrir a seção já abre o painel (um toque só)
+    if(sec.id === "sec-sites"){ const d = $("sitesSec"); if(d && d.open !== abrir) d.open = abrir; }
+  }
+})();
+
+// chamado por desenhar(): textos de resumo e seções vazias
+function iosAtualizar(d){
+  const r = d.rede || {}, redes = r.redes || [], noAr = redes.filter(n => /up|associated/i.test(n.status)).length;
+  const alertas = d.alertas || [], saude = d.saude || [];
+  const graves = alertas.filter(a => (Number(a.nivel) || 3) <= 2 && a.tipo === "ataque").length + saude.length;
+  const vpn = (d.vpn || []).length;
+  const hostsOn = ((d.uso && d.uso.hosts) || []).filter(h => !h.vpn && estaOnline(h)).length;
+  const apOn = (d.dispositivos || []).filter(x => x.online).length;
+  const ev = d.eventos || [], ent = ev.filter(e => e.tipo === "vpn-entrou").length;
+  const set = (id, texto, mostrar, tom) => {
+    const s = $(id); if(!s) return;
+    s.hidden = !mostrar;
+    const r = s.querySelector("[data-res]"); if(r){ r.textContent = texto; r.dataset.tom = tom || ""; }
+  };
+  set("sec-redes", noAr + (noAr === 1 ? " no ar" : " no ar"), noAr > 0);
+  set("sec-alertas", graves ? graves + (graves === 1 ? " importante" : " importantes") : alertas.length + " no total", alertas.length + saude.length > 0, graves ? "bad" : "");
+  set("sec-vpn", vpn + (vpn === 1 ? " conectado" : " conectados"), vpn > 0);
+  set("sec-uso", hostsOn + " online", hostsOn > 0);
+  set("sec-aparelhos", apOn + " online", apOn > 0);
+  set("sec-sites", "", true);
+  set("sec-eventos", ev.length + (ev.length === 1 ? " registro" : " registros"), ev.length > 0);
+}
+
 /* --- 90-desenhar.js --- */
 function desenhar(d){
   ULTIMO = d;
@@ -2114,6 +2351,7 @@ function desenhar(d){
   const vistos = new Set(JSON.parse(ls.get("monitor_vistos") || "[]")), primeira = !ls.get("monitor_vistos");
   const al = desenharAlertas(d, vistos, primeira);
   desenharEventos(d, vistos, primeira);
+  iosAtualizar(d);
   al.forEach(a => vistos.add(a.id));
   ls.set("monitor_vistos", JSON.stringify([...vistos].slice(-800)));
 }
