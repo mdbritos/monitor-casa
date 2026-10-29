@@ -2,177 +2,1221 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#060a14">
+<meta name="color-scheme" content="dark light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Monitor">
 <title>Monitor da Casa</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='.55' stop-color='%23818cf8'/%3E%3Cstop offset='1' stop-color='%23f472b6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23060a14'/%3E%3Cpath d='M32 10 14 18v13c0 11 7.5 19 18 23 10.5-4 18-12 18-23V18z' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M23 33l6 6 12-13' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>try{var t=localStorage.getItem("monitor_tema");if(t==="claro"){document.documentElement.setAttribute("data-tema","claro");document.querySelector('meta[name=theme-color]').content="#eef2fb"}}catch(e){}</script>
 <style>
-  :root{--bg:#1e222a;--card:#2e3440;--card2:#3b4252;--txt:#eceff4;--mut:#a7b1c2;--ok:#a3be8c;--warn:#ebcb8b;--bad:#bf616a;--acc:#88c0d0}
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:18px 20px;background:linear-gradient(135deg,#2e3440,#434c5e 50%,#5e81ac)}
-  h1{margin:0;font-size:1.35em} .mut{color:var(--mut);font-size:.85em}
-  main{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
-  h2{font-size:1em;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:26px 0 10px}
-  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
-  .card{background:var(--card);border:1px solid #434c5e;border-radius:14px;padding:14px}
-  .card .t{font-weight:700} .card .v{font-size:1.6em;font-weight:800;margin-top:4px}
-  .vlan{border-left:6px solid var(--c)} .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--mut)}
-  .up{background:var(--ok)} .down{background:var(--bad)}
-  table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden}
-  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid #3b4252;font-size:.9em} th{color:var(--mut);font-weight:600}
-  .vazio{padding:14px;color:var(--mut);background:var(--card);border-radius:14px}
-  .al{display:flex;gap:10px;align-items:flex-start;background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:8px;border-left:5px solid var(--warn)}
-  .al.n1{border-left-color:var(--bad)} .al.novo{box-shadow:0 0 0 2px var(--bad)} .tag{font-size:.7em;font-weight:800;padding:2px 7px;border-radius:999px;background:var(--bad);color:#fff;margin-left:6px}
-  .faixa{display:none;margin:0 0 14px;padding:12px 14px;border-radius:12px;background:var(--bad);font-weight:700}
-  button,input{font:inherit;border-radius:10px;border:1px solid #4c566a;background:var(--card2);color:var(--txt);padding:10px 14px}
-  button{cursor:pointer;background:var(--acc);color:#1e222a;font-weight:700;border:0}
-  #login{max-width:360px;margin:12vh auto;padding:26px;background:var(--card);border-radius:18px;text-align:center}
-  #login input{width:100%;margin:14px 0}
-  #painel{display:none}
-  .uso{background:var(--card);border-radius:14px;margin-bottom:8px;border-left:6px solid var(--c,#88c0d0)}
-  .uso summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:1.6fr 1fr .8fr 1.4fr;gap:8px;align-items:center;padding:11px 14px}
-  .uso summary::-webkit-details-marker{display:none}
-  .uso summary .nome{font-weight:700} .uso summary .mb{font-weight:800}
-  .uso[open] summary{border-bottom:1px solid #3b4252}
-  .uso .det{padding:6px 10px 12px}
-  .uso .det table{background:transparent}
-  .barra{height:6px;border-radius:99px;background:#3b4252;overflow:hidden;margin-top:3px}
-  .barra i{display:block;height:100%;background:var(--acc)}
-  .uso-cab{display:grid;grid-template-columns:1.6fr 1fr .8fr 1.4fr;gap:8px;padding:0 14px 6px 20px;color:var(--mut);font-size:.8em;font-weight:600}
-  .aviso{font-size:.8em;color:var(--mut);margin:6px 2px 0}
-  .grade-uso{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));align-items:start}
-  .grade-uso .uso{margin:0;border-left:0;border-top:5px solid var(--c,#88c0d0);transition:transform .15s,box-shadow .15s}
-  .grade-uso .uso:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
-  .grade-uso .uso summary{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:14px;text-align:left}
-  .grade-uso .uso .det table th,.grade-uso .uso .det table td{padding:7px 6px;font-size:.84em}
-  .grade-uso .uso .det table td:nth-child(n+2){white-space:nowrap}
-  @media (max-width:640px){.grade-uso{grid-template-columns:1fr 1fr;gap:10px}.grade-uso .uso summary{padding:11px}.grade-uso .uso .mb{font-size:1.2em}
-    .grade-uso .uso .rod{flex-direction:column;gap:2px}.grade-uso .uso .rod .top{max-width:100%}.grade-uso .uso[open]{grid-column:1/-1}}
-  .grade-uso .uso .cab{display:flex;align-items:center;justify-content:space-between;gap:8px}
-  .grade-uso .uso .mb{font-size:1.5em}
-  .grade-uso .uso .rod{display:flex;justify-content:space-between;gap:8px;font-size:.88em}
-  .grade-uso .uso .rod .top{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
-  .grade-uso .uso .ver{font-size:.78em;text-align:center;margin-top:2px}
-  .grade-uso .uso[open] .ver{visibility:hidden;height:0;margin:0}
-  body{overflow-x:hidden}
-  .vpn-res{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 2px 10px}
-  .vcard .agora{display:flex;flex-direction:column;gap:3px;margin-top:2px;padding-top:7px;border-top:1px dashed #4c566a;font-size:.84em}
-  .vcard .agora .l{display:flex;justify-content:space-between;gap:8px} .vcard .agora .l span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .vcard .agora .vel{font-weight:800;color:var(--acc);white-space:nowrap}
-  .vcard .fluxo{display:flex;gap:14px;font-size:.84em}
-  .vcard .pon{color:var(--ok);font-weight:700}
-  .ap-tab{overflow-x:auto} .ap-tab table{border-radius:0;background:transparent}
-  .pasta .pmb.ap b{font-size:1.05em}
-  @media (max-width:640px){.hm{display:none}}
-  .pastas-acoes{display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 10px}
-  .lado{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;font-size:.78em;font-weight:700;border:1px solid}
-  .lado.interno{color:#a3be8c;border-color:#a3be8c}
-  .lado.externo{color:#bf616a;border-color:#bf616a}
-  .lado.desc{color:#d8dee9;border-color:#4c566a}
-  .mini.ativo{background:#5e81ac;color:#fff}
-  .btn-corrigir{background:#ebcb8b;color:#2e3440;font-weight:700}
-  .corrigir{margin-top:8px}
-  .corrigir > summary{cursor:pointer;list-style:none;display:inline-block}
-  .corrigir > summary::-webkit-details-marker{display:none}
-  .corrigir ol{margin:8px 0 8px 18px;padding:0;line-height:1.5}
-  .corrigir ol li{margin-bottom:4px}
-  button.mini{background:var(--card2);color:var(--txt);font-weight:600;font-size:.82em;padding:6px 12px}
-  .pasta{background:var(--card);border-radius:14px;margin-bottom:10px;border-left:6px solid var(--c,#88c0d0)}
-  .pasta > summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 16px;-webkit-user-select:none;user-select:none}
-  .pasta > summary::-webkit-details-marker{display:none}
-  .pasta .pico{font-size:1.6em;line-height:1} .pasta .ptit,.pasta .pmb{display:flex;flex-direction:column;gap:2px}
-  .pasta .pmb{text-align:right} .pasta .pmb b{font-size:1.15em} .pasta .pon{color:var(--ok);font-weight:700}
-  .pasta .pseta{color:var(--mut);transition:transform .2s;font-size:1.1em}
-  .pasta[open] .pseta{transform:rotate(90deg)} .pasta[open] > summary{border-bottom:1px solid #3b4252}
-  .pasta > .grade-uso{padding:12px}
-  @media (max-width:640px){.pasta > summary{grid-template-columns:auto 1fr auto;gap:10px;padding:11px 12px}.pasta .pseta{display:none}.pasta .pmb .mut{display:none}.pasta > .grade-uso{padding:10px}}
-  .vpn2{display:grid;gap:12px;grid-template-columns:1fr 1fr}
-  .vpn2 .col{background:var(--card);border-radius:14px;overflow:hidden}
-  .vpn2 .col h3{margin:0;padding:11px 14px;font-size:.95em;border-bottom:1px solid #3b4252}
-  .vpn2 .col.ent h3{border-top:4px solid var(--ok)} .vpn2 .col.sai h3{border-top:4px solid var(--mut)}
-  .vpn2 .ev{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;padding:9px 14px;border-bottom:1px solid #3b4252;font-size:.9em}
-  .vpn2 .ev:last-child{border-bottom:0} .vpn2 .ev .q{color:var(--mut);font-size:.85em;white-space:nowrap} .vpn2 .ev b{word-break:break-all}
-  .vpn2 .nada{padding:12px 14px;color:var(--mut);font-size:.9em}
-  @media (max-width:640px){.vpn2{grid-template-columns:1fr}}
-  .uso summary{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-  .uso summary .info{display:inline-block;margin-left:6px;font-size:.8em;color:var(--mut);border:1px solid #4c566a;border-radius:99px;width:18px;height:18px;text-align:center;line-height:16px}
-  #ficha{position:fixed;z-index:50;display:none;width:360px;max-width:calc(100vw - 24px);max-height:80vh;overflow:auto;background:#353c4a;border:1px solid #4c566a;border-left:6px solid var(--c,#88c0d0);border-radius:16px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.55);font-size:.9em}
-  #ficha.folha{left:0!important;right:0;bottom:0;top:auto!important;width:auto;max-width:none;max-height:78vh;border-radius:18px 18px 0 0;border-left:0;border-top:6px solid var(--c,#88c0d0);padding-bottom:26px}
-  #veu{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:49;display:none}
-  #ficha .fx{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-  #ficha h3{margin:0;font-size:1.15em} #ficha h4{margin:14px 0 6px;font-size:.75em;letter-spacing:.07em;text-transform:uppercase;color:var(--mut)}
-  #ficha .pill{display:inline-block;font-size:.78em;font-weight:700;padding:3px 9px;border-radius:99px;background:#3b4252;margin-top:4px}
-  #ficha .pill.on{background:rgba(163,190,140,.18);color:var(--ok)}
-  #ficha dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0} #ficha dt{color:var(--mut)} #ficha dd{margin:0;font-family:ui-monospace,Consolas,monospace;word-break:break-all}
-  #ficha .ag{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:6px 0;border-bottom:1px solid #434c5e} #ficha .ag:last-child{border-bottom:0}
-  #ficha .chip{font-size:.72em;font-weight:700;padding:1px 7px;border-radius:99px;background:#434c5e;margin-left:6px}
-  #ficha .vel{font-weight:800;color:var(--acc)} #ficha .fechar{background:#434c5e;color:var(--txt);padding:4px 10px;font-size:.85em;display:none}
-  #ficha.folha .fechar,#ficha.fixa .fechar{display:inline-block}
-  #ficha{-webkit-user-select:text;user-select:text;cursor:auto}
-  #ficha.fixa{box-shadow:0 0 0 2px var(--acc),0 18px 50px rgba(0,0,0,.55)}
-  #ficha .dica{display:none;margin-top:12px;padding-top:8px;border-top:1px dashed #4c566a;font-size:.78em;color:var(--mut);text-align:center}
-  body.tem-mouse #ficha:not(.fixa):not(.folha) .dica{display:block}
-  #ficha .fixada{display:none;font-size:.72em;font-weight:700;color:var(--acc);margin-left:6px}
-  #ficha.fixa .fixada{display:inline}
-  #ficha .pulso{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;animation:pulso 1.4s infinite}
-  @keyframes pulso{0%{box-shadow:0 0 0 0 rgba(163,190,140,.7)}70%{box-shadow:0 0 0 8px rgba(163,190,140,0)}100%{box-shadow:0 0 0 0 rgba(163,190,140,0)}}
-  .sites-barra{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 10px}
-  .sites-dias{display:flex;flex-wrap:wrap;gap:6px}
-  #sitesBusca{flex:1 1 220px;max-width:340px;padding:8px 12px}
-  #sitesSec .ap-tab table td:nth-child(n+2){white-space:nowrap}
-  #sitesSec .aviso{padding:8px 12px 10px}
+/* --- 00-tokens.css --- */
+/* ===== 00 · Tokens do tema "Aurora Glass" =====
+   Tudo que é cor, raio, sombra e espaçamento vive aqui. Os nomes antigos (--card, --acc...) ficam como apelidos
+   porque o JS usa var(--ok), var(--bad), var(--mut), var(--c) em estilos inline. Não remova. */
+:root{
+  color-scheme:dark;
+  --bg:#060a14; --bg-2:#0b1220;
+  --glass:rgba(255,255,255,.045); --glass-2:rgba(255,255,255,.075); --glass-3:rgba(255,255,255,.11);
+  --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.16);
+  --txt:#e9eef9; --txt-2:#c3cce0; --mut:#8793ae;
+  --ok:#34d399; --warn:#fbbf24; --bad:#fb7185; --info:#60a5fa;
+  --a1:#5eead4; --a2:#818cf8; --a3:#f472b6;               /* acentos do degradê */
+  --grad:linear-gradient(135deg,var(--a1),var(--a2) 55%,var(--a3));
+  --grad-suave:linear-gradient(135deg,rgba(94,234,212,.16),rgba(129,140,248,.16) 55%,rgba(244,114,182,.12));
+  --r-sm:10px; --r:16px; --r-lg:22px; --r-pill:999px;
+  --sombra:0 1px 0 rgba(255,255,255,.06) inset,0 10px 30px -12px rgba(0,0,0,.65);
+  --sombra-alta:0 24px 60px -20px rgba(0,0,0,.8);
+  --blur:blur(18px) saturate(140%);
+  --fonte:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"JetBrains Mono","SF Mono",Consolas,monospace;
+  --side:248px; --topo:64px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  /* apelidos legados (usados pelo JS e por estilos inline) */
+  --card:var(--glass); --card2:var(--glass-2); --acc:var(--a1);
+}
+:root[data-tema="claro"]{
+  color-scheme:light;
+  --bg:#eef2fb; --bg-2:#e4eaf7;
+  --glass:rgba(255,255,255,.72); --glass-2:rgba(255,255,255,.9); --glass-3:rgba(15,23,42,.06);
+  --line:rgba(15,23,42,.1); --line-2:rgba(15,23,42,.2);
+  --txt:#0f172a; --txt-2:#334155; --mut:#5b6882;
+  --ok:#059669; --warn:#b45309; --bad:#e11d48; --info:#2563eb;
+  --a1:#0d9488; --a2:#4f46e5; --a3:#db2777;
+  --grad-suave:linear-gradient(135deg,rgba(13,148,136,.12),rgba(79,70,229,.12) 55%,rgba(219,39,119,.1));
+  --sombra:0 1px 0 rgba(255,255,255,.9) inset,0 10px 30px -14px rgba(30,41,90,.25);
+  --sombra-alta:0 24px 60px -20px rgba(30,41,90,.35);
+}
+
+/* --- 01-base.css --- */
+/* ===== 01 · Base: reset, fundo aurora, tipografia e componentes compartilhados ===== */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--txt);font:15px/1.5 var(--fonte);font-feature-settings:"cv11","ss01";
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(60vw 50vh at 12% -8%,rgba(94,234,212,.16),transparent 60%),
+    radial-gradient(55vw 55vh at 92% 4%,rgba(129,140,248,.18),transparent 60%),
+    radial-gradient(50vw 50vh at 70% 108%,rgba(244,114,182,.13),transparent 60%),
+    linear-gradient(180deg,var(--bg),var(--bg-2))}
+:root[data-tema="claro"] body::before{background:
+    radial-gradient(60vw 50vh at 12% -8%,rgba(13,148,136,.14),transparent 60%),
+    radial-gradient(55vw 55vh at 92% 4%,rgba(79,70,229,.14),transparent 60%),
+    radial-gradient(50vw 50vh at 70% 108%,rgba(219,39,119,.1),transparent 60%),
+    linear-gradient(180deg,var(--bg),var(--bg-2))}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 75%);mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 75%)}
+:root[data-tema="claro"] body::after{background-image:radial-gradient(rgba(15,23,42,.08) 1px,transparent 1px)}
+::selection{background:rgba(129,140,248,.4)}
+*{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:99px;border:2px solid transparent;background-clip:padding-box}
+:focus-visible{outline:2px solid var(--a1);outline-offset:2px;border-radius:var(--r-sm)}
+h1,h2,h3,h4{margin:0;letter-spacing:-.01em}
+a{color:var(--a1)}
+.mut{color:var(--mut);font-size:.85em}
+b,strong{font-weight:650}
+
+/* ---- Seções ---- */
+.sec{margin:0 0 34px;scroll-margin-top:calc(var(--topo) + 14px)}
+.sec-t{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.sec-t svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--a1)}
+.sec-t::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line-2),transparent)}
+
+/* ---- Superfície de vidro (base de cards, pastas, tabelas) ---- */
+.card,.pasta,.uso,.vpn2 .col,.al,.vazio,.ap-tab,table{background:var(--glass);border:1px solid var(--line);box-shadow:var(--sombra)}
+.card,.pasta,.uso,.vpn2 .col,.vazio,.al{-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.card{border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;transition:transform .25s var(--ease),border-color .25s,background .25s}
+.card:hover{transform:translateY(-2px);border-color:var(--line-2);background:var(--glass-2)}
+.card .t{font-size:.8rem;font-weight:600;color:var(--mut);display:flex;align-items:center;gap:6px}
+.card .v{font-size:1.75rem;font-weight:750;margin-top:6px;letter-spacing:-.02em}
+.vlan{border-left:0}
+.vlan::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c);box-shadow:0 0 18px var(--c)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--mut);margin-right:2px;flex:none}
+.dot.up{background:var(--ok);box-shadow:0 0 0 3px rgba(52,211,153,.18),0 0 12px var(--ok)}
+.dot.down{background:var(--bad);box-shadow:0 0 0 3px rgba(251,113,133,.18),0 0 12px var(--bad)}
+.up{background:var(--ok)}.down{background:var(--bad)}
+.vazio{padding:22px;border-radius:var(--r);color:var(--mut);text-align:center;border-style:dashed}
+
+/* ---- Tabelas ---- */
+table{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--r);overflow:hidden}
+th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);font-size:.88rem}
+th{color:var(--mut);font-weight:600;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.03)}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td,table tr:hover td{background:rgba(255,255,255,.03)}
+.ap-tab{overflow-x:auto;border:0;background:transparent;box-shadow:none}
+.ap-tab table{border-radius:0;background:transparent;border:0;box-shadow:none}
+
+/* ---- Botões e campos ---- */
+button,input{font:inherit;color:var(--txt)}
+button{cursor:pointer;border:1px solid var(--line-2);background:var(--glass-2);border-radius:var(--r-sm);padding:9px 15px;font-weight:600;transition:transform .15s var(--ease),background .2s,border-color .2s,box-shadow .2s}
+button:hover{background:var(--glass-3);border-color:var(--a1)}
+button:active{transform:scale(.97)}
+.btn-primario,#login button{background:var(--grad);color:#06101c;border:0;box-shadow:0 8px 24px -8px rgba(129,140,248,.7)}
+.btn-primario:hover,#login button:hover{background:var(--grad);filter:brightness(1.08);box-shadow:0 10px 30px -8px rgba(94,234,212,.7)}
+button.mini{font-size:.8rem;padding:6px 12px;border-radius:var(--r-pill);background:var(--glass);color:var(--txt-2)}
+.mini.ativo{background:var(--grad);color:#06101c;border-color:transparent}
+input{background:rgba(0,0,0,.25);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:11px 14px;transition:border-color .2s,box-shadow .2s}
+:root[data-tema="claro"] input{background:rgba(255,255,255,.8)}
+input:focus{outline:0;border-color:var(--a1);box-shadow:0 0 0 4px rgba(94,234,212,.16)}
+.btn-corrigir{background:linear-gradient(135deg,#fbbf24,#fb923c);color:#2a1500;border:0}
+
+/* ---- Barras, pílulas e etiquetas ---- */
+.barra{height:6px;border-radius:99px;background:var(--glass-3);overflow:hidden;margin-top:6px}
+.barra i{display:block;height:100%;border-radius:99px;background:var(--grad);min-width:2px}
+.tag{font-size:.64rem;font-weight:800;letter-spacing:.06em;padding:2px 8px;border-radius:99px;background:var(--bad);color:#fff;margin-left:8px;vertical-align:middle}
+.lado{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:99px;font-size:.7rem;font-weight:700;border:1px solid}
+.lado.interno{color:var(--ok);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.08)}
+.lado.externo{color:var(--bad);border-color:rgba(251,113,133,.4);background:rgba(251,113,133,.08)}
+.lado.desc{color:var(--mut);border-color:var(--line-2)}
+.chip{font-size:.68rem;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--glass-3);margin-left:6px}
+.aviso{font-size:.8rem;color:var(--mut);margin:10px 4px 0}
+.hm{}
+.pastas-acoes{display:flex;gap:8px;justify-content:flex-end;margin:0 0 12px;flex-wrap:wrap}
+
+/* ---- Faixa de erro global ---- */
+.faixa{display:none;margin:0 0 20px;padding:14px 18px;border-radius:var(--r);background:linear-gradient(135deg,rgba(251,113,133,.22),rgba(251,113,133,.08));border:1px solid rgba(251,113,133,.45);font-weight:650}
+
+/* ---- Pastas (details) compartilhadas por uso, aparelhos, sites e alertas ---- */
+.pasta{border-radius:var(--r);margin-bottom:12px;position:relative;overflow:hidden}
+.pasta::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c,var(--a1));box-shadow:0 0 18px var(--c,var(--a1));opacity:.9}
+.pasta > summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;padding:14px 18px 14px 22px;user-select:none;-webkit-user-select:none;transition:background .2s}
+.pasta > summary:hover{background:var(--glass)}
+.pasta > summary::-webkit-details-marker{display:none}
+.pasta .pico{font-size:1.5rem;line-height:1;width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:color-mix(in srgb,var(--c,#5eead4) 16%,transparent);border:1px solid color-mix(in srgb,var(--c,#5eead4) 30%,transparent)}
+.pasta .ptit,.pasta .pmb{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pasta .pmb{text-align:right}.pasta .pmb b{font-size:1.1rem}
+.pasta .pon{color:var(--ok);font-weight:700}
+.pasta .pseta{color:var(--mut);transition:transform .25s var(--ease)}
+.pasta[open] .pseta{transform:rotate(90deg)}
+.pasta[open] > summary{border-bottom:1px solid var(--line)}
+@media (max-width:640px){.pasta > summary{grid-template-columns:auto 1fr auto;gap:10px;padding:12px 12px 12px 16px}.pasta .pseta{display:none}.pasta .pmb .mut{display:none}.pasta .pico{width:38px;height:38px}}
+
+/* ---- Alertas (itens) ---- */
+.al{display:flex;gap:12px;align-items:flex-start;border-radius:var(--r-sm);padding:12px 14px;margin-bottom:8px;border-left:4px solid var(--warn)}
+.al.n1{border-left-color:var(--bad)}.al.n2{border-left-color:#fb923c}
+.al.novo{box-shadow:0 0 0 1px var(--bad),0 0 24px -6px var(--bad)}
+
+/* ---- Cartões de uso ---- */
+.grade-uso{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));align-items:start;padding:16px}
+.uso{border-radius:var(--r);position:relative;transition:transform .25s var(--ease),border-color .25s}
+.uso::before{content:"";position:absolute;left:14px;right:14px;top:0;height:3px;border-radius:0 0 4px 4px;background:var(--c,var(--a1));box-shadow:0 0 16px var(--c,var(--a1))}
+.uso:hover{transform:translateY(-3px);border-color:var(--line-2)}
+.uso summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:7px;padding:16px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.uso summary::-webkit-details-marker{display:none}
+.uso .cab{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.uso .nome{font-weight:700}.uso .mb{font-size:1.5rem;font-weight:750;letter-spacing:-.02em}
+.uso .rod{display:flex;justify-content:space-between;gap:8px;font-size:.86rem}
+.uso .rod .top{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
+.uso .ver{font-size:.76rem;text-align:center}
+.uso[open] .ver{visibility:hidden;height:0;margin:0}
+.uso .det{padding:2px 10px 12px;border-top:1px solid var(--line)}
+.uso .det table{background:transparent;border:0;box-shadow:none}
+.uso .det th,.uso .det td{padding:8px 6px;font-size:.82rem}.uso .det td:nth-child(n+2){white-space:nowrap}
+.uso .info{display:inline-grid;place-items:center;margin-left:6px;font-size:.7rem;color:var(--mut);border:1px solid var(--line-2);border-radius:99px;width:18px;height:18px}
+@media (max-width:640px){.grade-uso{grid-template-columns:1fr 1fr;gap:10px;padding:10px}.uso summary{padding:12px}.uso .mb{font-size:1.2rem}.uso .rod{flex-direction:column;gap:2px}.uso .rod .top{max-width:100%}.uso[open]{grid-column:1/-1}}
+.vpn-res{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 2px 12px}
+.vcard .agora{display:flex;flex-direction:column;gap:3px;padding-top:8px;border-top:1px dashed var(--line-2);font-size:.82rem}
+.vcard .agora .l{display:flex;justify-content:space-between;gap:8px}
+.vcard .agora .l span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vcard .agora .vel,#ficha .vel{font-weight:800;color:var(--a1);white-space:nowrap}
+.vcard .fluxo{display:flex;gap:14px;font-size:.82rem}
+.vcard .pon{color:var(--ok);font-weight:700}
+
+/* ---- Entradas e saídas da VPN ---- */
+.vpn2{display:grid;gap:14px;grid-template-columns:1fr 1fr;background:none;border:0;box-shadow:none}
+.vpn2 .col{border-radius:var(--r);overflow:hidden}
+.vpn2 .col h3{padding:13px 16px;font-size:.92rem;border-bottom:1px solid var(--line)}
+.vpn2 .col.ent h3{border-top:3px solid var(--ok)}.vpn2 .col.sai h3{border-top:3px solid var(--mut)}
+.vpn2 .ev{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:.88rem}
+.vpn2 .ev:last-child{border-bottom:0}.vpn2 .ev .q{color:var(--mut);font-size:.8rem;white-space:nowrap}.vpn2 .ev b{word-break:break-all}
+.vpn2 .nada{padding:14px 16px;color:var(--mut);font-size:.88rem}
+@media (max-width:760px){.vpn2{grid-template-columns:1fr}}
+
+/* ---- Corrigir (alertas de saúde) ---- */
+.corrigir{margin-top:8px}
+.corrigir > summary{cursor:pointer;list-style:none;display:inline-block}
+.corrigir > summary::-webkit-details-marker{display:none}
+.corrigir ol{margin:10px 0 10px 18px;padding:0;line-height:1.55}.corrigir ol li{margin-bottom:4px}
+
+/* ---- Ficha (popover do usuário) ---- */
+#veu{position:fixed;inset:0;background:rgba(2,6,16,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);z-index:49;display:none}
+#ficha{position:fixed;z-index:50;display:none;width:370px;max-width:calc(100vw - 24px);max-height:80vh;overflow:auto;background:rgba(14,20,36,.88);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--line-2);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--sombra-alta),0 0 0 1px var(--c,transparent) inset;font-size:.88rem;user-select:text;-webkit-user-select:text;cursor:auto}
+:root[data-tema="claro"] #ficha{background:rgba(255,255,255,.94)}
+#ficha.folha{left:0!important;right:0;bottom:0;top:auto!important;width:auto;max-width:none;max-height:80vh;border-radius:var(--r-lg) var(--r-lg) 0 0;padding-bottom:28px}
+#ficha .fx{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+#ficha h3{font-size:1.15rem}
+#ficha h4{margin:16px 0 8px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+#ficha .pill{display:inline-block;font-size:.76rem;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--glass-3);margin-top:6px}
+#ficha .pill.on{background:rgba(52,211,153,.14);color:var(--ok)}
+#ficha dl{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;margin:0}#ficha dt{color:var(--mut)}#ficha dd{margin:0;font-family:var(--mono);font-size:.82rem;word-break:break-all}
+#ficha .ag{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:7px 0;border-bottom:1px solid var(--line)}#ficha .ag:last-child{border-bottom:0}
+#ficha .fechar{display:none;padding:4px 10px;font-size:.85rem}
+#ficha.folha .fechar,#ficha.fixa .fechar{display:inline-block}
+#ficha.fixa{box-shadow:var(--sombra-alta),0 0 0 2px var(--a1)}
+#ficha .dica{display:none;margin-top:14px;padding-top:10px;border-top:1px dashed var(--line-2);font-size:.76rem;color:var(--mut);text-align:center}
+body.tem-mouse #ficha:not(.fixa):not(.folha) .dica{display:block}
+#ficha .fixada{display:none;font-size:.72rem;font-weight:700;color:var(--a1);margin-left:6px}#ficha.fixa .fixada{display:inline}
+#ficha .pulso{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;animation:pulso 1.6s infinite}
+@keyframes pulso{0%{box-shadow:0 0 0 0 rgba(52,211,153,.7)}70%{box-shadow:0 0 0 8px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+
+/* ---- Sites por aparelho ---- */
+.sites-barra{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 12px}
+.sites-dias{display:flex;flex-wrap:wrap;gap:6px}
+#sitesBusca{flex:1 1 220px;max-width:360px;padding:9px 14px;border-radius:var(--r-pill)}
+#sitesSec .ap-tab td:nth-child(n+2){white-space:nowrap}
+#sitesSec .aviso{padding:8px 12px 10px}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* --- 10-shell.css --- */
+/* ===== 10 · Casca do app: login, menu lateral, topo, abas do celular (Aurora Glass) ===== */
+body{overflow-x:hidden}
+.ico-tema svg,.side-btn svg,.topo-acoes svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico-tema{display:inline-grid;place-items:center}
+.ico-tema .i-sol{display:none}
+:root[data-tema="claro"] .ico-tema .i-sol{display:block}
+:root[data-tema="claro"] .ico-tema .i-lua{display:none}
+
+/* ---------- Login ---------- */
+#login{position:relative;min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px;overflow:hidden}
+.login-fundo{position:absolute;inset:0;pointer-events:none;z-index:0}
+.login-fundo i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;animation:flutua 14s ease-in-out infinite alternate}
+.login-fundo i:nth-child(1){width:46vmax;height:46vmax;left:-14vmax;top:-16vmax;background:radial-gradient(circle,rgba(94,234,212,.45),transparent 65%)}
+.login-fundo i:nth-child(2){width:42vmax;height:42vmax;right:-12vmax;top:10vmax;background:radial-gradient(circle,rgba(129,140,248,.5),transparent 65%);animation-delay:-5s}
+.login-fundo i:nth-child(3){width:36vmax;height:36vmax;left:22vmax;bottom:-20vmax;background:radial-gradient(circle,rgba(244,114,182,.38),transparent 65%);animation-delay:-9s}
+:root[data-tema="claro"] .login-fundo i{opacity:.4}
+@keyframes flutua{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(3vmax,2vmax,0) scale(1.12)}}
+.login-card{position:relative;z-index:1;width:100%;max-width:400px;padding:38px 30px 24px;border-radius:28px;text-align:center;
+  background:linear-gradient(180deg,var(--glass-2),var(--glass));border:1px solid var(--line-2);
+  -webkit-backdrop-filter:blur(26px) saturate(150%);backdrop-filter:blur(26px) saturate(150%);
+  box-shadow:var(--sombra-alta),0 0 0 1px rgba(255,255,255,.03) inset;animation:sobe .7s var(--ease) both}
+.login-card::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(140deg,rgba(94,234,212,.7),transparent 35%,transparent 65%,rgba(244,114,182,.6));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.55}
+.login-logo{width:88px;height:88px;margin:0 auto 18px;display:grid;place-items:center;border-radius:28px;position:relative;
+  background:var(--grad-suave);border:1px solid var(--line-2);box-shadow:0 0 60px -10px rgba(129,140,248,.7),0 12px 30px -12px rgba(0,0,0,.6)}
+.login-logo::after{content:"";position:absolute;inset:-8px;border-radius:34px;border:1px solid rgba(129,140,248,.35);animation:anel-logo 3.2s ease-out infinite}
+@keyframes anel-logo{0%{transform:scale(.92);opacity:.8}100%{transform:scale(1.18);opacity:0}}
+.login-logo svg{width:54px;height:54px}
+.login-card h1{font-size:1.7rem;font-weight:780;letter-spacing:-.02em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.login-sub{margin:10px 0 22px;color:var(--mut);font-size:.9rem;line-height:1.5}
+.campo{position:relative}
+.campo svg{position:absolute;left:15px;top:50%;width:18px;height:18px;margin-top:-9px;stroke:var(--mut);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;transition:stroke .2s}
+.campo:focus-within svg{stroke:var(--a1)}
+.login-card input#senha{width:100%;height:50px;padding:0 16px 0 44px;text-align:left;font-size:1rem;border-radius:14px;letter-spacing:.04em}
+.login-card input#senha::placeholder{letter-spacing:0;color:var(--mut)}
+.login-card .lembrar{display:flex;justify-content:center;align-items:center;gap:9px;margin:16px 0 18px;cursor:pointer;color:var(--mut);font-size:.85rem;min-height:30px}
+.login-card .lembrar input{width:18px;height:18px;padding:0;accent-color:var(--a2);cursor:pointer}
+.btn-entrar{position:relative;width:100%;height:50px;padding:0 16px;font-size:1rem;font-weight:700;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;overflow:hidden}
+.btn-entrar::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);transform:translateX(-120%);transition:transform .7s var(--ease)}
+.btn-entrar:hover::after{transform:translateX(120%)}
+.btn-entrar .spin{display:none;width:17px;height:17px;border-radius:50%;border:2.5px solid rgba(6,16,28,.25);border-top-color:#06101c;animation:gira .7s linear infinite}
+.btn-entrar.busy{pointer-events:none;filter:saturate(.8) brightness(.95)}
+.btn-entrar.busy .spin{display:block}
+@keyframes gira{to{transform:rotate(360deg)}}
+#erro{min-height:1.3em;margin:14px 0 0!important;font-size:.88rem;font-weight:600;color:var(--bad)}
+.login-card.tem-erro{animation:sacode .45s var(--ease)}
+.login-card.tem-erro input#senha{border-color:var(--bad);box-shadow:0 0 0 4px rgba(251,113,133,.16)}
+.login-card.tem-erro .campo svg{stroke:var(--bad)}
+@keyframes sacode{0%,100%{transform:none}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.login-rodape{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:.74rem;color:var(--mut)}
+.login-rodape svg{width:14px;height:14px;stroke:var(--ok);fill:none;stroke-width:2;stroke-linejoin:round}
+@keyframes sobe{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+#painel{display:none}
+
+/* ---------- App: menu lateral (PC) ---------- */
+.app{min-height:100vh}
+.side{position:fixed;inset:0 auto 0 0;width:var(--side);display:flex;flex-direction:column;gap:6px;padding:20px 14px 16px;z-index:20;
+  background:linear-gradient(180deg,var(--glass-2),var(--glass) 40%);border-right:1px solid var(--line);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
+.side::after{content:"";position:absolute;top:0;right:-1px;bottom:0;width:1px;background:linear-gradient(180deg,rgba(94,234,212,.5),transparent 30%,transparent 70%,rgba(244,114,182,.4));opacity:.5;pointer-events:none}
+.marca{display:flex;align-items:center;gap:12px;padding:4px 10px 22px}
+.marca svg{width:40px;height:40px;flex:none;padding:6px;border-radius:13px;background:var(--grad-suave);border:1px solid var(--line-2);box-shadow:0 0 26px -8px rgba(129,140,248,.8)}
+.marca b{display:block;font-size:1.08rem;letter-spacing:-.01em;line-height:1.15}
+.marca span{display:block;font-size:.78rem;color:var(--mut)}
+.nav{display:flex;flex-direction:column;gap:3px}
+.nav a{display:flex;align-items:center;gap:12px;min-height:42px;padding:9px 12px;border-radius:13px;color:var(--mut);text-decoration:none;font-weight:600;font-size:.9rem;position:relative;transition:background .25s var(--ease),color .2s,transform .2s var(--ease)}
+.nav a svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;transition:transform .25s var(--ease),color .2s}
+.nav a:hover{background:var(--glass-2);color:var(--txt)}
+.nav a:hover svg{transform:scale(1.1)}
+.nav a.ativo{background:var(--grad-suave);color:var(--txt);box-shadow:inset 0 0 0 1px var(--line-2),0 8px 22px -14px rgba(129,140,248,.9)}
+.nav a.ativo::before{content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:4px;border-radius:0 4px 4px 0;background:var(--grad);box-shadow:0 0 14px rgba(94,234,212,.7)}
+.nav a.ativo svg{stroke:url(#lg);color:var(--a1)}
+.badge{margin-left:auto;font-style:normal;font-size:.68rem;font-weight:800;min-width:20px;height:20px;padding:0 6px;display:none;place-items:center;border-radius:99px;background:linear-gradient(135deg,#fb7185,#f43f5e);color:#fff;box-shadow:0 0 0 3px rgba(251,113,133,.18),0 4px 12px -2px rgba(244,63,94,.6)}
+.badge.on{display:grid;animation:badge-in .4s var(--ease) both}
+@keyframes badge-in{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.side-rodape{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.side-btns{display:flex;flex-direction:column;gap:4px;padding-top:10px;border-top:1px solid var(--line)}
+.side-btn{width:100%;text-align:left;font-size:.85rem;display:flex;align-items:center;gap:11px;min-height:40px;padding:8px 12px;background:transparent;border:1px solid transparent;color:var(--txt-2);border-radius:12px}
+.side-btn:hover{background:var(--glass-2);border-color:var(--line)}
+.side-btn.sair{color:var(--mut)}
+.side-btn.sair:hover{color:var(--bad)}
+.tema-nome{font-style:normal;color:var(--mut)}
+.tema-nome::before{content:"escuro"}
+:root[data-tema="claro"] .tema-nome::before{content:"claro"}
+.status-pill{--tc:var(--mut);display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:14px;border:1px solid color-mix(in srgb,var(--tc) 35%,var(--line));
+  background:linear-gradient(135deg,color-mix(in srgb,var(--tc) 14%,transparent),var(--glass));font-size:.82rem;font-weight:650;color:var(--txt)}
+.status-pill.ok{--tc:var(--ok)}.status-pill.bad{--tc:var(--bad)}
+.status-pill .dot{background:var(--tc);box-shadow:0 0 0 3px color-mix(in srgb,var(--tc) 20%,transparent),0 0 12px var(--tc);margin:0}
+.status-pill.ok .dot,.status-pill.bad .dot{animation:respira 2.4s ease-in-out infinite}
+@keyframes respira{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--tc) 8%,transparent),0 0 16px var(--tc)}}
+
+/* ---------- Topo ---------- */
+.coluna{margin-left:var(--side);min-width:0}
+.topo{position:sticky;top:0;z-index:15;height:calc(var(--topo) + 12px);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 32px;
+  background:linear-gradient(180deg,var(--bg) 55%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:box-shadow .3s}
+.topo-tit{min-width:0}
+.topo h1{font-size:1.3rem;font-weight:780;letter-spacing:-.02em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atual-linha{display:flex;align-items:center;gap:8px;font-size:.8rem;margin-top:1px}
+.atual-linha .mut{font-size:inherit}
+.ao-vivo{width:7px;height:7px;border-radius:50%;flex:none;background:var(--mut)}
+.topo[data-estado="ok"] .ao-vivo{background:var(--ok);animation:pulso 2s infinite}
+.topo[data-estado="bad"] .ao-vivo{background:var(--bad);animation:pulso-r 2s infinite}
+@keyframes pulso-r{0%{box-shadow:0 0 0 0 rgba(251,113,133,.7)}70%{box-shadow:0 0 0 7px rgba(251,113,133,0)}100%{box-shadow:0 0 0 0 rgba(251,113,133,0)}}
+.topo-dir{display:flex;align-items:center;gap:12px}
+.topo-chip{--tc:var(--mut);display:flex;align-items:center;gap:9px;height:36px;padding:0 15px 0 13px;border-radius:var(--r-pill);font-size:.8rem;font-weight:650;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--tc) 14%,transparent),var(--glass));border:1px solid color-mix(in srgb,var(--tc) 35%,var(--line))}
+.topo-chip.ok{--tc:var(--ok)}.topo-chip.bad{--tc:var(--bad)}
+.topo-chip .dot{margin:0;background:var(--tc);box-shadow:0 0 0 3px color-mix(in srgb,var(--tc) 20%,transparent),0 0 10px var(--tc)}
+.topo-acoes{display:none;gap:8px}
+button.icone{padding:0;width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:var(--glass);color:var(--txt-2)}
+main{max-width:1240px;margin:0 auto;padding:6px 32px 70px}
+.rodape{text-align:center;padding:30px 0 0;font-size:.8rem}
+.abas{display:none}
+
+/* ---------- Celular / tablet ---------- */
+@media (max-width:900px){
+  .side{display:none}
+  .coluna{margin-left:0}
+  .topo{padding:0 16px;padding-top:env(safe-area-inset-top);height:calc(var(--topo) + 8px + env(safe-area-inset-top))}
+  .topo.rolou{box-shadow:0 12px 24px -20px rgba(0,0,0,.8)}
+  .topo h1{font-size:1.15rem}
+  .topo-chip{display:none}
+  .topo-acoes{display:flex}
+  main{padding:4px 14px calc(104px + env(safe-area-inset-bottom))}
+  .abas{display:flex;position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;gap:2px;padding:6px;border-radius:26px;
+    background:linear-gradient(180deg,rgba(24,32,54,.88),rgba(12,18,34,.9));border:1px solid var(--line-2);
+    -webkit-backdrop-filter:blur(22px) saturate(160%);backdrop-filter:blur(22px) saturate(160%);
+    box-shadow:var(--sombra-alta),0 0 0 1px rgba(255,255,255,.03) inset;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity}
+  .abas::-webkit-scrollbar{display:none}
+  :root[data-tema="claro"] .abas{background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(244,247,255,.92))}
+  .abas a{flex:1 0 auto;min-width:60px;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 8px;border-radius:19px;color:var(--mut);text-decoration:none;font-size:.62rem;font-weight:650;position:relative;scroll-snap-align:center;transition:background .25s var(--ease),color .2s,transform .2s var(--ease)}
+  .abas a:active{transform:scale(.94)}
+  .abas a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s var(--ease)}
+  .abas a.ativo{background:var(--grad-suave);color:var(--txt);box-shadow:inset 0 0 0 1px var(--line-2),0 6px 18px -8px rgba(129,140,248,.9)}
+  .abas a.ativo svg{stroke:url(#lg);color:var(--a1);transform:translateY(-1px) scale(1.08)}
+  .abas .badge{position:absolute;top:2px;right:9px;margin:0;min-width:17px;height:17px;font-size:.58rem}
+}
+@media (max-width:380px){.topo-acoes{gap:6px}button.icone{width:40px;height:40px}}
+
+/* --- 20-resumo-redes.css --- */
+/* ===== 20 · Internet e pfSense (hero + medidores) e Redes da casa ===== */
+/* tons: --tc é a cor do estado (ok/warn/bad/info/nd) */
+.t-ok{--tc:var(--ok)}.t-warn{--tc:var(--warn)}.t-bad{--tc:var(--bad)}.t-info{--tc:var(--info)}.t-nd{--tc:var(--mut)}
+#sec-resumo > .sec-t{display:none}   /* o topo já mostra o título; o hero abre a seção */
+
+/* ---- entrada escalonada: só existe enquanto o contêiner tem .entra (1ª renderização) ---- */
+.entra .anim{animation:entra .6s var(--ease) both;animation-delay:calc(var(--i,0)*70ms)}
+@keyframes entra{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.entra .arco{animation:arco 1.2s var(--ease) both;animation-delay:calc(var(--i,0)*70ms + 250ms)}
+@keyframes arco{from{stroke-dasharray:0 100}}
+
+.res{display:flex;flex-direction:column;gap:16px}
+
+/* ---- hero ---- */
+.hero{position:relative;display:flex;align-items:center;gap:22px;padding:26px 30px;border-radius:var(--r-lg);overflow:hidden;
+  background:linear-gradient(120deg,color-mix(in srgb,var(--tc) 16%,var(--glass)),var(--glass) 62%);
+  border:1px solid color-mix(in srgb,var(--tc) 40%,var(--line));
+  box-shadow:var(--sombra),0 24px 60px -34px var(--tc);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
+.hero::before{content:"";position:absolute;left:-70px;top:50%;width:340px;height:340px;transform:translateY(-50%);pointer-events:none;
+  background:radial-gradient(circle,color-mix(in srgb,var(--tc) 34%,transparent),transparent 66%)}
+.hero::after{content:"";position:absolute;right:-90px;top:-120px;width:320px;height:320px;pointer-events:none;border-radius:50%;
+  background:radial-gradient(circle,rgba(129,140,248,.16),transparent 65%)}
+.hero-ico{position:relative;flex:none;width:76px;height:76px;border-radius:26px;display:grid;place-items:center;color:var(--tc);
+  background:color-mix(in srgb,var(--tc) 16%,transparent);border:1px solid color-mix(in srgb,var(--tc) 38%,transparent);box-shadow:0 0 46px -6px var(--tc)}
+.hero-ico svg{width:38px;height:38px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px color-mix(in srgb,var(--tc) 70%,transparent))}
+.hero-ico::after{content:"";position:absolute;inset:-1px;border-radius:inherit;border:2px solid var(--tc);opacity:0;animation:hero-pulso 2.8s ease-out infinite}
+@keyframes hero-pulso{0%{transform:scale(1);opacity:.55}100%{transform:scale(1.5);opacity:0}}
+.hero-txt{position:relative;min-width:0;flex:1}
+.hero-ey{font-size:.7rem;font-weight:750;letter-spacing:.16em;text-transform:uppercase;color:var(--tc)}
+.hero h3{font-size:1.75rem;font-weight:800;letter-spacing:-.025em;line-height:1.2;margin:3px 0 4px;overflow-wrap:anywhere}
+.hero p{margin:0;color:var(--txt-2);font-size:.92rem;max-width:62ch}
+.hero-chips{position:relative;display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex:none}
+.chip-h{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 13px;border-radius:var(--r-pill);font-size:.8rem;font-weight:650;white-space:nowrap;
+  background:var(--glass-2);border:1px solid var(--line-2);color:var(--txt-2)}
+.chip-h svg{width:15px;height:15px;stroke:var(--a1);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.chip-h .dot{margin:0}
+.chip-h.bad{border-color:rgba(251,113,133,.45);color:var(--bad)}
+
+/* ---- cartões de métrica ---- */
+.res-grid{display:grid;gap:14px;grid-template-columns:repeat(6,minmax(0,1fr))}
+.card.m{display:flex;flex-direction:column;align-items:center;padding:16px 14px 15px;min-height:196px;text-align:center}
+.card.m::before{content:"";position:absolute;left:18%;right:18%;top:0;height:2px;border-radius:0 0 4px 4px;background:var(--tc);box-shadow:0 0 18px var(--tc);opacity:.8}
+.card.m .t{align-self:stretch;justify-content:center;gap:7px;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;font-weight:700}
+.card.m .t svg{width:16px;height:16px;stroke:var(--tc);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.m-corpo{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:10px 0 6px;gap:10px}
+.m-leg{display:flex;align-items:center;justify-content:center;gap:7px;min-height:22px;font-size:.82rem;color:var(--tc)}
+.m-leg b{font-weight:700}
+.m-leg .mut{color:var(--mut)}
+.m-leg .dot{margin:0}
+.num{display:flex;align-items:baseline;justify-content:center;gap:5px;max-width:100%}
+.num b{font-size:2.35rem;font-weight:800;letter-spacing:-.03em;line-height:1;background:linear-gradient(180deg,var(--txt),color-mix(in srgb,var(--txt) 70%,var(--tc)));-webkit-background-clip:text;background-clip:text;color:transparent}
+.num small{font-size:.9rem;font-weight:650;color:var(--mut)}
+.medida{width:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
+.mbar{width:78%;height:6px;border-radius:99px;background:var(--glass-3);overflow:hidden}
+.mbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 55%,transparent),var(--tc));box-shadow:0 0 12px var(--tc)}
+.entra .mbar i{animation:cresce 1s var(--ease) both;animation-delay:.5s;transform-origin:left}
+@keyframes cresce{from{transform:scaleX(0)}}
+
+/* anel (CPU / memória) */
+.anel{position:relative;width:108px;height:108px}
+.anel svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.anel circle{fill:none;stroke-width:9;stroke-linecap:round}
+.anel .trilho{stroke:var(--glass-3)}
+.anel .arco{stroke:var(--tc);filter:drop-shadow(0 0 6px color-mix(in srgb,var(--tc) 65%,transparent))}
+.anel-v{position:absolute;inset:0;display:flex;align-items:baseline;justify-content:center;gap:1px;padding-top:34px}
+.anel-v b{font-size:1.65rem;font-weight:800;letter-spacing:-.03em}
+.anel-v small{font-size:.8rem;font-weight:650;color:var(--mut)}
+.anel.t-nd .arco{opacity:0}
+
+/* orb da internet */
+.orb{position:relative;width:84px;height:84px;border-radius:50%;display:grid;place-items:center;color:var(--tc);
+  background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--tc) 30%,transparent),color-mix(in srgb,var(--tc) 8%,transparent) 70%);
+  border:1px solid color-mix(in srgb,var(--tc) 40%,transparent);box-shadow:0 0 38px -4px var(--tc),inset 0 0 20px -6px var(--tc)}
+.orb svg{width:38px;height:38px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.orb::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:2px solid var(--tc);opacity:0;animation:hero-pulso 3s ease-out infinite}
+
+/* ---- redes da casa ---- */
+.redes-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.card.rede{display:grid;grid-template-columns:auto 1fr;gap:10px 13px;align-items:center;padding:15px 16px;
+  background:radial-gradient(130% 120% at 0% 0%,color-mix(in srgb,var(--c) 16%,transparent),transparent 55%),var(--glass)}
+.card.rede::after{content:"";position:absolute;left:16px;right:16px;bottom:0;height:2px;border-radius:4px 4px 0 0;background:var(--c);box-shadow:0 0 16px var(--c);opacity:.75}
+.rede-ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:var(--c);
+  background:color-mix(in srgb,var(--c) 17%,transparent);border:1px solid color-mix(in srgb,var(--c) 38%,transparent);box-shadow:0 0 24px -8px var(--c)}
+.rede-ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rede-txt{display:flex;flex-direction:column;min-width:0}
+.rede-txt b{font-size:.95rem;font-weight:750;letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rede-ip{font-family:var(--mono);font-size:.78rem;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rede-st{grid-column:1/-1;display:inline-flex;align-items:center;gap:8px;justify-self:start;height:26px;padding:0 12px 0 10px;border-radius:var(--r-pill);font-size:.76rem;font-weight:700}
+.rede-st .dot{margin:0}
+.rede-st.on{color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent);border:1px solid color-mix(in srgb,var(--ok) 32%,transparent)}
+.rede-st.off{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent);border:1px solid color-mix(in srgb,var(--bad) 40%,transparent)}
+.rede-st.on .dot{animation:respira-ok 2.6s ease-in-out infinite}
+@keyframes respira-ok{50%{box-shadow:0 0 0 6px rgba(52,211,153,.06),0 0 16px var(--ok)}}
+.card.rede.fora{border-color:color-mix(in srgb,var(--bad) 45%,var(--line));
+  background:radial-gradient(130% 120% at 0% 0%,color-mix(in srgb,var(--bad) 16%,transparent),transparent 60%),var(--glass)}
+.card.rede.fora .rede-ico{filter:saturate(.35);opacity:.8}
+.card.rede.fora::after{background:var(--bad);box-shadow:0 0 16px var(--bad)}
+.card.rede.fora .rede-txt b{color:var(--txt-2)}
+
+/* tema claro: números e ícones precisam de mais contraste */
+:root[data-tema="claro"] .nav a.ativo svg,:root[data-tema="claro"] .abas a.ativo svg{stroke:var(--a2)}
+:root[data-tema="claro"] .hero p{color:var(--txt-2)}
+
+/* ---- responsivo ---- */
+@media (max-width:1180px){.res-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:900px){
+  .hero{flex-wrap:wrap;padding:20px 18px;gap:16px}
+  .hero-ico{width:62px;height:62px;border-radius:22px}.hero-ico svg{width:32px;height:32px}
+  .hero h3{font-size:1.4rem}
+  .hero-chips{flex-direction:row;flex-wrap:wrap;align-items:center;width:100%}
+}
+@media (max-width:640px){
+  .res{gap:12px}
+  .res-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .card.m{min-height:182px;padding:14px 10px 13px}
+  .num b{font-size:2rem}
+  .redes-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .card.rede{padding:13px 12px;gap:10px;grid-template-columns:auto 1fr}
+  .rede-ico{width:38px;height:38px;border-radius:12px}.rede-ico svg{width:19px;height:19px}
+  .rede-txt b{font-size:.86rem}.rede-ip{font-size:.72rem}
+  .rede-st{height:28px}
+}
+@media (max-width:360px){.redes-grid{grid-template-columns:1fr}}
+
+/* --- 30-uso-vpn.css --- */
+/* ===== 30 · Frente B: Conectados na VPN, Uso por usuário e Ficha =====
+   Tudo escopado em #vpn, #uso e #ficha para não afetar as seções das outras frentes. */
+
+/* ---- Ícones e peças pequenas ---- */
+#vpn svg.ic,#uso svg.ic,#ficha svg.ic{width:1.05em;height:1.05em;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.17em;margin-right:.4em}
+#vpn .ipm,#uso .ipm{font-family:var(--mono);font-size:.94em;letter-spacing:-.01em}
+
+.sdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--glass-3);border:1px solid var(--line-2);flex:none;margin-right:8px}
+.sdot.on{background:var(--ok);border-color:transparent;box-shadow:0 0 0 3px rgba(52,211,153,.18),0 0 10px var(--ok);animation:uv-pulso 2s infinite}
+@keyframes uv-pulso{0%,100%{box-shadow:0 0 0 3px rgba(52,211,153,.18),0 0 10px var(--ok)}50%{box-shadow:0 0 0 6px rgba(52,211,153,.05),0 0 14px var(--ok)}}
+#vpn .pulso,#ficha .pulso{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:7px;vertical-align:.05em;animation:pulso 1.6s infinite}
+
+/* avatar de iniciais em degradê (matiz vem de --h) */
+.av{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:15px;flex:none;font-weight:800;font-size:.95rem;letter-spacing:.02em;color:#fff;
+  background:linear-gradient(135deg,hsl(var(--h) 82% 62%),hsl(calc(var(--h) + 58) 78% 50%));
+  box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 8px 20px -8px hsl(var(--h) 80% 50%/.75);text-shadow:0 1px 2px rgba(0,0,0,.28);user-select:none;-webkit-user-select:none}
+.av.g{border-radius:50%}
+
+/* ---- Estado vazio ---- */
+#vpn .vz,#uso .vz{display:flex;flex-direction:column;align-items:center;gap:6px;padding:38px 20px;text-align:center;border:1px dashed var(--line-2);background:var(--grad-suave),var(--glass);color:var(--mut)}
+#vpn .vz b,#uso .vz b{color:var(--txt);font-size:1.02rem}
+#vpn .vz span:last-child,#uso .vz span:last-child{max-width:380px;font-size:.88rem}
+.vz-ico{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;margin-bottom:6px;color:var(--a1);
+  background:radial-gradient(circle at 30% 25%,rgba(94,234,212,.22),rgba(129,140,248,.14) 60%,transparent);border:1px solid var(--line-2);box-shadow:0 0 40px -6px rgba(129,140,248,.45)}
+.vz-ico svg.ic{width:28px;height:28px;margin:0;stroke-width:1.6}
+
+/* ---- Resumo da VPN em chips ---- */
+#vpn .vchips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+#vpn .vchip{display:inline-flex;align-items:center;gap:2px;padding:8px 14px;border-radius:var(--r-pill);background:var(--glass);border:1px solid var(--line);box-shadow:var(--sombra);font-size:.85rem;color:var(--txt-2);white-space:nowrap}
+#vpn .vchip b{color:var(--txt);margin:0 5px 0 0;font-size:.95rem}
+#vpn .vchip:first-child{background:linear-gradient(135deg,rgba(52,211,153,.16),rgba(52,211,153,.04));border-color:rgba(52,211,153,.35)}
+#vpn .vchip svg.ic{color:var(--a1)}
+
+/* ---- Grades ---- */
+#vpn .grade-uso{grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;padding:0}
+#uso .grade-uso{grid-template-columns:repeat(auto-fill,minmax(262px,1fr));gap:14px;padding:16px}
+
+/* ---- Cartão (VPN e aparelho) ---- */
+#vpn .uso,#uso .uso{border-radius:var(--r-lg);background:linear-gradient(180deg,color-mix(in srgb,var(--c) 8%,transparent),transparent 55%),var(--glass);overflow:hidden}
+#vpn .uso::before,#uso .uso::before{left:0;right:0;height:3px;border-radius:0;background:linear-gradient(90deg,var(--c),color-mix(in srgb,var(--c) 30%,var(--a2)));box-shadow:0 0 18px var(--c);opacity:.95}
+#vpn .uso:hover,#uso .uso:hover{border-color:color-mix(in srgb,var(--c) 45%,var(--line-2));background:linear-gradient(180deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 60%),var(--glass-2);box-shadow:var(--sombra),0 18px 36px -22px var(--c)}
+#vpn .uso[open],#uso .uso[open]{border-color:color-mix(in srgb,var(--c) 40%,var(--line-2))}
+#vpn .uso summary,#uso .uso summary{padding:18px 18px 14px;gap:11px}
+#vpn .uso summary:focus-visible,#uso .uso summary:focus-visible{outline-offset:-3px}
+#vpn .uso .cab,#uso .uso .cab{min-width:0}
+#vpn .uso .info,#uso .uso .info{margin:0;width:22px;height:22px;font-weight:700;font-family:var(--mono);flex:none;transition:background .2s,color .2s,border-color .2s}
+#vpn .uso:hover .info,#uso .uso:hover .info{color:var(--a1);border-color:var(--a1);background:rgba(94,234,212,.1)}
+#vpn .uso .barra,#uso .uso .barra{height:7px;margin-top:8px;background:var(--glass-3)}
+#vpn .uso .mb,#uso .uso .mb{font-size:1.6rem;line-height:1.1}
+#vpn .uso .ver,#uso .uso .ver{display:flex;align-items:center;justify-content:center;gap:2px;font-size:.74rem;padding-top:2px}
+#vpn .uso .ver svg.ic,#uso .uso .ver svg.ic{width:.95em;height:.95em;margin-right:2px;transform:rotate(90deg)}
+#vpn .uso[open] .ver,#uso .uso[open] .ver{display:none}
+
+/* cartão de aparelho */
+#uso .uso .nome{display:flex;align-items:center;min-width:0;font-size:1rem}
+#uso .uso .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#uso .uso .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:-4px}
+#uso .uso .barra i{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 55%,transparent),var(--c));box-shadow:0 0 12px -2px var(--c)}
+#uso .uso .rod{align-items:center;gap:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--txt-2)}
+#uso .uso .rod .tmp{white-space:nowrap}
+#uso .uso .rod .top{min-width:0;max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt-2)}
+#uso .uso .rod svg.ic{color:var(--c)}
+
+/* ---- VPN: topo do cartão ---- */
+#vpn .vcard.live{border-color:rgba(52,211,153,.4);background:radial-gradient(120% 70% at 100% 0,rgba(52,211,153,.13),transparent 60%),linear-gradient(180deg,color-mix(in srgb,var(--c) 8%,transparent),transparent 55%),var(--glass)}
+#vpn .vtop{display:flex;align-items:center;gap:13px}
+#vpn .avw{position:relative;flex:none;display:block}
+#vpn .avw .av{width:50px;height:50px;font-size:1.05rem}
+#vpn .avlive{position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;border-radius:50%;background:var(--ok);border:2.5px solid var(--bg-2);animation:uv-pulso 2s infinite}
+#vpn .vid{display:flex;flex-direction:column;min-width:0;flex:1}
+#vpn .vid .nome{font-size:1.1rem;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#vpn .vid .mut{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#vpn .vdesde{display:flex;align-items:center;flex-wrap:wrap;gap:4px 2px;padding:8px 12px;border-radius:12px;background:var(--glass);border:1px solid var(--line);font-size:.82rem;color:var(--txt-2)}
+#vpn .vdesde svg.ic{color:var(--a2)}
+#vpn .vdesde b{color:var(--txt)}
+#vpn .vdesde .mut{margin-left:auto;font-size:.76rem}
+#vpn .uso .mb{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:1.85rem}
+#vpn .uso .cons .mut{font-size:.85rem}
+#vpn .uso .barra i{box-shadow:0 0 14px -2px var(--a2)}
+#vpn .fluxo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:.83rem}
+#vpn .fluxo span{display:flex;align-items:center;justify-content:center;gap:1px;padding:8px 4px;border-radius:12px;background:var(--glass);border:1px solid var(--line);color:var(--txt);font-weight:650;white-space:nowrap;min-width:0}
+#vpn .fluxo span:nth-child(1) svg.ic{color:var(--a1)}
+#vpn .fluxo span:nth-child(2) svg.ic{color:var(--a3)}
+#vpn .fluxo span:nth-child(3) svg.ic{color:var(--a2)}
+
+/* acessando agora */
+#vpn .vcard .agora{display:flex;flex-direction:column;gap:7px;padding:11px 13px;border-radius:14px;border:1px solid var(--line);background:var(--glass);font-size:.82rem}
+#vpn .vcard.live .agora{border-color:rgba(52,211,153,.3);background:linear-gradient(180deg,rgba(52,211,153,.1),rgba(52,211,153,.03))}
+#vpn .agh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#vpn .agh .pon{font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ok)}
+#vpn .agh.idle{font-size:.8rem}
+#vpn .agh .tp{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
+#vpn .vcard .agora .l{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:baseline}
+#vpn .agora .ln{display:flex;align-items:center;min-width:0}
+#vpn .agora .dm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+#vpn .agora .chip{flex:none}
+#vpn .agora .vel{font-size:.82rem}
+#vpn .agora .barra{grid-column:1/-1;height:4px;margin:0}
+#vpn .agora .barra i{background:linear-gradient(90deg,var(--ok),var(--a1));box-shadow:none}
+
+/* ---- Lista de sites (ao abrir) ---- */
+#vpn .uso .det,#uso .uso .det{padding:4px 18px 16px;border-top:1px solid var(--line);background:rgba(0,0,0,.08)}
+:root[data-tema="claro"] #vpn .uso .det,:root[data-tema="claro"] #uso .uso .det{background:rgba(15,23,42,.03)}
+.sl-h,.sl-r{display:grid;grid-template-columns:24px minmax(0,1fr) auto auto;gap:0 12px;align-items:center}
+.sl-h{padding:10px 0 6px;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.sl-h span:nth-child(3),.sl-h span:nth-child(4){text-align:right}
+.sl-r{padding:9px 0;border-top:1px solid var(--line);font-size:.84rem}
+.sl-n{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--glass-3);color:var(--mut);font-size:.7rem;font-weight:700}
+.sl-r:nth-child(2) .sl-n{background:var(--grad);color:#06101c}
+.sl-s{min-width:0;display:block}
+.sl-s b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl-s .barra{display:block;height:5px;margin-top:6px}
+.sl-s .barra i{background:linear-gradient(90deg,var(--a1),var(--a2) 60%,var(--a3))}
+.sl-mb{font-weight:700;white-space:nowrap;text-align:right}
+.sl-t{color:var(--mut);white-space:nowrap;text-align:right;min-width:48px}
+.sl-vazio{padding:14px 0 4px;text-align:center}
+
+/* ---- Pastas do "Uso por usuário" ---- */
+#uso .pastas-acoes{gap:8px;margin:0 0 14px}
+#uso .pa-btn{display:inline-flex;align-items:center;gap:2px;min-height:40px;padding:8px 16px 8px 13px;font-size:.82rem;font-weight:650;border-radius:var(--r-pill);background:var(--glass);border:1px solid var(--line-2);color:var(--txt-2);box-shadow:var(--sombra)}
+#uso .pa-btn:hover{color:var(--txt);border-color:var(--a1);background:var(--glass-2)}
+#uso .pa-btn svg.ic{color:var(--a1);margin-right:6px}
+
+#uso .pasta{border-radius:var(--r-lg);margin-bottom:14px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 9%,transparent),transparent 45%),var(--glass)}
+#uso .pasta[open]{border-color:color-mix(in srgb,var(--c) 32%,var(--line-2))}
+#uso .pasta > summary{padding:15px 20px 15px 24px;gap:16px;min-height:76px}
+#uso .pasta > summary:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 7%,transparent),transparent 60%)}
+#uso .pasta .pico{width:48px;height:48px;border-radius:16px;color:var(--c);background:linear-gradient(135deg,color-mix(in srgb,var(--c) 26%,transparent),color-mix(in srgb,var(--c) 8%,transparent));border:1px solid color-mix(in srgb,var(--c) 38%,transparent);box-shadow:0 8px 22px -10px var(--c)}
+#uso .pasta .pico svg.ic{width:24px;height:24px;margin:0;stroke-width:1.7}
+#uso .pasta .ptit{gap:4px}
+#uso .pasta .ptit b{font-size:1.05rem;letter-spacing:-.01em}
+#uso .pasta .pmeta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;font-size:.82rem}
+#uso .pasta .pon{display:inline-flex;align-items:center;font-weight:700;color:var(--ok)}
+#uso .pasta .pon .sdot{margin-right:6px;width:8px;height:8px}
+#uso .pasta .poff{opacity:.8}
+#uso .pasta .pshare{display:block;height:4px;border-radius:9px;background:var(--glass-3);overflow:hidden;max-width:240px;margin-top:3px}
+#uso .pasta .pshare i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 50%,transparent),var(--c))}
+#uso .pasta .pmb{align-items:flex-end;gap:3px;min-width:0}
+#uso .pasta .pmb b{font-size:1.25rem;letter-spacing:-.02em}
+#uso .pasta .pmb .mut{max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.78rem}
+#uso .pasta .pseta{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--glass);border:1px solid var(--line)}
+#uso .pasta .pseta svg.ic{margin:0;width:15px;height:15px}
+#uso .pasta:hover .pseta{border-color:var(--c);color:var(--txt)}
+#uso .pasta[open] > summary{border-bottom-color:color-mix(in srgb,var(--c) 22%,var(--line))}
+
+/* ---- Celular ---- */
+@media (max-width:640px){
+  #vpn .grade-uso{grid-template-columns:1fr;gap:12px}
+  #vpn .vchips{gap:6px}#vpn .vchip{padding:7px 12px;font-size:.8rem}
+  #vpn .uso summary{padding:16px 16px 12px}
+  #vpn .uso .det,#uso .uso .det{padding:2px 14px 14px}
+  #uso .grade-uso{grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+  #uso .uso summary{padding:14px 12px 10px;gap:8px}
+  #uso .uso .mb{font-size:1.3rem}
+  #uso .uso .rod{flex-direction:column;align-items:flex-start;gap:4px;padding-top:8px;font-size:.78rem}
+  #uso .uso .rod .top{max-width:100%}
+  #uso .uso .sub{font-size:.74rem}
+  #uso .uso .info{width:24px;height:24px}
+  #uso .uso .ver{font-size:.7rem}
+  #uso .pasta > summary{padding:12px 12px 12px 18px;gap:12px;min-height:70px}
+  #uso .pasta .pico{width:42px;height:42px;border-radius:14px}
+  #uso .pasta .pico svg.ic{width:21px;height:21px}
+  #uso .pasta .ptit b{font-size:.98rem}
+  #uso .pasta .pmb b{font-size:1.05rem}
+  #uso .pasta .pshare{max-width:none}
+  #uso .pastas-acoes{justify-content:stretch}
+  #uso .pa-btn{flex:1;justify-content:center}
+  .sl-h,.sl-r{grid-template-columns:22px minmax(0,1fr) auto;gap:0 10px}
+  .sl-h span:nth-child(4),.sl-r .sl-t{display:none}
+}
+@media (max-width:360px){#vpn .fluxo span{font-size:.76rem}}
+
+/* ===== Ficha do usuário (popover no PC · folha inferior no toque) ===== */
+#ficha{width:392px;padding:20px 20px 18px;border-radius:24px;background-color:rgba(12,18,34,.9);
+  background-image:linear-gradient(90deg,var(--c,var(--a1)),var(--a2),var(--a3));background-size:100% 3px;background-repeat:no-repeat;background-position:top;
+  -webkit-backdrop-filter:blur(24px) saturate(150%);backdrop-filter:blur(24px) saturate(150%);
+  border:1px solid var(--line-2);box-shadow:var(--sombra-alta),0 0 60px -20px var(--c,transparent);animation:uv-surgir .18s var(--ease)}
+:root[data-tema="claro"] #ficha{background-color:rgba(255,255,255,.95)}
+#ficha.fixa{box-shadow:var(--sombra-alta),0 0 0 2px var(--a1),0 0 40px -10px var(--a1)}
+@keyframes uv-surgir{from{opacity:0;transform:translateY(6px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes uv-subir{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+
+#ficha .fx{display:flex;align-items:center;gap:14px;justify-content:flex-start}
+#ficha .fav .av{width:56px;height:56px;font-size:1.2rem;border-radius:18px}
+#ficha .fav .av.g{border-radius:50%}
+#ficha .fid{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+#ficha h3{font-size:1.2rem;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ficha .pill{display:inline-flex;align-items:center;margin:0;padding:4px 12px;font-size:.76rem;border:1px solid var(--line)}
+#ficha .pill.on{border-color:rgba(52,211,153,.4)}
+#ficha .pill .pulso{margin-right:7px}
+#ficha .fixada{display:none;align-items:center;font-size:.72rem;font-weight:700;color:var(--a1);margin:0}
+#ficha.fixa .fixada{display:inline-flex}
+#ficha .fechar{align-self:flex-start;display:none;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;flex:none}
+#ficha.folha .fechar,#ficha.fixa .fechar{display:inline-grid}
+#ficha .fechar svg.ic{margin:0;width:16px;height:16px}
+
+#ficha .fb{margin-top:12px;padding:12px 14px;border-radius:16px;background:var(--glass);border:1px solid var(--line)}
+#ficha h4{display:flex;align-items:center;margin:0 0 10px;font-size:.68rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--mut)}
+#ficha h4 svg.ic{color:var(--a1);width:1.25em;height:1.25em;margin-right:7px}
+#ficha dl{gap:7px 14px}
+#ficha dd{text-align:right;font-size:.8rem;color:var(--txt)}
+#ficha dt{font-size:.84rem}
+#ficha .fnum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+#ficha .fnum span{display:flex;flex-direction:column;padding:10px 12px;border-radius:12px;background:var(--grad-suave);border:1px solid var(--line)}
+#ficha .fnum b{font-size:1.3rem;letter-spacing:-.02em;line-height:1.15}
+#ficha .fnum i{font-style:normal;font-size:.72rem;color:var(--mut);margin-top:2px}
+#ficha .fnada{font-size:.84rem}
+
+#ficha .ag{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+#ficha .ag:first-of-type{padding-top:0}
+#ficha .ag:last-child{border-bottom:0;padding-bottom:0}
+#ficha .agn{display:flex;align-items:center;min-width:0}
+#ficha .agn .dm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+#ficha .agn .chip{flex:none}
+#ficha .ag .barra{grid-column:1/-1;height:5px;margin:0}
+#ficha .ag .barra i{background:linear-gradient(90deg,var(--ok),var(--a1))}
+#ficha .ag .vel{font-size:.84rem}
+#ficha .ag.top{padding:8px 0}
+#ficha .ag.top .mut{white-space:nowrap;font-size:.78rem}
+#ficha .med{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;margin-right:10px;flex:none;font-size:.72rem;font-weight:800;color:#2a1a00;box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 4px 10px -4px rgba(0,0,0,.5)}
+#ficha .med.m1{background:linear-gradient(135deg,#fde68a,#f59e0b)}
+#ficha .med.m2{background:linear-gradient(135deg,#f1f5f9,#94a3b8)}
+#ficha .med.m3{background:linear-gradient(135deg,#fdba74,#c2410c);color:#2a0f00}
+#ficha .dica{margin-top:14px;padding-top:12px}
+
+/* folha inferior (toque) */
+#ficha.folha{width:auto;max-width:none;max-height:86vh;border-radius:26px 26px 0 0;border-bottom:0;padding:10px 18px calc(26px + env(safe-area-inset-bottom));
+  animation:uv-subir .26s var(--ease);-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#ficha.folha::before{content:"";display:block;width:44px;height:5px;border-radius:9px;background:var(--line-2);margin:4px auto 14px}
+#ficha.folha .fav .av{width:52px;height:52px}
+@media (max-width:640px){#ficha:not(.folha){width:calc(100vw - 24px)}}
+
+/* --- 40-alertas-eventos.css --- */
+/* ===== 40 · Alertas, saúde e entradas/saídas da VPN (Aurora Glass) =====
+   Dono: frente C. Tudo prefixado com #alertas / #eventos para não afetar as outras seções.
+   A cor de cada pasta vem de --c (inline); os itens herdam a cor da pasta onde estão. */
+
+#alertas svg.ic,#eventos svg.ic{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---------- Resumo (4 mini-métricas) ---------- */
+#alertas .al-resumo{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 14px}
+#alertas .rchip{position:relative;display:flex;align-items:center;gap:12px;text-align:left;min-height:68px;padding:12px 16px;border-radius:var(--r);
+  border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));
+  background:radial-gradient(120% 140% at 0 0,color-mix(in srgb,var(--c) 18%,transparent),transparent 62%),var(--glass);
+  box-shadow:var(--sombra);transition:transform .25s var(--ease),border-color .25s,box-shadow .25s}
+#alertas .rchip:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--c) 70%,transparent);background:radial-gradient(120% 140% at 0 0,color-mix(in srgb,var(--c) 26%,transparent),transparent 62%),var(--glass-2);
+  box-shadow:var(--sombra),0 10px 28px -14px var(--c)}
+#alertas .rchip .rico{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:50%;font-size:20px;
+  color:color-mix(in srgb,var(--c) 80%,var(--txt));background:color-mix(in srgb,var(--c) 18%,transparent);border:1px solid color-mix(in srgb,var(--c) 38%,transparent);
+  box-shadow:0 0 18px -4px color-mix(in srgb,var(--c) 70%,transparent)}
+#alertas .rchip .rtxt{display:flex;flex-direction:column;min-width:0;line-height:1.15}
+#alertas .rchip .rtxt b{font-size:1.65rem;font-weight:780;letter-spacing:-.02em;color:var(--txt)}
+#alertas .rchip .rtxt span{font-size:.74rem;font-weight:650;color:var(--mut);letter-spacing:.02em;white-space:nowrap}
+#alertas .rchip.zero{opacity:.55;box-shadow:none}
+#alertas .rchip.zero:hover{opacity:.85}
+#alertas .rchip .rnovo{position:absolute;top:8px;right:10px;font-style:normal;font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  padding:2px 8px;border-radius:99px;background:var(--bad);color:#fff}
+
+/* ---------- Barra: filtro segmentado + ações ---------- */
+#alertas .al-barra{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px}
+#alertas .seg{display:inline-flex;padding:4px;gap:2px;border-radius:var(--r-pill);background:var(--glass);border:1px solid var(--line);box-shadow:var(--sombra)}
+#alertas .seg button.mini{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:6px 14px;border:0;border-radius:var(--r-pill);background:transparent;color:var(--txt-2);font-weight:650;box-shadow:none}
+#alertas .seg button.mini svg{font-size:15px;opacity:.85}
+#alertas .seg button.mini i{font-style:normal;font-size:.7rem;font-weight:750;min-width:20px;padding:1px 6px;border-radius:99px;background:var(--glass-3);color:var(--mut);text-align:center}
+#alertas .seg button.mini:hover{background:var(--glass-3);color:var(--txt)}
+#alertas .seg button.mini.ativo{background:var(--grad);color:#06101c;box-shadow:0 6px 18px -8px rgba(129,140,248,.9)}
+#alertas .seg button.mini.ativo i{background:rgba(6,16,28,.18);color:#06101c}
+#alertas .al-acoes{display:flex;flex-wrap:wrap;gap:8px}
+#alertas .al-acoes button.mini{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:7px 15px;font-weight:650;border-color:var(--line-2);background:var(--glass)}
+#alertas .al-acoes button.mini svg{font-size:15px}
+#alertas .al-acoes button.mini:hover{background:var(--glass-3);color:var(--txt)}
+
+/* ---------- Pastas por gravidade ---------- */
+#alertas .pasta{border-radius:var(--r-lg);margin-bottom:14px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--c) 11%,transparent),transparent 45%),var(--glass);
+  border-color:color-mix(in srgb,var(--c) 22%,var(--line))}
+#alertas .pasta::before{width:3px;opacity:1;box-shadow:0 0 22px 1px var(--c)}
+#alertas .pasta > summary{padding:14px 18px 14px 22px}
+#alertas .pasta > summary:hover{background:color-mix(in srgb,var(--c) 7%,transparent)}
+#alertas .pasta .pico{display:grid;place-items:center;font-size:22px;width:46px;height:46px;border-radius:15px;
+  color:color-mix(in srgb,var(--c) 80%,var(--txt));background:color-mix(in srgb,var(--c) 18%,transparent);border:1px solid color-mix(in srgb,var(--c) 36%,transparent);
+  box-shadow:0 0 20px -6px color-mix(in srgb,var(--c) 75%,transparent)}
+#alertas .pasta .ptit b{font-size:1.02rem}
+#alertas .pasta .pmb b{font-size:1.35rem;font-weight:780;line-height:1.1;color:color-mix(in srgb,var(--c) 75%,var(--txt))}
+#alertas .pasta .pcorpo{padding:12px}
+
+/* ---------- Linha de alerta ---------- */
+#alertas .al{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;margin:0 0 8px;padding:13px 14px;border-radius:var(--r);
+  border:1px solid var(--line);border-left:1px solid var(--line);
+  background:linear-gradient(90deg,color-mix(in srgb,var(--c) 7%,transparent),transparent 55%),rgba(255,255,255,.025);
+  box-shadow:inset 3px 0 0 color-mix(in srgb,var(--c) 85%,transparent);
+  -webkit-backdrop-filter:none;backdrop-filter:none;transition:background .2s,border-color .2s,transform .2s var(--ease)}
+#alertas .al:last-child{margin-bottom:0}
+#alertas .al:hover{border-color:color-mix(in srgb,var(--c) 35%,var(--line));background:linear-gradient(90deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 60%),rgba(255,255,255,.04)}
+#alertas .al.novo{border-color:color-mix(in srgb,var(--bad) 60%,transparent);box-shadow:inset 3px 0 0 var(--bad),0 0 26px -10px var(--bad)}
+#alertas .al .aic{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;font-size:19px;
+  color:color-mix(in srgb,var(--c) 80%,var(--txt));background:color-mix(in srgb,var(--c) 17%,transparent);border:1px solid color-mix(in srgb,var(--c) 38%,transparent)}
+#alertas .al .abody{min-width:0}
+#alertas .al .atop{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+#alertas .al .atit{font-size:.96rem;font-weight:650;line-height:1.38;color:var(--txt);overflow-wrap:anywhere}
+#alertas .al .tag{margin:0;font-size:.62rem;padding:2px 9px;background:linear-gradient(135deg,#fb7185,#f43f5e);animation:al-pulso 2.2s ease-in-out infinite}
+@keyframes al-pulso{0%,100%{box-shadow:0 0 0 0 rgba(251,113,133,.55);opacity:1}50%{box-shadow:0 0 0 6px rgba(251,113,133,0);opacity:.78}}
+#alertas .al .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+#alertas .al .mc,#alertas .al .lado{display:inline-flex;align-items:center;gap:6px;margin:0;padding:3px 10px;border-radius:99px;font-size:.73rem;font-weight:600;line-height:1.5;
+  color:var(--txt-2);background:var(--glass-3);border:1px solid transparent;max-width:100%}
+#alertas .al .mc svg,#alertas .al .lado svg{font-size:13px;opacity:.85}
+#alertas .al .mc.fluxo{flex-wrap:wrap}
+#alertas .al .mc.fluxo svg{color:var(--mut)}
+#alertas .al code{font-family:var(--mono);font-size:.72rem;font-weight:600;overflow-wrap:anywhere;color:var(--txt)}
+#alertas .al .mc.nv{color:color-mix(in srgb,var(--c) 80%,var(--txt));background:color-mix(in srgb,var(--c) 14%,transparent);border-color:color-mix(in srgb,var(--c) 30%,transparent);font-weight:700}
+#alertas .al .lado.interno{color:var(--ok);background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.32)}
+#alertas .al .lado.externo{color:var(--bad);background:rgba(251,113,133,.1);border-color:rgba(251,113,133,.34)}
+#alertas .al .lado.desc{color:var(--mut);background:transparent;border-color:var(--line-2)}
+:root[data-tema="claro"] #alertas .al{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 9%,transparent),transparent 55%),rgba(255,255,255,.6)}
+
+/* ---------- Estado vazio ---------- */
+#alertas .vz-bonito{display:flex;flex-direction:column;align-items:center;gap:8px;padding:48px 20px;border-radius:var(--r-lg);text-align:center;
+  background:radial-gradient(70% 90% at 50% 0,rgba(94,234,212,.12),transparent 70%),var(--glass)}
+#alertas .vz-bonito b{font-size:1.25rem;font-weight:720;color:var(--txt)}
+#alertas .vz-bonito .mut{max-width:36ch;font-size:.88rem}
+#alertas .vz-ic{display:grid;place-items:center;width:78px;height:78px;margin-bottom:6px;border-radius:50%;font-size:36px;color:var(--a1);
+  background:var(--grad-suave);border:1px solid var(--line-2);box-shadow:0 0 0 8px rgba(94,234,212,.05),0 0 40px -6px rgba(94,234,212,.5)}
+#alertas .vz-ok .vz-ic{color:var(--ok);box-shadow:0 0 0 8px rgba(52,211,153,.07),0 0 44px -6px rgba(52,211,153,.55);animation:al-flutua 4s ease-in-out infinite}
+@keyframes al-flutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+#alertas .pcorpo .vazio{padding:16px;font-size:.88rem}
+
+/* ---------- Saúde: "Precisam de correção" ---------- */
+#alertas .pasta.saude{margin-bottom:18px;border-color:rgba(251,191,36,.45);
+  background:radial-gradient(90% 140% at 0 0,rgba(251,191,36,.2),transparent 60%),linear-gradient(135deg,rgba(251,146,60,.08),transparent 70%),var(--glass);
+  box-shadow:var(--sombra),0 14px 44px -18px rgba(251,191,36,.55)}
+:root[data-tema="claro"] #alertas .pasta.saude{border-color:rgba(180,83,9,.4);background:radial-gradient(90% 140% at 0 0,rgba(251,191,36,.3),transparent 60%),rgba(255,255,255,.7)}
+#alertas .pasta.saude::before{background:linear-gradient(180deg,#fbbf24,#fb923c);width:4px}
+#alertas .pasta.saude .pico{color:#2a1500;background:linear-gradient(135deg,#fcd34d,#fb923c);border:0;box-shadow:0 8px 22px -8px rgba(251,146,60,.9)}
+#alertas .pasta.saude .pmb b{color:#fbbf24}
+:root[data-tema="claro"] #alertas .pasta.saude .pmb b{color:#b45309}
+#alertas .al.sau{background:linear-gradient(90deg,rgba(251,191,36,.09),transparent 60%),rgba(255,255,255,.03)}
+#alertas .al.sau.n1{--c:#f43f5e}
+#alertas .al.sau .adet{margin-top:2px;font-size:.86rem;line-height:1.45}
+#alertas .corrigir{margin-top:12px;border-radius:var(--r);transition:background .2s}
+#alertas .corrigir[open]{padding:12px 14px 14px;background:rgba(0,0,0,.16);border:1px solid rgba(251,191,36,.25)}
+:root[data-tema="claro"] #alertas .corrigir[open]{background:rgba(251,191,36,.12)}
+#alertas .corrigir > summary{display:inline-block}
+#alertas .corrigir .btn-corrigir{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:8px 16px;border-radius:var(--r-pill);font-size:.86rem;font-weight:750;
+  background:linear-gradient(135deg,#fcd34d,#fb923c);color:#2a1500;border:0;box-shadow:0 8px 22px -10px rgba(251,146,60,.95);transition:filter .2s,transform .2s var(--ease)}
+#alertas .corrigir .btn-corrigir:hover{filter:brightness(1.07);transform:translateY(-1px)}
+#alertas .corrigir .btn-corrigir svg{font-size:16px}
+#alertas .corrigir .cseta{display:inline-grid;margin-left:2px;transition:transform .25s var(--ease)}
+#alertas .corrigir[open] .cseta{transform:rotate(90deg)}
+#alertas .corrigir ol{list-style:none;counter-reset:passo;margin:14px 0 12px;padding:0}
+#alertas .corrigir ol li{counter-increment:passo;position:relative;padding:3px 0 14px 42px;margin:0;font-size:.9rem;line-height:1.5;color:var(--txt)}
+#alertas .corrigir ol li:last-child{padding-bottom:4px}
+#alertas .corrigir ol li::before{content:counter(passo);position:absolute;left:0;top:0;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;
+  font-size:.78rem;font-weight:800;color:#2a1500;background:linear-gradient(135deg,#fcd34d,#fb923c);box-shadow:0 0 0 4px rgba(251,191,36,.14)}
+#alertas .corrigir ol li:not(:last-child)::after{content:"";position:absolute;left:13px;top:32px;bottom:4px;width:2px;border-radius:2px;background:linear-gradient(180deg,rgba(251,191,36,.5),rgba(251,191,36,.08))}
+#alertas .corrigir .btn-copiar{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:7px 15px;font-weight:650;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.1)}
+#alertas .corrigir .btn-copiar:hover{background:rgba(251,191,36,.2);border-color:#fbbf24;color:var(--txt)}
+#alertas .corrigir .btn-copiar svg{font-size:15px}
+
+/* ---------- Entradas e saídas da VPN: linha do tempo ---------- */
+#eventos .vpn2{gap:16px;align-items:start}
+#eventos .vpn2 .col{--c:var(--ok);border-radius:var(--r-lg);overflow:hidden;
+  background:radial-gradient(100% 120px at 50% 0,color-mix(in srgb,var(--c) 14%,transparent),transparent),var(--glass)}
+#eventos .vpn2 .col.sai{--c:var(--mut)}
+#eventos .vpn2 .col h3{display:flex;align-items:center;gap:11px;padding:15px 18px;font-size:.98rem;font-weight:700;border-top:0;border-bottom:1px solid var(--line)}
+#eventos .vpn2 .col.ent h3,#eventos .vpn2 .col.sai h3{border-top:0}
+#eventos .vpn2 .col h3 .hic{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;font-size:17px;
+  color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);border:1px solid color-mix(in srgb,var(--c) 34%,transparent)}
+#eventos .vpn2 .col.ent h3 .hic{box-shadow:0 0 18px -4px var(--ok)}
+#eventos .vpn2 .col h3 .hn{margin-left:auto;min-width:26px;padding:2px 10px;border-radius:99px;text-align:center;font-size:.76rem;font-weight:750;color:var(--txt-2);background:var(--glass-3)}
+#eventos .linha{padding:8px 12px 12px}
+#eventos .vpn2 .ev{position:relative;display:grid;grid-template-columns:22px 38px minmax(0,1fr) auto;align-items:center;gap:0 12px;padding:10px 8px 10px 0;border-bottom:0;border-radius:12px;font-size:.9rem;transition:background .2s}
+#eventos .vpn2 .ev:hover{background:var(--glass)}
+#eventos .vpn2 .ev::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 45%,transparent),color-mix(in srgb,var(--c) 18%,transparent))}
+#eventos .vpn2 .ev:first-child::before{top:50%}
+#eventos .vpn2 .ev:last-child::before{bottom:50%}
+#eventos .vpn2 .ev:only-child::before{display:none}
+#eventos .vpn2 .ev .pt{position:relative;z-index:1;justify-self:center;width:12px;height:12px;border-radius:50%;background:var(--c);
+  border:2px solid var(--bg-2);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent)}
+#eventos .vpn2 .col.ent .ev .pt{box-shadow:0 0 0 3px rgba(52,211,153,.28),0 0 12px var(--ok)}
+#eventos .vpn2 .ev .av{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;font-size:.78rem;font-weight:780;letter-spacing:.02em;
+  color:hsl(var(--h) 85% 76%);background:hsl(var(--h) 65% 55%/.2);border:1px solid hsl(var(--h) 70% 62%/.42)}
+:root[data-tema="claro"] #eventos .vpn2 .ev .av{color:hsl(var(--h) 70% 30%);background:hsl(var(--h) 75% 55%/.22)}
+#eventos .vpn2 .ev .quem{min-width:0;line-height:1.3}
+#eventos .vpn2 .ev b{word-break:break-word}
+#eventos .vpn2 .ev .quem .mut{margin-top:1px;font-size:.78rem}
+#eventos .vpn2 .ev code{font-family:var(--mono);font-size:.74rem;color:var(--mut);overflow-wrap:anywhere}
+#eventos .vpn2 .ev .q{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25;white-space:nowrap;color:var(--mut)}
+#eventos .vpn2 .ev .q b{font-size:.94rem;font-weight:700;color:var(--txt)}
+#eventos .vpn2 .ev .q span{font-size:.74rem}
+#eventos .vpn2 .nada{display:flex;flex-direction:column;align-items:center;gap:10px;padding:34px 16px;font-size:.88rem;color:var(--mut)}
+#eventos .vpn2 .nada .nic{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;font-size:22px;color:var(--mut);border:1px dashed var(--line-2);background:var(--glass)}
+
+/* ---------- Celular ---------- */
+@media (max-width:900px){#alertas .al-resumo{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){
+  #alertas .al-resumo{gap:10px}
+  #alertas .rchip{min-height:62px;padding:10px 12px;gap:10px}
+  #alertas .rchip .rico{width:36px;height:36px;font-size:18px}
+  #alertas .rchip .rtxt b{font-size:1.45rem}
+  #alertas .al-barra{flex-direction:column;align-items:stretch}
+  #alertas .seg{display:flex}
+  #alertas .seg button.mini{flex:1;justify-content:center;min-height:40px;padding:6px 8px;gap:6px}
+  #alertas .al-acoes button.mini{flex:1;justify-content:center;min-height:42px}
+  #alertas .pasta > summary{padding:12px 12px 12px 18px}
+  #alertas .pasta .pico{width:40px;height:40px;font-size:20px;border-radius:13px}
+  #alertas .pasta .pcorpo{padding:8px}
+  #alertas .al{gap:11px;padding:11px}
+  #alertas .al .aic{width:34px;height:34px;font-size:17px}
+  #alertas .al .atit{font-size:.92rem}
+  #alertas .corrigir .btn-corrigir,#alertas .corrigir .btn-copiar{min-height:42px}
+  #alertas .vz-bonito{padding:38px 16px}
+  #eventos .vpn2{gap:12px}
+  #eventos .vpn2 .ev{grid-template-columns:20px 34px minmax(0,1fr) auto;gap:0 10px}
+  #eventos .vpn2 .ev::before{left:9px}
+  #eventos .vpn2 .ev .av{width:34px;height:34px;font-size:.72rem}
+  #eventos .linha{padding:6px 8px 10px}
+}
+@media (max-width:360px){#alertas .seg button.mini svg{display:none}}
+
+/* --- 50-aparelhos-sites.css --- */
+/* ===== 50 · Aparelhos na rede + Sites por aparelho (Aurora Glass) ===== */
+#aparelhos .mono,#sitesSec .mono{font-family:var(--mono);font-size:.8rem;letter-spacing:-.01em}
+#aparelhos [hidden],#sitesSec [hidden]{display:none!important}
+#aparelhos mark,#sitesSec mark{background:linear-gradient(180deg,transparent 8%,rgba(251,191,36,.38) 8%);color:var(--txt);padding:0 2px;border-radius:4px;box-shadow:0 0 0 1px rgba(251,191,36,.35)}
+:root[data-tema="claro"] #aparelhos mark,:root[data-tema="claro"] #sitesSec mark{background:rgba(251,191,36,.5);box-shadow:0 0 0 1px rgba(180,83,9,.35)}
+
+/* ---------- Aparelhos: resumo ---------- */
+#aparelhos .ap-resumo{margin:0 0 16px;padding:14px 16px;border-radius:var(--r);background:var(--glass);border:1px solid var(--line);box-shadow:var(--sombra);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
+#aparelhos .ap-chips{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#aparelhos .ap-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:var(--r-pill);font-size:.84rem;color:var(--txt-2);background:var(--glass-2);border:1px solid var(--line)}
+#aparelhos .ap-chip b{font-size:1.05rem;color:var(--txt);font-weight:750}
+#aparelhos .ap-chip .dot{margin:0}
+#aparelhos .ap-chip.ch-on{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.32)}
+#aparelhos .ap-chip.ch-off{background:rgba(251,113,133,.09);border-color:rgba(251,113,133,.3)}
+#aparelhos .ap-resumo .pastas-acoes{margin:0 0 0 auto;gap:6px}
+#aparelhos .ap-prop{height:8px;margin:13px 0 10px;border-radius:99px;background:rgba(251,113,133,.28);overflow:hidden;position:relative}
+#aparelhos .ap-prop i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ok),var(--a1));box-shadow:0 0 14px rgba(52,211,153,.55);transform-origin:left;animation:ap-cresce .8s var(--ease) both}
+@keyframes ap-cresce{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+#aparelhos .ap-nota{line-height:1.4}
+#aparelhos .pastas-acoes .mini,#aparelhos .ap-resumo .mini{min-height:36px;padding:7px 14px;font-weight:650;background:var(--glass-2);border-color:var(--line-2)}
+#aparelhos .pastas-acoes .mini:hover{background:var(--glass-3);border-color:var(--a1);transform:translateY(-1px)}
+
+/* ---------- Aparelhos: pastas por rede ---------- */
+#aparelhos .pasta{transition:border-color .25s,box-shadow .25s}
+#aparelhos .pasta:hover{border-color:var(--line-2)}
+#aparelhos .pasta[open]{box-shadow:var(--sombra),0 0 0 1px color-mix(in srgb,var(--c) 25%,transparent)}
+#aparelhos .pasta > summary{min-height:64px}
+#aparelhos .pasta .pico{box-shadow:0 0 22px -6px var(--c)}
+#aparelhos .pasta .ptit b{font-size:1.02rem}
+#aparelhos .pmb.ap{align-items:flex-end;min-width:104px}
+#aparelhos .pmb.ap b{font-size:.95rem}
+#aparelhos .pmb.ap .pon{text-shadow:0 0 12px rgba(52,211,153,.45)}
+#aparelhos .ap-mb{display:block;width:96px;height:5px;margin-top:4px;border-radius:99px;background:rgba(251,113,133,.28);overflow:hidden}
+#aparelhos .ap-mb i{display:block;height:100%;border-radius:99px;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+#aparelhos .pasta .pseta{font-size:1rem;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--glass-2)}
+
+/* ---------- Tabelas (aparelhos, sites, busca) ---------- */
+#aparelhos .ap-tab table,#sitesSec .ap-tab table{border-collapse:collapse}
+#aparelhos .ap-tab th,#sitesSec .ap-tab th{padding:10px 14px;font-size:.68rem;background:transparent;border-bottom:1px solid var(--line-2);white-space:nowrap}
+#aparelhos .ap-tab td,#sitesSec .ap-tab td{padding:12px 14px;vertical-align:middle;border-bottom:1px solid var(--line)}
+#aparelhos .ap-tab tr:last-child td,#sitesSec .ap-tab tr:last-child td{border-bottom:0}
+#aparelhos .ap-tab tr:hover td,#sitesSec .ap-tab tr:hover td{background:var(--grad-suave)}
+#aparelhos .tb-ap th:first-child,#aparelhos .tb-ap td.c-st{width:34px;padding-right:0}
+#aparelhos .c-nome b{font-weight:650}
+#aparelhos .c-ip,#aparelhos .c-mac{white-space:nowrap}
+#aparelhos .c-visto{white-space:nowrap}
+#aparelhos .ap-priv{font-size:.8rem;opacity:.8;cursor:help}
+#aparelhos .ap-agora{color:var(--ok);font-weight:700}
+#aparelhos tr.off .c-nome b{color:var(--txt-2);font-weight:550}
+#aparelhos tr.off .c-ip{color:var(--mut)}
+#aparelhos .dot.up{animation:ap-pulso 2.4s ease-in-out infinite}
+@keyframes ap-pulso{0%,100%{box-shadow:0 0 0 3px rgba(52,211,153,.18),0 0 12px var(--ok)}50%{box-shadow:0 0 0 5px rgba(52,211,153,.1),0 0 16px var(--ok)}}
+
+/* ---------- Sites: pasta principal ---------- */
+#sitesSec{transition:border-color .25s,box-shadow .25s}
+#sitesSec[open]{box-shadow:var(--sombra),0 0 0 1px color-mix(in srgb,var(--c) 28%,transparent)}
+#sitesSec > summary{min-height:68px}
+#sitesSec > summary .pico{box-shadow:0 0 22px -6px var(--c)}
+#sitesSec > summary .ptit b{font-size:1.02rem}
+#sitesSec .sites-corpo{padding:16px 18px 18px 22px}
+
+.sites-aviso{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:9px 13px;border-radius:var(--r-sm);font-size:.8rem;line-height:1.4;color:var(--txt-2);
+  background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(244,114,182,.07));border:1px solid rgba(251,191,36,.28)}
+.sites-aviso svg{flex:none;width:18px;height:18px;fill:none;stroke:var(--warn);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sites-aviso b{color:var(--warn)}
+
+#sitesSec .sites-barra{display:flex;flex-direction:column;align-items:stretch;gap:12px;margin:0 0 12px}
+#sitesSec .sites-dias{display:flex;flex-wrap:nowrap;gap:2px;padding:4px;border-radius:var(--r-pill);background:rgba(0,0,0,.22);border:1px solid var(--line);
+  overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;align-self:flex-start;max-width:100%;-webkit-overflow-scrolling:touch}
+:root[data-tema="claro"] #sitesSec .sites-dias{background:rgba(15,23,42,.06)}
+#sitesSec .sites-dias::-webkit-scrollbar{display:none}
+#sitesSec .sites-dias:empty{display:none}
+#sitesSec .sites-dias .mini{flex:none;min-height:38px;padding:7px 16px;border:0;border-radius:var(--r-pill);background:transparent;color:var(--mut);font-weight:650;white-space:nowrap}
+#sitesSec .sites-dias .mini:hover{background:var(--glass-2);color:var(--txt)}
+#sitesSec .sites-dias .mini.ativo{background:var(--grad);color:#06101c;box-shadow:0 6px 18px -6px rgba(129,140,248,.8)}
+
+#sitesSec .sites-busca{position:relative;display:block}
+#sitesSec .sites-busca > svg{position:absolute;left:16px;top:50%;width:20px;height:20px;margin-top:-10px;fill:none;stroke:var(--mut);stroke-width:2;stroke-linecap:round;pointer-events:none;transition:stroke .2s}
+#sitesSec .sites-busca:focus-within > svg{stroke:var(--a1)}
+#sitesSec #sitesBusca{display:block;width:100%;max-width:none;flex:none;min-height:50px;padding:12px 52px 12px 48px;border-radius:var(--r);font-size:1rem;background:rgba(0,0,0,.22);
+  -webkit-appearance:none;appearance:none}
+:root[data-tema="claro"] #sitesSec #sitesBusca{background:rgba(255,255,255,.85)}
+#sitesSec #sitesBusca::-webkit-search-cancel-button,#sitesSec #sitesBusca::-webkit-search-decoration{-webkit-appearance:none;display:none}
+#sitesSec #sitesBusca::placeholder{color:var(--mut)}
+#sitesSec .sites-limpar{position:absolute;right:7px;top:50%;margin-top:-18px;width:36px;height:36px;padding:0;border-radius:50%;border:0;background:var(--glass-3);color:var(--txt-2);font-size:.85rem;line-height:1;display:grid;place-items:center}
+#sitesSec .sites-limpar:hover{background:var(--a3);color:#fff;border:0}
+
+#sitesSec .st-info{display:flex;flex-direction:column;gap:3px;margin:0 0 14px;padding:0 2px;font-size:.8rem;line-height:1.45}
+#sitesSec .st-linha{display:flex;align-items:center;gap:8px;color:var(--txt-2);font-weight:550}
+#sitesSec .st-linha .dot{margin:0;width:8px;height:8px}
+#sitesSec .st-alerta .st-linha{color:var(--warn)}
+#sitesSec .st-erro{color:var(--bad)}
+#sitesSec .st-nota{color:var(--mut)}
+#sitesSec .st-info:empty{display:none}
+
+/* ---------- Sites: pasta de cada aparelho ---------- */
+#sitesLista .pasta{background:var(--glass-2);box-shadow:none}
+#sitesLista .pasta[open]{box-shadow:var(--sombra)}
+#sitesLista .pasta > summary{padding:12px 16px 12px 20px}
+#sitesLista .pasta .pico{width:40px;height:40px;font-size:1.3rem;border-radius:12px}
+#sitesLista .pasta .pmb b{font-size:.98rem}
+#sitesLista .st-mini{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:.78rem;color:var(--txt-2);min-width:0}
+#sitesLista .st-mini svg{flex:none;width:14px;height:14px;fill:none;stroke:var(--c);stroke-width:2;stroke-linecap:round}
+#sitesLista .st-mini b{font-weight:700;white-space:nowrap}
+#sitesLista .st-top{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:1px 9px;border-radius:99px;background:color-mix(in srgb,var(--c) 14%,transparent);border:1px solid color-mix(in srgb,var(--c) 28%,transparent);color:var(--txt-2);font-size:.72rem;min-width:0}
+#sitesSec .tb-sites{table-layout:auto}
+#sitesSec .tb-sites td:first-child{width:56%}
+#sitesSec .st-nome{display:block;overflow-wrap:anywhere;font-weight:550;line-height:1.3}
+#sitesSec .c-site .barra{height:5px;margin-top:7px;background:var(--glass-3)}
+#sitesSec .c-site .barra i{background:linear-gradient(90deg,var(--c),var(--a2));box-shadow:0 0 10px color-mix(in srgb,var(--c) 70%,transparent)}
+#sitesSec .tb-busca .c-site .st-nome{font-weight:650}
+#sitesSec .c-tempo{font-weight:650;white-space:nowrap}
+#sitesSec .c-cons,#sitesSec .c-hora,#sitesSec .c-dia{white-space:nowrap}
+#sitesSec .c-cons{color:var(--txt-2)}
+#sitesSec .tb-sites .c-tempo,#sitesSec .tb-sites .c-cons{text-align:right}
+#sitesSec .tb-sites th:nth-child(2),#sitesSec .tb-sites th:nth-child(3){text-align:right}
+
+/* busca: cabeçalho de resultados */
+#sitesSec .st-achados{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:10px 14px;border-radius:var(--r-sm);background:var(--grad-suave);border:1px solid var(--line-2);font-size:.88rem;line-height:1.4}
+#sitesSec .st-n{flex:none;min-width:38px;height:38px;padding:0 8px;display:grid;place-items:center;border-radius:12px;background:var(--grad);color:#06101c;font-weight:800;font-size:1rem}
+#sitesSec .tb-busca{border:1px solid var(--line);border-radius:var(--r-sm)}
+#sitesSec .tb-busca td.c-ap{min-width:140px}
+
+/* estados vazio / erro */
+#aparelhos .vazio,#sitesSec .vazio{border-radius:var(--r);padding:30px 20px}
+#sitesSec .vazio.estado{display:flex;flex-direction:column;align-items:center;gap:8px;line-height:1.5}
+#sitesSec .vazio.estado b{color:var(--txt);font-size:1rem}
+#sitesSec .vazio.estado > span:last-child{max-width:520px;font-size:.88rem}
+#sitesSec .est-ico{display:grid;place-items:center;width:52px;height:52px;border-radius:16px;font-size:1.5rem;background:var(--grad-suave);border:1px solid var(--line-2)}
+#sitesSec .vazio.erro{border-style:solid;border-color:rgba(251,113,133,.4);background:linear-gradient(135deg,rgba(251,113,133,.14),rgba(251,113,133,.04))}
+#sitesSec .vazio.erro .est-ico{background:rgba(251,113,133,.18);border-color:rgba(251,113,133,.4)}
+
+/* ---------- Celular: linhas viram cartões ---------- */
+@media (max-width:640px){
+  #aparelhos .ap-resumo{padding:12px}
+  #aparelhos .ap-resumo .pastas-acoes{margin:4px 0 0;width:100%}
+  #aparelhos .ap-resumo .pastas-acoes .mini{flex:1;min-height:42px}
+  #aparelhos .ap-chip{padding:5px 11px}
+  #aparelhos .pmb.ap{min-width:0}
+  #aparelhos .pmb.ap .mut{display:block}
+  #aparelhos .ap-mb{width:64px}
+  #aparelhos .pasta > summary{grid-template-columns:auto 1fr auto}
+  #aparelhos .pasta .pseta{display:none}
+
+  #aparelhos .ap-tab,#sitesSec .ap-tab{overflow-x:visible}
+  #aparelhos .ap-tab table,#sitesSec .ap-tab table,
+  #aparelhos .ap-tab tbody,#sitesSec .ap-tab tbody,
+  #aparelhos .ap-tab tr,#sitesSec .ap-tab tr,
+  #aparelhos .ap-tab td,#sitesSec .ap-tab td{display:block}
+  #aparelhos .ap-tab tr:has(th),#sitesSec .ap-tab tr:has(th){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  #aparelhos .ap-tab tr:not(:has(th)),#sitesSec .ap-tab tr:not(:has(th)){padding:12px 14px;border-bottom:1px solid var(--line)}
+  #aparelhos .ap-tab tr:last-child,#sitesSec .ap-tab tr:last-child{border-bottom:0}
+  #aparelhos .ap-tab tr:hover td,#sitesSec .ap-tab tr:hover td{background:none}
+  #aparelhos .ap-tab td,#sitesSec .ap-tab td{padding:0;border:0;font-size:.86rem}
+  #aparelhos .ap-tab td.hm,#sitesSec .ap-tab td.hm{display:flex}
+
+  /* aparelhos: ponto + nome + visto na 1ª linha; IP/MAC/fabricante empilhados */
+  #aparelhos .tb-ap tr:not(:has(th)){display:grid;grid-template-columns:18px 1fr auto;column-gap:10px;row-gap:5px;align-items:center}
+  #aparelhos .tb-ap td.c-st{grid-column:1;grid-row:1;width:auto}
+  #aparelhos .tb-ap td.c-nome{grid-column:2;grid-row:1;font-size:.95rem;overflow-wrap:anywhere}
+  #aparelhos .tb-ap td.c-visto{grid-column:3;grid-row:1;font-size:.78rem;padding:2px 9px;border-radius:99px;background:var(--glass-2)}
+  #aparelhos .tb-ap td.c-ip,#aparelhos .tb-ap td.c-mac,#aparelhos .tb-ap td.c-fab{grid-column:2/4;display:flex;justify-content:space-between;gap:12px;font-size:.8rem}
+  #aparelhos .tb-ap td.c-ip::before,#aparelhos .tb-ap td.c-mac::before,#aparelhos .tb-ap td.c-fab::before{content:attr(data-label);color:var(--mut);font-family:var(--fonte);font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;align-self:center}
+  #aparelhos .tb-ap td.c-ip{font-size:.84rem;color:var(--txt-2)}
+  #aparelhos .tb-ap td.c-fab{text-align:right}
+
+  /* sites do aparelho */
+  #sitesSec .sites-corpo{padding:12px 12px 14px 16px}
+  #sitesSec .sites-dias{align-self:stretch;border-radius:var(--r)}
+  #sitesSec .sites-dias .mini{min-height:40px}
+  #sitesSec #sitesBusca{min-height:52px}
+  #sitesLista .pasta > summary{padding:11px 12px 11px 16px}
+  #sitesLista .st-top{max-width:110px}
+  #sitesSec .tb-sites tr:not(:has(th)){display:grid;grid-template-columns:1fr auto;column-gap:14px;row-gap:5px;align-items:center}
+  #sitesSec .tb-sites td.c-site{grid-column:1/-1}
+  #sitesSec .tb-sites td.c-tempo,#sitesSec .tb-sites td.c-cons,#sitesSec .tb-sites td.c-hora{font-size:.8rem;text-align:left}
+  #sitesSec .tb-sites tr:not(:has(th)){grid-template-columns:auto auto 1fr;column-gap:12px}
+  #sitesSec .tb-sites td.c-tempo{font-size:.86rem}
+  #sitesSec .tb-sites td.c-cons::after{content:" consultas";color:var(--mut);font-size:.76rem}
+  #sitesSec .tb-sites td.c-hora{text-align:right;font-size:.74rem}
+  #sitesSec .tb-sites td.c-hora::before,#sitesSec .tb-sites td.c-tempo::before,#sitesSec .tb-sites td.c-cons::before{content:none}
+  #sitesSec .tb-sites td.hm{display:block}
+
+  /* resultado da busca como cartões */
+  #sitesSec .tb-busca{border:0}
+  #sitesSec .tb-busca tr:not(:has(th)){display:grid;grid-template-columns:1fr auto;column-gap:12px;row-gap:5px;margin-bottom:8px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--glass-2)}
+  #sitesSec .tb-busca tr:last-child{border-bottom:1px solid var(--line)}
+  #sitesSec .tb-busca td.c-site{grid-column:1/-1;grid-row:1;font-size:.95rem}
+  #sitesSec .tb-busca td.c-ap{grid-column:1;grid-row:2;min-width:0}
+  #sitesSec .tb-busca td.c-dia{grid-column:2;grid-row:2;align-self:start;text-align:right;color:var(--mut);font-size:.78rem}
+  #sitesSec .tb-busca td.c-tempo,#sitesSec .tb-busca td.c-cons,#sitesSec .tb-busca td.c-hora{grid-column:1/-1;display:flex;justify-content:space-between;gap:12px;font-size:.8rem}
+  #sitesSec .tb-busca td.c-tempo::before,#sitesSec .tb-busca td.c-cons::before,#sitesSec .tb-busca td.c-hora::before{content:attr(data-label);color:var(--mut);font-family:var(--fonte);font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;align-self:center}
+  #sitesSec .tb-busca td.c-cons::after{content:none}
+  #sitesSec .st-achados{padding:9px 12px}
+}
+@media (prefers-reduced-motion:reduce){#aparelhos .dot.up,#aparelhos .ap-prop i{animation:none!important}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5eead4"/><stop offset=".55" stop-color="#818cf8"/><stop offset="1" stop-color="#f472b6"/></linearGradient></defs></svg>
 <div id="login">
-  <div style="font-size:48px">🛡️</div>
-  <h1>Monitor da Casa</h1>
-  <p class="mut">Os dados chegam criptografados. Digite a senha para abrir.</p>
-  <input id="senha" type="password" placeholder="Senha" autocomplete="current-password">
-  <label class="mut"><input id="lembrar" type="checkbox" style="width:auto;margin:0 6px 0 0">Lembrar neste aparelho</label><br><br>
-  <button onclick="entrar()">Abrir</button>
-  <p id="erro" style="color:var(--bad)"></p>
+  <div class="login-fundo" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="login-card">
+    <div class="login-logo"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8 12 17v15c0 12.5 8.5 21.5 20 26 11.5-4.5 20-13.5 20-26V17z" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linejoin="round"/><path d="M22 33l7 7 13-14" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h1>Monitor da Casa</h1>
+    <p class="login-sub">Os dados chegam criptografados.<br>Digite a senha para abrir.</p>
+    <div class="campo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><input id="senha" type="password" placeholder="Senha" autocomplete="current-password"></div>
+    <label class="lembrar"><input id="lembrar" type="checkbox"><span>Lembrar neste aparelho</span></label>
+    <button class="btn-entrar" onclick="entrar()"><span class="spin" aria-hidden="true"></span><span class="rot">Abrir</span></button>
+    <p id="erro" role="alert"></p>
+    <div class="login-rodape"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 4.500 3.400 7.700 8 9 4.600-1.300 8-4.500 8-9V6z"/></svg>Criptografado de ponta a ponta · só leitura</div>
+  </div>
 </div>
 
-<div id="painel">
-  <header>
-    <div><h1>🛡️ Monitor da Casa</h1><div class="mut" id="atual">—</div></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button onclick="ativarAvisos()" id="btnAvisos">🔔 Ativar avisos</button>
-      <button onclick="sair()" style="background:var(--card2);color:var(--txt)">Sair</button>
+<div id="painel" class="app">
+  <aside class="side" id="side">
+    <div class="marca">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8 12 17v15c0 12.5 8.5 21.5 20 26 11.5-4.5 20-13.5 20-26V17z" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linejoin="round"/><path d="M22 33l7 7 13-14" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><b>Monitor</b><span>da Casa</span></div>
     </div>
-  </header>
-  <main>
-    <div class="faixa" id="faixa"></div>
-    <h2>🌐 Internet e pfSense</h2><div class="grid" id="resumo"></div>
-    <h2>🗺️ Redes da casa</h2><div class="grid" id="redes"></div>
-    <h2>🔐 Conectados na VPN</h2><div id="vpn"></div>
-    <h2>📡 Aparelhos na rede</h2><div id="aparelhos"></div>
-    <h2>👥 Uso por usuário · hoje</h2><div id="uso"></div>
-    <h2>🌐 Sites por aparelho</h2>
-    <details class="pasta" id="sitesSec" style="--c:#b48ead">
-      <summary>
-        <span class="pico">🌐</span>
-        <span class="ptit"><b>Sites acessados por aparelho</b><span class="mut">histórico de DNS · dado sensível · só abre quando você clicar</span></span>
-        <span class="pmb"><b id="sitesRes">—</b><span class="mut" id="sitesRes2"></span></span>
-        <span class="pseta">▸</span>
-      </summary>
-      <div style="padding:12px">
-        <div class="sites-barra">
-          <div class="sites-dias" id="sitesDias"></div>
-          <input id="sitesBusca" type="search" placeholder="🔎 Quem acessou? (ex.: xvideos)" autocomplete="off">
-        </div>
-        <div class="mut" id="sitesInfo" style="margin:0 2px 10px"></div>
-        <div id="sitesLista"></div>
+    <nav class="nav" id="nav" aria-label="Seções">
+      <a href="#sec-resumo" data-sec="sec-resumo"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.300 6.300-3.800 9c-2.500-2.700-3.800-5.700-3.800-9S9.500 5.700 12 3"/></svg><span>Internet</span></a>
+      <a href="#sec-redes" data-sec="sec-redes"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></svg><span>Redes</span></a>
+      <a href="#sec-alertas" data-sec="sec-alertas"><svg viewBox="0 0 24 24"><path d="M12 3 2.500 19.500h19zM12 10v4.500M12 17.500v.01"/></svg><span>Alertas</span><em class="badge" id="navAlertas"></em></a>
+      <a href="#sec-vpn" data-sec="sec-vpn"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>VPN</span></a>
+      <a href="#sec-uso" data-sec="sec-uso"><svg viewBox="0 0 24 24"><path d="M3 20h18M6 20v-7M11 20V6M16 20v-9M21 20v-4"/></svg><span>Uso hoje</span></a>
+      <a href="#sec-aparelhos" data-sec="sec-aparelhos"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="14" height="10" rx="2"/><path d="M7 18h6M10 14v4"/><rect x="17.500" y="9" width="3.500" height="9" rx="1"/></svg><span>Aparelhos</span></a>
+      <a href="#sec-sites" data-sec="sec-sites"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m16 8-2.500 5.500L8 16l2.500-5.500z"/></svg><span>Sites</span></a>
+      <a href="#sec-eventos" data-sec="sec-eventos"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Histórico VPN</span></a>
+    </nav>
+    <div class="side-rodape">
+      <div class="status-pill" id="statusPill"><span class="dot"></span><span id="statusTxt">conectando…</span></div>
+      <div class="side-btns">
+        <button class="side-btn" onclick="alternarTema()" id="btnTema" title="Alternar tema claro/escuro"><span class="ico-tema"><svg class="i-lua" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.800A9 9 0 1 1 11.200 3a7 7 0 0 0 9.800 9.800z"/></svg><svg class="i-sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.900 4.900l1.400 1.400M17.700 17.700l1.400 1.400M2 12h2M20 12h2M4.900 19.100l1.400-1.400M17.700 6.300l1.400-1.400"/></svg></span><span class="rot">Tema <em class="tema-nome"></em></span></button>
+        <button class="side-btn" onclick="ativarAvisos()" id="btnAvisos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.300 21a1.900 1.900 0 0 0 3.400 0"/></svg><span class="rot">Ativar avisos</span></button>
+        <button class="side-btn sair" onclick="sair()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span class="rot">Sair</span></button>
       </div>
-    </details>
-    <h2>🚨 Alertas</h2><div id="alertas"></div>
-    <h2>🕒 Entradas e saídas da VPN</h2><div id="eventos"></div>
-  </main>
+    </div>
+  </aside>
+
+  <div class="coluna">
+    <header class="topo">
+      <div class="topo-tit"><h1>Visão geral</h1><div class="atual-linha"><span class="ao-vivo" aria-hidden="true"></span><span class="mut" id="atual">—</span></div></div>
+      <div class="topo-dir">
+        <div class="topo-chip" id="topoChip"><span class="dot"></span><span class="txt">conectando…</span></div>
+        <div class="topo-acoes">
+          <button class="icone" onclick="alternarTema()" title="Alternar tema"><span class="ico-tema"><svg class="i-lua" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.800A9 9 0 1 1 11.200 3a7 7 0 0 0 9.800 9.800z"/></svg><svg class="i-sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.900 4.900l1.400 1.400M17.700 17.700l1.400 1.400M2 12h2M20 12h2M4.900 19.100l1.400-1.400M17.700 6.300l1.400-1.400"/></svg></span></button>
+          <button class="icone" onclick="ativarAvisos()" title="Ativar avisos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.300 21a1.900 1.900 0 0 0 3.400 0"/></svg></button>
+          <button class="icone" onclick="sair()" title="Sair"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+        </div>
+      </div>
+    </header>
+    <main>
+      <div class="faixa" id="faixa"></div>
+      <section class="sec" id="sec-resumo"><h2 class="sec-t"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0M3 12h18M12 3c2.500 2.700 3.800 5.700 3.800 9s-1.300 6.300-3.800 9c-2.500-2.700-3.800-5.700-3.800-9S9.500 5.700 12 3"/></svg>Internet e pfSense</h2><div class="res" id="resumo"></div></section>
+      <section class="sec" id="sec-redes"><h2 class="sec-t"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></svg>Redes da casa</h2><div class="redes-grid" id="redes"></div></section>
+      <section class="sec" id="sec-alertas"><h2 class="sec-t"><svg viewBox="0 0 24 24"><path d="M12 3 2.500 19.500h19zM12 10v4.500M12 17.500v.01"/></svg>Alertas</h2><div id="alertas"></div></section>
+      <section class="sec" id="sec-vpn"><h2 class="sec-t"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Conectados na VPN</h2><div id="vpn"></div></section>
+      <section class="sec" id="sec-uso"><h2 class="sec-t"><svg viewBox="0 0 24 24"><path d="M3 20h18M6 20v-7M11 20V6M16 20v-9M21 20v-4"/></svg>Uso por usuário · hoje</h2><div id="uso"></div></section>
+      <section class="sec" id="sec-aparelhos"><h2 class="sec-t"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="14" height="10" rx="2"/><path d="M7 18h6M10 14v4"/><rect x="17.500" y="9" width="3.500" height="9" rx="1"/></svg>Aparelhos na rede</h2><div id="aparelhos"></div></section>
+      <section class="sec" id="sec-sites"><h2 class="sec-t"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m16 8-2.500 5.500L8 16l2.500-5.500z"/></svg>Sites por aparelho</h2>
+        <details class="pasta" id="sitesSec" style="--c:#b48ead">
+          <summary>
+            <span class="pico">🌐</span>
+            <span class="ptit"><b>Sites acessados por aparelho</b><span class="mut">histórico de DNS · dado sensível · só abre quando você clicar</span></span>
+            <span class="pmb"><b id="sitesRes">—</b><span class="mut" id="sitesRes2"></span></span>
+            <span class="pseta">▸</span>
+          </summary>
+          <div class="sites-corpo">
+            <div class="sites-aviso" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.500"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span><b>Dado sensível.</b> Mostra o que cada aparelho acessou. Só você vê, e só depois de abrir esta pasta.</span></div>
+            <div class="sites-barra">
+              <div class="sites-dias" id="sitesDias" role="group" aria-label="Escolher o dia"></div>
+              <label class="sites-busca">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.500-3.500"/></svg>
+                <input id="sitesBusca" type="search" placeholder="Quem acessou? (ex.: xvideos)" autocomplete="off" aria-label="Buscar site em todos os dias">
+                <button type="button" id="sitesLimpar" class="sites-limpar" hidden aria-label="Limpar busca">✕</button>
+              </label>
+            </div>
+            <div class="mut st-info" id="sitesInfo"></div>
+            <div id="sitesLista"></div>
+          </div>
+        </details>
+      </section>
+      <section class="sec" id="sec-eventos"><h2 class="sec-t"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Entradas e saídas da VPN</h2><div id="eventos"></div></section>
+      <footer class="rodape mut">Monitor da Casa · só leitura · os dados chegam criptografados</footer>
+    </main>
+  </div>
+  <nav class="abas" id="abas" aria-label="Atalhos"></nav>
 </div>
 <div id="veu"></div>
 <div id="ficha" role="dialog" aria-live="polite"></div>
 
 <script>
+/* --- 00-core.js --- */
 /* ====== CONFIGURE AQUI ====== */
 const GIST_ID = "fdbe72018cc9cf1c7e7fd70db45fb997";
 const GIST_DONO = "mdbritos";    // usuário do GitHub dono do gist
@@ -249,28 +1293,202 @@ const vel = bps => { bps = bps || 0; return bps >= 1e6 ? (bps/1e6).toFixed(1) + 
 const hora = iso => iso ? new Date(iso).toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"}) : "—";
 const linha = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : "";
 
+/* --- 05-resumo.js --- */
+// ===== Cabeçalho, faixa de aviso, resumo (Internet/pfSense) e redes (VLANs) =====
+function desenharCabecalho(d){
+  const idade = (Date.now() - new Date(d.gerado))/1000;
+  $("atual").innerHTML = 'Atualizado há <b data-idade>' + esc(tempoDesde(d.gerado)) + '</b> · renova a cada ' + INTERVALO_S + ' s';
+  const f = $("faixa");
+  f.style.display = idade > 300 ? "block" : "none";
+  f.textContent = "⚠️ O coletor não envia dados há " + tempoDesde(d.gerado) + ". Confira o container monitor.";
+}
+// ---- ícones (SVG inline, traço) ----
+const IC_RES = {
+  ok:    '<path d="M12 3 4 6v6c0 4.5 3.4 7.7 8 9 4.6-1.3 8-4.5 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',
+  warn:  '<path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.01"/>',
+  off:   '<path d="M2 8.8a15 15 0 0 1 4-2.4M22 8.8a15 15 0 0 0-10-3.8M5 12.9a10 10 0 0 1 5.2-2.7M19 12.9a10 10 0 0 0-2.9-2M8.5 16.4a5 5 0 0 1 7 0M12 20h.01M2 2l20 20"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3"/>',
+  tempo: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/>',
+  perda: '<path d="m22 17-8.5-8.5-5 5L2 7M16 17h6v-6"/>',
+  cpu:   '<rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 1.5v3M15 1.5v3M9 19.5v3M15 19.5v3M19.5 9h3M19.5 15h3M1.5 9h3M1.5 15h3"/>',
+  mem:   '<rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 11v2M10 11v2M14 11v2M18 11v2M6 17v3M18 17v3"/>',
+  vpn:   '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  rede:  '<rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/>',
+  WIFI:  '<path d="M2 8.8a15 15 0 0 1 20 0M5 12.9a10 10 0 0 1 14 0M8.5 16.4a5 5 0 0 1 7 0M12 20h.01"/>',
+  CABEADA: '<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 11v2M11 11v2M15 11v2M12 17v4"/>',
+  GAMES: '<path d="M6 12h4M8 10v4M15 13h.01M18 11h.01M17.3 5H6.7a4 4 0 0 0-3.9 3.1L1.7 15.4a3 3 0 0 0 5.2 2.1L8 16h8l1.1 1.5a3 3 0 0 0 5.2-2.1l-1.1-7.3A4 4 0 0 0 17.3 5z"/>',
+  IOT: '<rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>',
+  SERVIDORES: '<rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01"/>',
+  CONVIDADOS: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+  EMPRESA: '<path d="M4 21V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v17M15 9h4a1 1 0 0 1 1 1v11M3 21h18M8 7h3M8 11h3M8 15h3"/>',
+  GERENCIA: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>'
+};
+const svgRes = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${IC_RES[k] || IC_RES.rede}</svg>`;
+
+// Faixas: anel/medidor <60 ok · 60–85 atenção · >85 crítico. Latência e perda têm faixas próprias.
+const tomPct = p => p > 85 ? "bad" : p >= 60 ? "warn" : "ok";
+const tomLat = ms => ms > 150 ? "bad" : ms > 60 ? "warn" : "ok";
+const tomPerda = p => p >= 5 ? "bad" : p > 0.5 ? "warn" : "ok";
+const TXT_TOM = {ok: "Normal", warn: "Atenção", bad: "Crítico"};
+
+// Entrada escalonada só na 1ª renderização (o redesenho a cada 60 s não reinicia animação)
+const ENTRADA = {resumo: true, redes: true};
+function entrada(id){
+  const el = $(id); if(!ENTRADA[id]) return;
+  ENTRADA[id] = false; el.classList.add("entra"); setTimeout(() => el.classList.remove("entra"), 2200);
+}
+
+function anel(pct, tom, i){
+  const tem = pct != null && !isNaN(pct), p = tem ? Math.max(0, Math.min(100, pct)) : 0;
+  return `<div class="anel t-${tem ? tom : "nd"}" style="--i:${i}"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trilho" cx="50" cy="50" r="42" pathLength="100"/>
+    <circle class="arco" cx="50" cy="50" r="42" pathLength="100" style="stroke-dasharray:${p} 100"/></svg>
+    <div class="anel-v"><b>${tem ? Math.round(pct) : "—"}</b>${tem ? "<small>%</small>" : ""}</div></div>`;
+}
+function medida(valor, tom, pct){
+  const m = /^([\d.,]+)\s*(.*)$/.exec(String(valor)), num = m ? m[1] : String(valor), un = m ? m[2] : "";
+  return `<div class="medida t-${tom}"><div class="num"><b>${esc(num)}</b>${un ? `<small>${esc(un)}</small>` : ""}</div>
+    ${pct != null ? `<div class="mbar"><i style="width:${Math.max(3, Math.min(100, pct))}%"></i></div>` : ""}</div>`;
+}
+function cartao(titulo, icone, corpo, legenda, tom, i){
+  return `<div class="card m anim t-${tom}" style="--i:${i}"><div class="t">${svgRes(icone)}${esc(titulo)}</div><div class="m-corpo">${corpo}</div>
+    <div class="m-leg">${legenda}</div></div>`;
+}
+
+function desenharResumo(d){
+  const r = d.rede || {}, wan = (r.gateways || [])[0] || {};
+  const online = r.internet_ok != null ? r.internet_ok : /online|none/i.test(wan.status || "");
+  const semMonitor = online && parseFloat(wan.perda) >= 100;   // o ping do gateway falhou, mas a internet responde
+  const idade = (Date.now() - new Date(d.gerado))/1000, parado = idade > 300;
+  const lat = semMonitor ? NaN : parseFloat(wan.atraso), perda = semMonitor ? NaN : parseFloat(wan.perda);
+  const cpu = r.cpu != null ? Number(r.cpu) : null, mem = r.memoria != null ? Number(r.memoria) : null;
+  const tLat = isNaN(lat) ? "nd" : tomLat(lat), tPerda = isNaN(perda) ? "nd" : tomPerda(perda);
+  const tCpu = cpu != null ? tomPct(cpu) : "nd", tMem = mem != null ? tomPct(mem) : "nd";
+  const nVpn = (d.vpn || []).length;
+  const redes = r.redes || [], noAr = redes.filter(n => /up|associated/i.test(n.status)).length;
+
+  // ---- hero: estado geral ----
+  const probs = [];   // [tom, texto]
+  if(online){
+    if(semMonitor) probs.push(["warn", "o monitor do gateway não responde"]);
+    if(tLat === "bad" || tLat === "warn") probs.push([tLat, "latência " + (tLat === "bad" ? "muito " : "") + "alta (" + wan.atraso + ")"]);
+    if(tPerda === "bad" || tPerda === "warn") probs.push([tPerda, "perda de pacotes de " + wan.perda]);
+    if(tCpu === "bad") probs.push(["bad", "CPU do pfSense em " + Math.round(cpu) + "%"]);
+    if(tMem === "bad") probs.push(["bad", "memória do pfSense em " + Math.round(mem) + "%"]);
+    if(parado) probs.push(["warn", "o coletor não envia dados há " + tempoDesde(d.gerado)]);
+  }
+  let tom, icone, titulo, sub;
+  if(!online){
+    tom = "bad"; icone = "off"; titulo = "Internet fora";
+    sub = "O pfSense não está conseguindo sair para a internet." + (parado ? " O coletor também está sem enviar dados há " + tempoDesde(d.gerado) + "." : "");
+  }else if(probs.length){
+    tom = probs.some(p => p[0] === "bad") ? "bad" : "warn"; icone = "warn";
+    titulo = "Atenção: " + probs[0][1];
+    sub = probs.length > 1 ? "Também: " + probs.slice(1).map(p => p[1]).join("; ") + "." : "A internet está no ar, mas vale conferir.";
+  }else{
+    tom = "ok"; icone = "ok"; titulo = "Tudo funcionando";
+    sub = "Internet no ar, conexão estável e pfSense com folga de CPU e memória.";
+  }
+  const chips = [];
+  if(redes.length) chips.push(`<span class="chip-h ${noAr === redes.length ? "ok" : "bad"}"><span class="dot ${noAr === redes.length ? "up" : "down"}"></span>${noAr} de ${redes.length} redes no ar</span>`);
+  chips.push(`<span class="chip-h"><svg viewBox="0 0 24 24">${IC_RES.vpn}</svg>${nVpn} na VPN</span>`);
+  const hero = `<div class="hero anim t-${tom}" style="--i:0"><div class="hero-ico">${svgRes(icone)}</div>
+    <div class="hero-txt"><div class="hero-ey">Estado geral</div><h3>${esc(titulo)}</h3><p>${esc(sub)}</p></div>
+    <div class="hero-chips">${chips.join("")}</div></div>`;
+
+  // ---- cartões de métricas ----
+  const tomNet = online ? "ok" : "bad";
+  const cards = [
+    cartao("Internet", "globe", `<div class="orb t-${tomNet}">${svgRes(online ? "globe" : "off")}</div>`,
+      `<span class="dot ${online ? "up" : "down"}"></span><b>${online ? "Online" : "Fora do ar"}</b>`, tomNet, 1),
+    cartao("Latência", "tempo", medida(semMonitor ? "—" : (wan.atraso || "—"), tLat, isNaN(lat) ? null : lat / 2),
+      isNaN(lat) ? '<span class="mut">sem medição</span>' : `<b>${tLat === "ok" ? "Ótima" : tLat === "warn" ? "Alta" : "Muito alta"}</b>`, tLat, 2),
+    cartao("Perda", "perda", medida(semMonitor ? "—" : (wan.perda || "—"), tPerda, isNaN(perda) ? null : perda * 10),
+      isNaN(perda) ? '<span class="mut">sem medição</span>' : `<b>${tPerda === "ok" ? "Sem perdas" : tPerda === "warn" ? "Perdendo pacotes" : "Perda alta"}</b>`, tPerda, 3),
+    cartao("CPU", "cpu", anel(cpu, tCpu, 4), cpu != null ? `<b>${TXT_TOM[tCpu]}</b>` : '<span class="mut">sem dado</span>', tCpu, 4),
+    cartao("Memória", "mem", anel(mem, tMem, 5), mem != null ? `<b>${TXT_TOM[tMem]}</b>` : '<span class="mut">sem dado</span>', tMem, 5),
+    cartao("Na VPN", "vpn", `<div class="num"><b>${nVpn}</b></div>`,
+      nVpn ? `<b>${nVpn === 1 ? "pessoa conectada" : "pessoas conectadas"}</b>` : '<span class="mut">ninguém conectado</span>', nVpn ? "info" : "nd", 6)
+  ];
+  entrada("resumo");
+  $("resumo").innerHTML = hero + `<div class="res-grid">${cards.join("")}</div>`;
+}
+function desenharRedes(d){
+  const r = d.rede || {};
+  entrada("redes");
+  $("redes").innerHTML = (r.redes || []).map((n, i) => {
+    const nome = String(n.nome).toUpperCase(), cor = CORES[nome] || "#88c0d0", up = /up|associated/i.test(n.status);
+    return `<div class="card rede anim ${up ? "" : "fora"}" style="--c:${cor};--i:${Math.min(i, 12)}" title="${esc(n.status || "")}">
+      <span class="rede-ico">${svgRes(IC_RES[nome] ? nome : "rede")}</span>
+      <div class="rede-txt"><b>${esc(n.nome)}</b><span class="rede-ip">${esc(n.ip || "—")}</span></div>
+      <span class="rede-st ${up ? "on" : "off"}"><span class="dot ${up ? "up" : "down"}"></span>${up ? "no ar" : "fora do ar"}</span></div>`;
+  }).join("") || '<div class="vazio">Sem dados das redes.</div>';
+}
+
+/* --- 10-ficha.js --- */
+/* ---- helpers visuais compartilhados por uso, VPN e ficha (ícones SVG, avatar, "há quanto tempo") ---- */
+const ICONES = {
+  down:"M12 5v14M6 13l6 6 6-6", up:"M12 19V5M6 11l6-6 6 6", clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2",
+  trophy:"M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3",
+  lock:"M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4", chev:"M9 6l6 6-6 6", pulse:"M3 12h4l3-8 4 16 3-8h4",
+  wifi:"M2 9a15 15 0 0 1 20 0M5.5 12.5a10 10 0 0 1 13 0M9 16a5 5 0 0 1 6 0M12 19.5h.01",
+  cabeada:"M3 5h18v12H3zM8 21h8M12 17v4",
+  games:"M17.3 5H6.7a4 4 0 0 0-3.9 3.2l-1.5 7A3 3 0 0 0 4.2 19c1 0 1.6-.5 2.1-1.2L8 15h8l1.7 2.8c.5.7 1.1 1.2 2.1 1.2a3 3 0 0 0 2.9-3.8l-1.5-7A4 4 0 0 0 17.3 5zM6 10h4M8 8v4M15 11h.01M18 9h.01",
+  vpn:"M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4",
+  empresa:"M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16M14 9h5a1 1 0 0 1 1 1v11M3 21h18M8 8h2M8 12h2M8 16h2",
+  convidados:"M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-1a4 4 0 0 0-3-3.9M16 4.1a3.5 3.5 0 0 1 0 6.8",
+  servidores:"M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01",
+  iot:"M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z",
+  gerencia:"M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.3-.5-.5-2.3z",
+  folder:"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
+  id:"M3 5h18v14H3zM8 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4M5.5 16a3 3 0 0 1 5 0M14 9h4M14 13h4", cal:"M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
+  expand:"M7 9l5-5 5 5M7 15l5 5 5-5", collapse:"M7 4l5 5 5-5M7 20l5-5 5 5", pin:"M12 17v5M9 3h6l-1 6 3 4H7l3-4z",
+  chart:"M3 20h18M6 20v-7M11 20V6M16 20v-9M21 20v-4", x:"M6 6l12 12M18 6L6 18", radar:"M12 12l5-5M12 21a9 9 0 1 1 9-9M12 17a5 5 0 1 1 5-5"};
+function ic(nome, emoji){
+  const d = ICONES[nome];
+  return d ? `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>` : (emoji || "");
+}
+function uvHue(s){ let h = 0; for(const c of String(s || "")) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
+function uvIniciais(nome){
+  const p = String(nome || "?").replace(/^VPN\s*·\s*/i, "").trim().split(/[\s._-]+/).filter(Boolean);
+  return ((p[0] || "?").slice(0, 1) + (p.length > 1 ? p[p.length - 1].slice(0, 1) : "")).toUpperCase();
+}
+function uvAvatar(nome, extra){ return `<span class="av ${extra || ""}" style="--h:${uvHue(nome)}" aria-hidden="true">${esc(uvIniciais(nome))}</span>`; }
+function estaOnline(h){ return !!(h && h.ultimo && GERADO && (new Date(GERADO) - new Date(h.ultimo)) < 180000); }
+// "27/10 21:40" (sem ano) -> "há 2h 10"
+function haDesde(desde){
+  const m = /(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/.exec(desde || ""); if(!m) return desde || "—";
+  const ref = GERADO ? new Date(GERADO) : new Date();
+  let d = new Date(ref.getFullYear(), +m[2] - 1, +m[1], +m[3], +m[4]);
+  if(d > ref) d = new Date(ref.getFullYear() - 1, +m[2] - 1, +m[1], +m[3], +m[4]);
+  const min = Math.max(0, Math.round((ref - d) / 60000));
+  return min < 1 ? "agora mesmo" : min < 60 ? "há " + min + " min" : min < 2880 ? "há " + tempo(min) : "há " + Math.round(min / 1440) + " dias";
+}
+
 function fichaHTML(h){
-  const on = h.ultimo && GERADO && (new Date(GERADO) - new Date(h.ultimo)) < 180000;
+  const on = estaOnline(h);
   const v = h.vpn, ag = [...(h.agora || [])].sort((a, b) => (b.bps || 0) - (a.bps || 0)), maxAg = Math.max(...ag.map(a => a.bps || 0), 1);
-  return `<div class="fx"><div><h3>${esc(h.nome || h.ip)}</h3>
-      <span class="pill ${on ? "on" : ""}">${on ? '<span class="pulso"></span>Online agora' : "⚪ Visto por último às " + hora(h.ultimo)}</span></div>
-      <span><span class="fixada">📌 fixada</span> <button class="fechar" onclick="fecharFicha()" title="Fechar (Esc)">✕</button></span></div>
-    <h4>🪪 Identificação</h4><dl>
+  const nome = v ? v.usuario : (h.nome || h.ip);
+  return `<div class="fx"><span class="fav">${uvAvatar(nome, v ? "g" : "")}</span>
+      <div class="fid"><h3>${esc(h.nome || h.ip)}</h3>
+        <span class="pill ${on ? "on" : ""}">${on ? '<span class="pulso"></span>Online agora' : "Visto por último às " + hora(h.ultimo)}</span>
+        <span class="fixada">${ic("pin")}fixada</span></div>
+      <button class="fechar" onclick="fecharFicha()" title="Fechar (Esc)" aria-label="Fechar">${ic("x")}</button></div>
+    <div class="fb"><h4>${ic("id")}Identificação</h4><dl>
       ${linha("Rede", nomeRede(h.rede))}${linha("IP", h.ip)}${linha("Equipamento", h.nome_rede || "—")}
       ${linha("MAC", h.mac || "—")}${linha("Fabricante", h.fabricante || "—")}${linha("Sistema", h.sistema)}
-    </dl>
-    ${v ? `<h4>🔐 VPN</h4><dl>${linha("Usuário", v.usuario)}${linha("Conectou de", v.origem)}${linha("Desde", v.desde)}
-      ${linha("Recebido", mb(v.recebido))}${linha("Enviado", mb(v.enviado))}</dl>` : ""}
-    <h4>📡 Acessando agora</h4>
-    ${ag.length ? ag.map(a => `<div class="ag"><span>${esc(a.dominio)}${a.app ? `<span class="chip">${esc(a.app)}</span>` : ""}
-        <div class="barra"><i style="width:${Math.max(3, 100*(a.bps||0)/maxAg)}%"></i></div></span><span class="vel">${vel(a.bps)}</span></div>`).join("")
-      : '<div class="mut">Nada no último minuto.</div>'}
-    <h4>📅 Hoje</h4><dl>
-      ${linha("Gasto", mb(h.bytes))}${linha("Tempo online", tempo(h.minutos))}
+    </dl></div>
+    ${v ? `<div class="fb"><h4>${ic("lock")}VPN</h4><dl>${linha("Usuário", v.usuario)}${linha("Conectou de", v.origem)}${linha("Desde", v.desde)}
+      ${linha("Recebido", mb(v.recebido))}${linha("Enviado", mb(v.enviado))}</dl></div>` : ""}
+    <div class="fb"><h4>${ic("radar")}Acessando agora</h4>
+    ${ag.length ? ag.map(a => `<div class="ag"><span class="agn"><span class="dm">${esc(a.dominio)}</span>${a.app ? `<span class="chip">${esc(a.app)}</span>` : ""}</span><span class="vel">${vel(a.bps)}</span>
+        <span class="barra"><i style="width:${Math.max(3, 100*(a.bps||0)/maxAg)}%"></i></span></div>`).join("")
+      : '<div class="mut fnada">Nada no último minuto.</div>'}</div>
+    <div class="fb"><h4>${ic("cal")}Hoje</h4>
+    <div class="fnum"><span><b>${mb(h.bytes)}</b><i>gasto</i></span><span><b>${tempo(h.minutos)}</b><i>tempo online</i></span></div><dl>
       ${linha("Primeiro uso", hora(h.primeiro))}${linha("Última atividade", hora(h.ultimo))}
-    </dl>
-    ${(h.sites || []).length ? `<h4>🏆 Mais usados hoje</h4>` + h.sites.slice(0,3).map((s, i) =>
-      `<div class="ag"><span>${["🥇","🥈","🥉"][i]} ${esc(s.dominio)}</span><span class="mut">${mb(s.bytes)} · ${tempo(s.minutos)}</span></div>`).join("") : ""}
+    </dl></div>
+    ${(h.sites || []).length ? `<div class="fb"><h4>${ic("trophy")}Mais usados hoje</h4>` + h.sites.slice(0,3).map((s, i) =>
+      `<div class="ag top"><span class="agn"><span class="med m${i + 1}">${i + 1}</span><span class="dm">${esc(s.dominio)}</span></span><span class="mut">${mb(s.bytes)} · ${tempo(s.minutos)}</span></div>`).join("") + "</div>" : ""}
     <div class="dica">🖱️ Segure o clique sobre o usuário para <b>fixar</b> esta ficha e copiar as informações</div>`;
 }
 function mostrarFicha(ip, x, y, folha){
@@ -332,6 +1550,7 @@ function fecharFicha(){ const f = $("ficha"); f.style.display = "none"; f.classL
   document.addEventListener("keydown", e => { if(e.key === "Escape") fecharFicha(); });
 })();
 
+/* --- 20-uso-vpn.js --- */
 const PASTAS = {
   CABEADA:["🖥️","Cabeada"], WIFI:["📶","Wi-Fi"], GAMES:["🎮","Games"], VPN:["🔐","VPN"], EMPRESA:["🏢","Empresa"],
   CONVIDADOS:["👋","Convidados"], SERVIDORES:["🗄️","Servidores"], IOT:["💡","IoT · casa inteligente"], GERENCIA:["🔧","Gerência"]};
@@ -340,30 +1559,32 @@ let pastasAbertas = new Set(JSON.parse(ls.get("monitor_pastas") || "[]"));
 function salvarPastas(){ ls.set("monitor_pastas", JSON.stringify([...pastasAbertas])); }
 
 function cartaoUso(h, maior){
-  const cor = CORES[String(h.rede || "").toUpperCase()] || "#88c0d0", top = (h.sites || [])[0];
-  const maiorSite = Math.max(...(h.sites || []).map(s => s.bytes || 0), 1);
+  const cor = CORES[String(h.rede || "").toUpperCase()] || "#88c0d0", top = (h.sites || [])[0], on = estaOnline(h);
   return `<details class="uso" style="--c:${cor}" data-ip="${esc(h.ip)}" ${abertos.has(h.ip) ? "open" : ""}>
     <summary>
-      <div class="cab"><span class="nome">${esc(h.nome || h.ip)}</span><span class="info" title="Ficha do usuário">i</span></div>
-      <div class="mut">${esc(nomeRede(h.rede))} · ${esc(h.ip)}</div>
-      <div><span class="mb">${mb(h.bytes)}</span> <span class="mut">hoje</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></div>
-      <div class="rod"><span>⏱️ ${tempo(h.minutos)}</span><span class="top">🏆 ${top ? esc(top.dominio) : "—"}</span></div>
-      <div class="ver mut">▾ ver sites</div>
+      <div class="cab"><span class="nome"><span class="sdot ${on ? "on" : ""}" title="${on ? "Online agora" : "Sem tráfego recente"}"></span><span class="nm">${esc(h.nome || h.ip)}</span></span><span class="info" title="Ficha do usuário">i</span></div>
+      <div class="mut sub">${esc(nomeRede(h.rede))} · <span class="ipm">${esc(h.ip)}</span></div>
+      <div class="cons"><span class="mb">${mb(h.bytes)}</span> <span class="mut">hoje</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></div>
+      <div class="rod"><span class="tmp">${ic("clock")}${tempo(h.minutos)}</span><span class="top" title="Site mais usado">${ic("trophy")}${top ? esc(top.dominio) : "—"}</span></div>
+      <div class="ver mut">${ic("chev")}ver sites</div>
     </summary>
     <div class="det">${tabelaSites(h)}</div>
   </details>`;
 }
 function tabelaSites(h){
   const sites = (h && h.sites) || [], maiorSite = Math.max(...sites.map(s => s.bytes || 0), 1);
-  return sites.length ? `<table><tr><th>Site</th><th>Gasto</th><th>Tempo</th></tr>${
-    sites.map(s => `<tr><td>${esc(s.dominio)}<div class="barra"><i style="width:${Math.max(2, 100*(s.bytes||0)/maiorSite)}%"></i></div></td><td>${mb(s.bytes)}</td><td>${tempo(s.minutos)}</td></tr>`).join("")}</table>`
-    : '<div class="mut">Nenhum site registrado hoje.</div>';
+  return sites.length ? `<div class="sl"><div class="sl-h"><span></span><span>Site</span><span>Gasto</span><span>Tempo</span></div>${
+    sites.map((s, i) => `<div class="sl-r"><span class="sl-n">${i + 1}</span><span class="sl-s"><b>${esc(s.dominio)}</b><span class="barra"><i style="width:${Math.max(2, 100*(s.bytes||0)/maiorSite)}%"></i></span></span><span class="sl-mb">${mb(s.bytes)}</span><span class="sl-t">${tempo(s.minutos)}</span></div>`).join("")}</div>`
+    : '<div class="mut sl-vazio">Nenhum site registrado hoje.</div>';
+}
+function estadoVazio(tipo, titulo, texto){
+  return `<div class="vazio vz"><span class="vz-ico">${ic(tipo)}</span><b>${titulo}</b><span>${texto}</span></div>`;
 }
 
 // ---- Conectados na VPN: um card por pessoa, com o consumo de hoje e o que está acessando ----
 function desenharVpn(vpn, u){
   const el = $("vpn"), hosts = (u && u.hosts) || [], porIp = {}; hosts.forEach(h => porIp[h.ip] = h);
-  if(!vpn.length){ el.innerHTML = '<div class="vazio">Ninguém conectado agora.</div>'; return; }
+  if(!vpn.length){ el.innerHTML = estadoVazio("lock", "Ninguém conectado agora", "Quando alguém entrar na VPN, o cartão dela aparece aqui com o consumo de hoje."); return; }
   const maior = Math.max(...hosts.map(h => h.bytes || 0), 1), cor = CORES.VPN || "#88c0d0";
   const lista = vpn.map(p => {
     const ip = String(p.ip_vpn || "").split(":")[0];
@@ -373,26 +1594,32 @@ function desenharVpn(vpn, u){
   }).sort((a, b) => (b.h.bytes || 0) - (a.h.bytes || 0));
   const total = lista.reduce((t, x) => t + (x.h.bytes || 0), 0);
   const card = ({p, h, ip}) => {
-    const ag = [...(h.agora || [])].sort((a, b) => (b.bps || 0) - (a.bps || 0)).slice(0, 3), top = (h.sites || [])[0];
-    const ativo = h.ultimo && GERADO && (new Date(GERADO) - new Date(h.ultimo)) < 180000;
-    return `<details class="uso vcard" style="--c:${cor}" data-ip="${esc(ip)}" ${abertos.has(ip) ? "open" : ""}>
+    const ag = [...(h.agora || [])].sort((a, b) => (b.bps || 0) - (a.bps || 0)).slice(0, 3), top = (h.sites || [])[0], maxAg = Math.max(...ag.map(a => a.bps || 0), 1);
+    const ativo = estaOnline(h);
+    return `<details class="uso vcard ${ag.length ? "live" : ""}" style="--c:${cor}" data-ip="${esc(ip)}" ${abertos.has(ip) ? "open" : ""}>
       <summary>
-        <div class="cab"><span class="nome">🔐 ${esc(p.usuario)}</span><span class="info" title="Ficha do usuário">i</span></div>
-        <div class="mut">de ${esc(p.origem || "?")} · VPN ${esc(ip)}</div>
-        <div class="mut">conectou: ${esc(p.desde || "—")}</div>
-        <div><span class="mb">${mb(h.bytes)}</span> <span class="mut">hoje</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></div>
-        <div class="fluxo"><span title="Baixado pelo usuário nesta conexão">⬇ ${mb(p.enviado)}</span><span title="Enviado pelo usuário nesta conexão">⬆ ${mb(p.recebido)}</span><span>⏱️ ${tempo(h.minutos)}</span></div>
-        <div class="agora">${ag.length ? `<div class="mut"><span class="pon">● acessando agora</span></div>` + ag.map(a =>
-            `<div class="l"><span>${esc(a.dominio)}${a.app ? `<span class="chip">${esc(a.app)}</span>` : ""}</span><span class="vel">${vel(a.bps)}</span></div>`).join("")
-          : `<div class="mut">${ativo ? "Sem tráfego no último minuto" : "Sem atividade agora"}${top ? " · 🏆 " + esc(top.dominio) : ""}</div>`}</div>
-        <div class="ver mut">▾ ver sites de hoje</div>
+        <div class="vtop">
+          <span class="avw">${uvAvatar(p.usuario, "g")}${ag.length ? '<span class="avlive"></span>' : ""}</span>
+          <span class="vid"><b class="nome">${esc(p.usuario)}</b><span class="mut">de ${esc(p.origem || "?")} · <span class="ipm">${esc(ip)}</span></span></span>
+          <span class="info" title="Ficha do usuário">i</span>
+        </div>
+        <div class="vdesde" title="${esc(p.desde || "")}">${ic("lock")}<span>conectou <b>${esc(haDesde(p.desde))}</b></span><span class="mut">${esc(p.desde || "")}</span></div>
+        <div class="cons"><span class="mb">${mb(h.bytes)}</span> <span class="mut">hoje</span><div class="barra"><i style="width:${Math.max(2, 100*(h.bytes||0)/maior)}%"></i></div></div>
+        <div class="fluxo"><span title="Baixado pelo usuário nesta conexão">${ic("down")}${mb(p.enviado)}</span><span title="Enviado pelo usuário nesta conexão">${ic("up")}${mb(p.recebido)}</span><span title="Tempo com tráfego hoje">${ic("clock")}${tempo(h.minutos)}</span></div>
+        <div class="agora">${ag.length ? `<div class="agh"><span class="pon"><span class="pulso"></span>acessando agora</span></div>` + ag.map(a =>
+            `<div class="l"><span class="ln"><span class="dm">${esc(a.dominio)}</span>${a.app ? `<span class="chip">${esc(a.app)}</span>` : ""}</span><span class="vel">${vel(a.bps)}</span><span class="barra"><i style="width:${Math.max(4, 100*(a.bps||0)/maxAg)}%"></i></span></div>`).join("")
+          : `<div class="agh idle"><span class="mut">${ativo ? "Sem tráfego no último minuto" : "Sem atividade agora"}</span>${top ? `<span class="mut tp">${ic("trophy")}${esc(top.dominio)}</span>` : ""}</div>`}</div>
+        <div class="ver mut">${ic("chev")}ver sites de hoje</div>
       </summary>
       <div class="det">${tabelaSites(h)}</div>
     </details>`;
   };
-  el.innerHTML = `<div class="vpn-res mut"><span>${lista.length} ${lista.length === 1 ? "conectado" : "conectados"}</span><span>${mb(total)} hoje no total</span></div>
+  const conectados = lista.length, agoraN = lista.filter(x => (x.h.agora || []).length).length;
+  el.innerHTML = `<div class="vchips vpn-res"><span class="vchip"><span class="pulso"></span><b>${conectados}</b> ${conectados === 1 ? "conectado" : "conectados"}</span>
+      <span class="vchip">${ic("pulse")}<b>${agoraN}</b> ${agoraN === 1 ? "ativo agora" : "ativos agora"}</span>
+      <span class="vchip">${ic("down")}<b>${mb(total)}</b> hoje no total</span></div>
     <div class="grade-uso">${lista.map(card).join("")}</div>
-    <p class="aviso">Passe o mouse (no PC) ou segure o dedo (no celular) sobre um card para ver a ficha. Clique para ver os sites de hoje. ⬇/⬆ = desta conexão VPN; "hoje" = tudo que a pessoa usou desde ${esc((u && u.desde) || "00:00")}.</p>`;
+    <p class="aviso">Passe o mouse (no PC) ou segure o dedo (no celular) sobre um card para ver a ficha. Clique para ver os sites de hoje. ${ic("down")}/${ic("up")} = desta conexão VPN; "hoje" = tudo que a pessoa usou desde ${esc((u && u.desde) || "00:00")}.</p>`;
   el.querySelectorAll("details.uso").forEach(d => d.addEventListener("toggle", () => { d.open ? abertos.add(d.dataset.ip) : abertos.delete(d.dataset.ip); }));
 }
 
@@ -403,10 +1630,10 @@ function desenharUso(u){
   el.querySelectorAll("details.uso[open]").forEach(x => abertos.add(x.dataset.ip));
   el.querySelectorAll("details.uso:not([open])").forEach(x => abertos.delete(x.dataset.ip));
   const todos = (u && u.hosts) || [];
-  if(!todos.length){ el.innerHTML = '<div class="vazio">Sem dados de uso ainda (precisa do ntopng no pfSense).</div>'; return; }
+  if(!todos.length){ el.innerHTML = estadoVazio("chart", "Sem dados de uso ainda", "Assim que o ntopng no pfSense começar a medir, o consumo de cada aparelho aparece aqui."); return; }
   const maior = Math.max(...todos.map(h => h.bytes || 0), 1);
   const hosts = todos.filter(h => !h.vpn);   // quem está na VPN agora aparece nos cards de "Conectados na VPN"
-  if(!hosts.length){ el.innerHTML = '<div class="vazio">Só há tráfego de quem está na VPN agora (veja os cards acima).</div>'; return; }
+  if(!hosts.length){ el.innerHTML = estadoVazio("lock", "Só há tráfego de quem está na VPN", "Veja os cartões em “Conectados na VPN”, logo acima."); return; }
 
   // monta as pastas: a do apelidos.txt (Nome|Pasta) ou a rede (VLAN)
   const grupos = {};
@@ -414,22 +1641,23 @@ function desenharUso(u){
     (grupos[k] = grupos[k] || []).push(h); });
   const peso = k => k.startsWith("G:") ? -1 : (ORDEM.indexOf(k.slice(2)) + 1 || 99);
   const chaves = Object.keys(grupos).sort((a, b) => peso(a) - peso(b) || a.localeCompare(b));
-  const online = h => h.ultimo && GERADO && (new Date(GERADO) - new Date(h.ultimo)) < 180000;
+  const online = estaOnline, somaTodos = hosts.reduce((t, h) => t + (h.bytes || 0), 0) || 1;
 
-  el.innerHTML = `<div class="pastas-acoes"><button class="mini" onclick="todasPastas(true)">📂 Abrir todas</button><button class="mini" onclick="todasPastas(false)">📁 Fechar todas</button></div>` +
+  el.innerHTML = `<div class="pastas-acoes"><button class="mini pa-btn" onclick="todasPastas(true)">${ic("expand")}Abrir todas</button><button class="mini pa-btn" onclick="todasPastas(false)">${ic("collapse")}Fechar todas</button></div>` +
     chaves.map(k => {
       const lista = grupos[k], custom = k.startsWith("G:"), nome = k.slice(2);
       let [ico, titulo] = custom ? ["📁", nome] : (PASTAS[nome] || ["📁", nome]);
       if(!custom && nome === "VPN") titulo = "VPN · já saíram hoje";
       const cor = custom ? "#88c0d0" : (CORES[nome] || "#88c0d0");
       const total = lista.reduce((t, h) => t + (h.bytes || 0), 0), on = lista.filter(online).length;
-      const maiorUso = lista[0];
+      const maiorUso = lista[0], pct = Math.round(100 * total / somaTodos);
       return `<details class="pasta" data-pasta="${esc(k)}" style="--c:${cor}" ${pastasAbertas.has(k) ? "open" : ""}>
         <summary>
-          <span class="pico">${ico}</span>
-          <span class="ptit"><b>${esc(titulo)}</b><span class="mut">${lista.length} ${lista.length === 1 ? "aparelho" : "aparelhos"} · ${on ? `<span class="pon">● ${on} online</span>` : "ninguém online"}</span></span>
+          <span class="pico">${ic(custom ? "folder" : nome.toLowerCase(), ico)}</span>
+          <span class="ptit"><b>${esc(titulo)}</b><span class="mut pmeta"><span class="pc">${lista.length} ${lista.length === 1 ? "aparelho" : "aparelhos"}</span>${on ? `<span class="pon"><span class="sdot on"></span>${on} online</span>` : '<span class="poff">ninguém online</span>'}</span>
+            <span class="pshare" title="${pct}% do consumo total de hoje"><i style="width:${Math.max(2, pct)}%"></i></span></span>
           <span class="pmb"><b>${mb(total)}</b><span class="mut">mais uso: ${esc(maiorUso.nome || maiorUso.ip)}</span></span>
-          <span class="pseta">▸</span>
+          <span class="pseta">${ic("chev")}</span>
         </summary>
         <div class="grade-uso">${lista.map(h => cartaoUso(h, maior)).join("")}</div>
       </details>`;
@@ -444,6 +1672,7 @@ function todasPastas(abrir, alvo){
   salvarPastas();
 }
 
+/* --- 30-alertas.js --- */
 // Traduz as mensagens de alerta (Suricata e logs do pfSense) para português; o original fica no balão (title).
 const REGRAS_ALERTA = [
   [/Attack from "?([^"\s]+)"? on service (.+?) with danger (\d+)/i, (x, ip, srv, p) => `Ataque vindo de ${ip} contra ${/unknown service/i.test(srv) ? "um serviço não identificado" : "o serviço " + srv} (perigo ${p})`],
@@ -480,25 +1709,46 @@ function traduzirAlerta(msg){
   return mudou ? t : m;
 }
 
+// ---- Ícones (SVG inline; emoji não aparece em todo aparelho) ----
+const ICO_AL = {
+  ataque: '<path d="M12 3 4.500 6v5.500c0 4.400 3 7.700 7.500 9.500 4.500-1.800 7.500-5.100 7.500-9.500V6z"/><path d="M12 8v4.500M12 15.800v.01"/>',
+  login: '<rect x="5" y="11" width="14" height="9" rx="2.200"/><path d="M8 11V8a4 4 0 0 1 8 0v3M12 15v1.500"/>',
+  saude: '<path d="M14.500 6.200a4 4 0 0 0-5.300 5.200L3.600 17a1.900 1.900 0 0 0 2.700 2.700l5.600-5.600a4 4 0 0 0 5.200-5.300l-2.500 2.500-2.200-.5-.5-2.200z"/>',
+  relogio: '<circle cx="12" cy="12" r="8.500"/><path d="M12 7.500V12l3 2"/>',
+  seta: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  casa: '<path d="M4 11 12 4l8 7v8.500a.5.500 0 0 1-.5.500H15v-6H9v6H4.500a.5.500 0 0 1-.5-.5z"/>',
+  globo: '<circle cx="12" cy="12" r="8.500"/><path d="M3.500 12h17M12 3.500c2.600 2.600 3.600 5.400 3.600 8.500s-1 5.900-3.600 8.500c-2.600-2.600-3.600-5.400-3.600-8.500s1-5.900 3.600-8.500z"/>',
+  todos: '<rect x="4" y="4" width="6.500" height="6.500" rx="1.500"/><rect x="13.500" y="4" width="6.500" height="6.500" rx="1.500"/><rect x="4" y="13.500" width="6.500" height="6.500" rx="1.500"/><rect x="13.500" y="13.500" width="6.500" height="6.500" rx="1.500"/>',
+  sem: '<circle cx="12" cy="12" r="8.500"/><path d="M9.500 9.500a2.500 2.500 0 1 1 3.500 2.300c-.7.400-1 .9-1 1.700M12 17v.01"/>',
+  vassoura: '<path d="M14 4l6 6M12.500 8.500 18 14l-5 5H8l-4-4V10.500z"/><path d="M9 19v-4M6.500 17.500 11 13"/>',
+  voltar: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+  copiar: '<rect x="8.500" y="8.500" width="11.500" height="11.500" rx="2.200"/><path d="M15.500 8.500V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.500a2 2 0 0 0 2 2h2.500"/>',
+  seta_d: '<path d="m9 6 6 6-6 6"/>',
+  entrou: '<path d="M14 4h4.500A1.500 1.500 0 0 1 20 5.500v13a1.500 1.500 0 0 1-1.500 1.500H14"/><path d="M4 12h10M10 8l4 4-4 4"/>',
+  saiu: '<path d="M10 4H5.500A1.500 1.500 0 0 0 4 5.500v13A1.500 1.500 0 0 0 5.500 20H10"/><path d="M20 12H10M16 8l4 4-4 4"/>',
+  ok: '<path d="M12 3 4.500 6v5.500c0 4.400 3 7.700 7.500 9.500 4.500-1.800 7.500-5.100 7.500-9.500V6z"/><path d="m8.500 12 2.500 2.500 4.500-5"/>'
+};
+const ico = (n, cls) => `<svg class="ic${cls ? " " + cls : ""}" viewBox="0 0 24 24" aria-hidden="true">${ICO_AL[n]}</svg>`;
+
 // ---- Saúde: problemas de funcionamento (não são ataques) com botão de correção ----
 let SAUDE_ATUAL = [];
 const corrigirAbertos = new Set();
 function pastaSaude(lista, abrir){
   SAUDE_ATUAL = lista;
   if(!lista.length) return "";
-  const itens = lista.map((s, i) => `<div class="al n${s.grav || 2}"><div>🛠️</div>
-      <div><b>${esc(s.titulo)}</b><div class="mut">${esc(s.detalhe || "")}</div>
+  const itens = lista.map((s, i) => `<div class="al sau n${s.grav || 2}"><div class="aic">${ico("saude")}</div>
+      <div class="abody"><b class="atit">${esc(s.titulo)}</b><div class="mut adet">${esc(s.detalhe || "")}</div>
       <details class="corrigir" data-id="${esc(s.id)}" ${corrigirAbertos.has(s.id) ? "open" : ""}>
-        <summary><span class="mini btn-corrigir">🛠️ Corrigir</span></summary>
+        <summary><span class="mini btn-corrigir">${ico("saude")}Corrigir<span class="cseta">${ico("seta_d")}</span></span></summary>
         <ol>${(s.correcao || []).map(p => `<li>${esc(p)}</li>`).join("")}</ol>
-        <button class="mini" onclick="copiarPassos(${i})">📋 Copiar passos</button>
+        <button class="mini btn-copiar" onclick="copiarPassos(${i})">${ico("copiar")}Copiar passos</button>
       </details></div></div>`).join("");
-  return `<details class="pasta" data-pasta="A:S" style="--c:#ebcb8b" ${abrir ? "open" : ""}>
-      <summary><span class="pico">🛠️</span>
+  return `<details class="pasta saude" data-pasta="A:S" style="--c:#fbbf24" ${abrir ? "open" : ""}>
+      <summary><span class="pico">${ico("saude")}</span>
         <span class="ptit"><b>Precisam de correção</b><span class="mut">problemas de funcionamento (não são ataques)</span></span>
         <span class="pmb"><b>${lista.length}</b><span class="mut">${lista.length > 1 ? "itens" : "item"}</span></span>
         <span class="pseta">▸</span></summary>
-      <div style="padding:12px">${itens}</div></details>`;
+      <div class="pcorpo">${itens}</div></details>`;
 }
 function copiarPassos(i){
   const s = SAUDE_ATUAL[i]; if(!s) return;
@@ -521,16 +1771,17 @@ function ladoAlerta(a){
   const r = ipInterno(m[1]);
   return r === null ? "desc" : (r ? "interno" : "externo");
 }
-const ROTULO_LADO = { interno: "🏠 IP INTERNO", externo: "🌐 IP EXTERNO", desc: "❔ SEM IP" };
-const ladoTag = a => `<span class="lado ${a._lado}">${ROTULO_LADO[a._lado]}</span>`;
+const ROTULO_LADO = { interno: "IP interno", externo: "IP externo", desc: "Sem IP" };
+const ICO_LADO = { interno: "casa", externo: "globo", desc: "sem" };
+const ladoTag = a => `<span class="lado ${a._lado}">${ico(ICO_LADO[a._lado])}${ROTULO_LADO[a._lado]}</span>`;
 let filtroAlertas = ls.get("monitor_filtro_alertas") || "todos";
 function limposSet(){ return new Set(JSON.parse(ls.get("monitor_limpos") || "[]")); }
 function barraAlertas(base, nLimpos){
   const c = f => base.filter(a => f === "todos" || a._lado === f).length;
-  const bt = (f, t) => `<button class="mini ${filtroAlertas === f ? "ativo" : ""}" onclick="filtrarAlertas('${f}')">${t} (${c(f)})</button>`;
-  return `<div class="pastas-acoes" style="justify-content:space-between;flex-wrap:wrap;margin:0 0 10px">
-    <span>${bt("todos", "Todos")} ${bt("interno", "🏠 Internos")} ${bt("externo", "🌐 Externos")}</span>
-    <span><button class="mini" onclick="limparAlertas()">🧹 Limpar alertas</button>${nLimpos ? ` <button class="mini" onclick="restaurarAlertas()">↩ Restaurar (${nLimpos})</button>` : ""}</span></div>`;
+  const bt = (f, t, i) => `<button class="mini ${filtroAlertas === f ? "ativo" : ""}" onclick="filtrarAlertas('${f}')">${ico(i)}<span>${t}</span><i>${c(f)}</i></button>`;
+  return `<div class="al-barra">
+    <div class="seg" role="group" aria-label="Filtrar alertas">${bt("todos", "Todos", "todos")}${bt("interno", "Internos", "casa")}${bt("externo", "Externos", "globo")}</div>
+    <div class="al-acoes"><button class="mini" onclick="limparAlertas()">${ico("vassoura")}Limpar alertas</button>${nLimpos ? `<button class="mini" onclick="restaurarAlertas()">${ico("voltar")}Restaurar (${nLimpos})</button>` : ""}</div></div>`;
 }
 function filtrarAlertas(f){ filtroAlertas = f; ls.set("monitor_filtro_alertas", f); if(ULTIMO) desenhar(ULTIMO); }
 function limparAlertas(){
@@ -541,7 +1792,82 @@ function limparAlertas(){
   if(ULTIMO) desenhar(ULTIMO);
 }
 function restaurarAlertas(){ ls.set("monitor_limpos", "[]"); if(ULTIMO) desenhar(ULTIMO); }
+// Chip do resumo: abre a pasta correspondente e rola até ela (o estado de aberta/fechada é salvo pelo evento toggle da pasta).
+function irPasta(k){
+  const el = document.querySelector('#alertas details.pasta[data-pasta="' + k + '"]');
+  if(!el) return;
+  el.open = true;
+  el.scrollIntoView({behavior: "smooth", block: "start"});
+}
 
+// ---- Alertas (pastas por gravidade) e saúde: chamado por desenhar() ----
+function desenharAlertas(d, vistos, primeira){
+  const nvl = a => Number(a.nivel) || 3;
+  const al = (d.alertas || []).slice().sort((a, b) => nvl(a) - nvl(b) || String(b.quando).localeCompare(String(a.quando)));
+  al.forEach(a => {
+    a._novo = !vistos.has(a.id) && !primeira;
+    a._pt = traduzirAlerta(a.mensagem);
+    a._lado = ladoAlerta(a);
+    if(a._novo) avisar(a.tipo === "ataque" ? "🚨 Ataque detectado" : "⚠️ Tentativa de login", a._pt);
+  });
+  const itemAlerta = a => `<div class="al n${a.nivel} ${a.tipo === "ataque" ? "atq" : "log"} ${a._novo ? "novo" : ""}"><div class="aic">${ico(a.tipo === "ataque" ? "ataque" : "login")}</div>
+      <div class="abody"><div class="atop"><b class="atit" title="${esc(a.mensagem)}">${esc(a._pt)}</b>${a._novo ? '<span class="tag">NOVO</span>' : ""}</div>
+      <div class="meta"><span class="mc hora">${ico("relogio")}${esc(a.quando)}</span><span class="mc fluxo"><code>${esc(a.origem)}</code>${ico("seta")}<code>${esc(a.destino)}</code></span><span class="mc nv">nível ${esc(a.nivel)}</span>${ladoTag(a)}</div></div></div>`;
+  const FAIXAS = [
+    ["A:1", "ataque", "Crítico", "nível 1", "#f43f5e", a => a.tipo === "ataque" && nvl(a) <= 1],
+    ["A:2", "ataque", "Alto", "nível 2", "#fb923c", a => a.tipo === "ataque" && nvl(a) === 2],
+    ["A:3", "ataque", "Médio e baixo", "nível 3 ou mais", "#fbbf24", a => a.tipo === "ataque" && nvl(a) >= 3],
+    ["A:L", "login", "Tentativas de login", "pfSense", "#a78bfa", a => a.tipo !== "ataque"]
+  ];
+  const limpos = limposSet();
+  const base = al.filter(a => !limpos.has(a.id));
+  const alVis = base.filter(a => filtroAlertas === "todos" || a._lado === filtroAlertas);
+  const abrirAlerta = k => pastasAbertas.has(k) || ((k === "A:1" || k === "A:S") && !ls.get("monitor_pastas"));
+  const resumo = `<div class="al-resumo">${FAIXAS.map(([k, ic, tit, sub, cor, filtro], i) => {
+    const n = alVis.filter(filtro).length, nn = alVis.filter(a => filtro(a) && a._novo).length;
+    return `<button class="rchip ${n ? "" : "zero"}" style="--c:${cor}" onclick="irPasta('${k}')" title="Ir para: ${esc(tit)}">
+        <span class="rico">${ico(ic)}</span><span class="rtxt"><b>${n}</b><span>${["Crítico", "Alto", "Médio/baixo", "Logins"][i]}</span></span>${nn ? `<em class="rnovo">${nn} novo${nn > 1 ? "s" : ""}</em>` : ""}</button>`;
+  }).join("")}</div>`;
+  const vazio = al.length
+    ? `<div class="vazio vz-bonito"><div class="vz-ic">${ico("vassoura")}</div><b>Nenhum alerta nesta visão.</b><span class="mut">Troque o filtro ou restaure os alertas limpos. 🧹</span></div>`
+    : `<div class="vazio vz-bonito vz-ok"><div class="vz-ic">${ico("ok")}</div><b>Nenhum alerta. 🎉</b><span class="mut">A rede está tranquila: nada suspeito foi detectado.</span></div>`;
+  $("alertas").innerHTML = pastaSaude(d.saude || [], abrirAlerta("A:S")) + (al.length ? resumo + barraAlertas(base, al.length - base.length) : "") + (alVis.length ? FAIXAS.map(([k, ic, tit, sub, cor, filtro]) => {
+    const lista = alVis.filter(filtro), novos = lista.filter(a => a._novo).length;
+    return `<details class="pasta g${k.slice(2)}" data-pasta="${k}" style="--c:${cor}" ${abrirAlerta(k) ? "open" : ""}>
+        <summary>
+          <span class="pico">${ico(ic)}</span>
+          <span class="ptit"><b>${tit}</b><span class="mut">${sub}</span></span>
+          <span class="pmb"><b>${lista.length}</b><span class="mut">${novos ? novos + " novo" + (novos > 1 ? "s" : "") : "alertas"}</span></span>
+          <span class="pseta">▸</span>
+        </summary>
+        <div class="pcorpo">${lista.length ? lista.map(itemAlerta).join("") : '<div class="vazio">Nenhum alerta nesta pasta.</div>'}</div>
+      </details>`;
+  }).join("") : vazio);
+  $("alertas").querySelectorAll("details.corrigir").forEach(x => x.addEventListener("toggle", () => {
+    x.open ? corrigirAbertos.add(x.dataset.id) : corrigirAbertos.delete(x.dataset.id); }));
+  $("alertas").querySelectorAll("details.pasta").forEach(x => x.addEventListener("toggle", () => {
+    x.open ? pastasAbertas.add(x.dataset.pasta) : pastasAbertas.delete(x.dataset.pasta); salvarPastas(); }));
+  return al;
+}
+// ---- Entradas e saídas da VPN: chamado por desenhar() ----
+function iniciaisVpn(u){
+  const p = String(u || "?").split(/[^A-Za-z0-9À-ÿ]+/).filter(Boolean);
+  return (p.length > 1 ? p[0][0] + p[1][0] : (p[0] || "?").slice(0, 2)).toUpperCase();
+}
+function matizVpn(u){ let h = 0; for(const c of String(u)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
+function desenharEventos(d, vistos, primeira){
+  const ev = d.eventos || [];
+  ev.forEach(e => { const k = "ev:" + e.quando + e.usuario; if(!vistos.has(k) && !primeira) avisar("🔐 VPN", e.usuario + (e.tipo === "vpn-entrou" ? " conectou" : " desconectou")); vistos.add(k); });
+  const coluna = (titulo, classe, icone, lista) => `<div class="col ${classe}"><h3><span class="hic">${ico(icone)}</span>${titulo} <span class="hn">${lista.length}</span></h3>${
+    lista.length ? `<div class="linha">${lista.slice(0, 15).map(e => { const dt = new Date(e.quando); return `<div class="ev"><span class="pt"></span>
+      <span class="av" style="--h:${matizVpn(e.usuario)}">${esc(iniciaisVpn(e.usuario))}</span>
+      <span class="quem"><b>${esc(e.usuario)}</b><div class="mut">${e.origem ? "de <code>" + esc(e.origem) + "</code>" : ""}</div></span>
+      <span class="q"><b>${esc(dt.toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"}))}</b><span>${esc(dt.toLocaleDateString("pt-BR", {day:"2-digit", month:"2-digit"}))}</span></span></div>`; }).join("")}</div>`
+    : `<div class="nada"><span class="nic">${ico(icone)}</span>Nenhuma registrada.</div>`}</div>`;
+  $("eventos").innerHTML = `<div class="vpn2">${coluna("Entradas", "ent", "entrou", ev.filter(e => e.tipo === "vpn-entrou"))}${coluna("Saídas", "sai", "saiu", ev.filter(e => e.tipo !== "vpn-entrou"))}</div>`;
+}
+
+/* --- 40-aparelhos-sites.js --- */
 function desenharAparelhos(lista){
   lista = lista || [];
   const el = $("aparelhos");
@@ -550,12 +1876,21 @@ function desenharAparelhos(lista){
   const grupos = {};
   lista.forEach(x => { const k = String(x.rede || "OUTROS").toUpperCase(); (grupos[k] = grupos[k] || []).push(x); });
   const chaves = Object.keys(grupos).sort((a, b) => (ORDEM.indexOf(a) + 1 || 99) - (ORDEM.indexOf(b) + 1 || 99) || a.localeCompare(b));
-  const linha = x => `<tr><td><span class="dot ${x.online ? "up" : "down"}"></span></td>
-      <td><b>${esc(x.nome || "Sem nome")}</b>${x.privado ? ' <span class="mut" title="MAC aleatório (celular/notebook com endereço privado)">🔒</span>' : ""}</td>
-      <td>${esc(x.ip)}</td><td class="mut hm">${esc(x.mac)}</td><td class="mut hm">${esc(x.fabricante || "")}</td>
-      <td class="mut">${x.online ? "agora" : (x.ultimo ? esc(tempoDesde(x.ultimo)) : "nunca")}</td></tr>`;
-  el.innerHTML = `<div class="pastas-acoes"><button class="mini" onclick="todasPastas(true,'#aparelhos')">📂 Abrir todas</button><button class="mini" onclick="todasPastas(false,'#aparelhos')">📁 Fechar todas</button></div>
-    <div class="mut" style="margin:0 2px 10px">${on} online · ${lista.length - on} offline · vem da tabela ARP e das reservas DHCP do pfSense (online = falou nos últimos 30 min)</div>` +
+  const linha = x => `<tr class="${x.online ? "on" : "off"}"><td class="c-st" data-label="Status"><span class="dot ${x.online ? "up" : "down"}" title="${x.online ? "online" : "offline"}"></span></td>
+      <td class="c-nome" data-label="Aparelho"><b>${esc(x.nome || "Sem nome")}</b>${x.privado ? ' <span class="ap-priv" title="MAC aleatório (celular/notebook com endereço privado)">🔒</span>' : ""}</td>
+      <td class="c-ip mono" data-label="IP">${esc(x.ip)}</td><td class="c-mac mono mut hm" data-label="MAC">${esc(x.mac)}</td><td class="c-fab mut hm" data-label="Fabricante">${esc(x.fabricante || "—")}</td>
+      <td class="c-visto mut" data-label="Visto">${x.online ? '<span class="ap-agora">agora</span>' : (x.ultimo ? esc(tempoDesde(x.ultimo)) : "nunca")}</td></tr>`;
+  const pOn = Math.round(100 * on / lista.length);
+  el.innerHTML = `<div class="ap-resumo">
+      <div class="ap-chips">
+        <span class="ap-chip ch-on"><i class="dot up"></i><b>${on}</b> online</span>
+        <span class="ap-chip ch-off"><i class="dot down"></i><b>${lista.length - on}</b> offline</span>
+        <span class="ap-chip ch-tot"><b>${lista.length}</b> ${lista.length === 1 ? "aparelho" : "aparelhos"}</span>
+        <span class="pastas-acoes"><button class="mini" onclick="todasPastas(true,'#aparelhos')">📂 Abrir todas</button><button class="mini" onclick="todasPastas(false,'#aparelhos')">📁 Fechar todas</button></span>
+      </div>
+      <div class="ap-prop" role="img" aria-label="${on} de ${lista.length} online"><i style="width:${pOn}%"></i></div>
+      <div class="mut ap-nota">Vem da tabela ARP e das reservas DHCP do pfSense · online = falou nos últimos 30 min</div>
+    </div>` +
     chaves.map(k => {
       const itens = grupos[k].slice().sort((a, b) => (b.online - a.online) || String(a.nome || "~").localeCompare(String(b.nome || "~")) || String(a.ip).localeCompare(String(b.ip), undefined, {numeric:true}));
       const [ico, titulo] = PASTAS[k] || ["📁", k], n = itens.filter(x => x.online).length, id = "D:" + k;
@@ -563,10 +1898,10 @@ function desenharAparelhos(lista){
         <summary>
           <span class="pico">${ico}</span>
           <span class="ptit"><b>${esc(titulo)}</b><span class="mut">${itens.length} ${itens.length === 1 ? "aparelho" : "aparelhos"}</span></span>
-          <span class="pmb ap"><b>${n ? `<span class="pon">● ${n} online</span>` : '<span class="mut">ninguém online</span>'}</b><span class="mut">${itens.length - n} offline</span></span>
+          <span class="pmb ap"><b>${n ? `<span class="pon">● ${n} online</span>` : '<span class="mut">ninguém online</span>'}</b><span class="mut">${itens.length - n} offline</span><span class="ap-mb" aria-hidden="true"><i style="width:${Math.round(100 * n / itens.length)}%"></i></span></span>
           <span class="pseta">▸</span>
         </summary>
-        <div class="ap-tab"><table><tr><th></th><th>Aparelho</th><th>IP</th><th class="hm">MAC</th><th class="hm">Fabricante</th><th>Visto</th></tr>${itens.map(linha).join("")}</table></div>
+        <div class="ap-tab"><table class="tb-ap"><tr><th></th><th>Aparelho</th><th>IP</th><th class="hm">MAC</th><th class="hm">Fabricante</th><th>Visto</th></tr>${itens.map(linha).join("")}</table></div>
       </details>`;
     }).join("");
   el.querySelectorAll("details.pasta").forEach(d => d.addEventListener("toggle", () => {
@@ -605,24 +1940,42 @@ function rotuloDia(dia){
   const [a, m, d] = dia.split("-");
   return d + "/" + m + " " + ["dom","seg","ter","qua","qui","sex","sáb"][new Date(+a, +m - 1, +d).getDay()];
 }
+const IC_CADEADO = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.500"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const IC_RELOGIO = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+function destaque(txt, termo){   // escapa tudo e marca o termo (sem deixar HTML passar)
+  txt = String(txt ?? ""); termo = String(termo || "").trim().toLowerCase();
+  const baixo = txt.toLowerCase();
+  if(!termo || baixo.length !== txt.length) return esc(txt);
+  let out = "", i = 0, j;
+  while((j = baixo.indexOf(termo, i)) !== -1){
+    out += esc(txt.slice(i, j)) + "<mark>" + esc(txt.slice(j, j + termo.length)) + "</mark>"; i = j + termo.length;
+  }
+  return out + esc(txt.slice(i));
+}
 function linhaSite(s, maior){   // s = [site, minutos, consultas, primeira, última]
-  return `<tr><td>${esc(s[0])}<div class="barra"><i style="width:${Math.max(2, 100*s[1]/maior)}%"></i></div></td>
-    <td>${tempo(s[1])}</td><td>${esc(s[2])}</td><td class="mut hm">${esc(s[3])}–${esc(s[4])}</td></tr>`;
+  return `<tr><td class="c-site" data-label="Site"><span class="st-nome">${esc(s[0])}</span><div class="barra"><i style="width:${Math.max(2, 100*s[1]/maior)}%"></i></div></td>
+    <td class="c-tempo" data-label="Tempo">${tempo(s[1])}</td><td class="c-cons" data-label="Consultas">${esc(s[2])}</td><td class="c-hora mono mut hm" data-label="Horário">${esc(s[3])}–${esc(s[4])}</td></tr>`;
 }
 function desenharSites(){
   const info = $("sitesInfo"), lista = $("sitesLista"), dias = $("sitesDias");
   const nomes = SITES && SITES.dias ? Object.keys(SITES.dias).sort().reverse() : [];
+  const limpar = $("sitesLimpar"); if(limpar) limpar.hidden = !SITES_BUSCA;
   if(!nomes.length){
     dias.innerHTML = ""; $("sitesRes").textContent = "sem dados"; $("sitesRes2").textContent = "";
+    info.className = "mut st-info" + (SITES_ERRO ? " st-erro" : "");
     info.textContent = SITES_ERRO ? "Não deu para ler o histórico: " + SITES_ERRO + "." : "";
-    lista.innerHTML = '<div class="vazio">Sem dados de sites ainda. O histórico vem do CT 110 (registro de DNS do pfSense) e chega a cada ~5 minutos; se este aviso continuar, confira o serviço dns-sites-export no CT 110.</div>';
+    lista.innerHTML = SITES_ERRO
+      ? `<div class="vazio estado erro"><span class="est-ico">⚠️</span><b>Não deu para ler o histórico</b><span>${esc(SITES_ERRO)}. Tente de novo em instantes.</span></div>`
+      : '<div class="vazio estado"><span class="est-ico">🌐</span><b>Sem dados de sites ainda</b><span>O histórico vem do CT 110 (registro de DNS do pfSense) e chega a cada ~5 minutos; se este aviso continuar, confira o serviço dns-sites-export no CT 110.</span></div>';
     return;
   }
   if(!SITES_DIA || !SITES.dias[SITES_DIA]) SITES_DIA = nomes[0];
   const idade = (Date.now() - new Date(SITES.gerado)) / 1000, t = SITES_BUSCA.trim().toLowerCase();
-  dias.innerHTML = nomes.map(x => `<button class="mini ${x === SITES_DIA && !t ? "ativo" : ""}" data-dia="${esc(x)}">${esc(rotuloDia(x))}</button>`).join("");
-  info.innerHTML = (idade > 1200 ? "⚠️ sem dados novos há " + esc(tempoDesde(SITES.gerado)) + " (o CT 110 pode estar fora do ar) · " : "atualizado há " + esc(tempoDesde(SITES.gerado)) + " · ")
-    + "tempo = minutos com consulta de DNS (aproximado) · não pega quem usa DNS privado/VPN" + (SITES_ERRO ? " · ⚠️ " + esc(SITES_ERRO) : "");
+  dias.innerHTML = nomes.map(x => `<button class="mini ${x === SITES_DIA && !t ? "ativo" : ""}" data-dia="${esc(x)}" aria-pressed="${x === SITES_DIA && !t}">${esc(rotuloDia(x))}</button>`).join("");
+  const velho = idade > 1200;
+  info.className = "mut st-info" + (velho || SITES_ERRO ? " st-alerta" : "");
+  info.innerHTML = `<span class="st-linha"><i class="dot ${velho ? "down" : "up"}"></i>${velho ? "sem dados novos há " + esc(tempoDesde(SITES.gerado)) + " · o CT 110 pode estar fora do ar" : "atualizado há " + esc(tempoDesde(SITES.gerado))}${SITES_ERRO ? " · ⚠️ " + esc(SITES_ERRO) : ""}</span>`
+    + '<span class="st-nota">tempo = minutos com consulta de DNS (aproximado) · não pega quem usa DNS privado/VPN</span>';
   const doDia = SITES.dias[SITES_DIA] || {};
   const nAp = Object.keys(doDia).length;
   $("sitesRes").textContent = nAp + (nAp === 1 ? " aparelho" : " aparelhos");
@@ -632,29 +1985,32 @@ function desenharSites(){
     nomes.forEach(dia => Object.entries(SITES.dias[dia]).forEach(([ip, h]) => h.s.forEach(s => {
       if(String(s[0]).toLowerCase().includes(t)) achados.push({dia, ip, h, s}); })));
     achados.sort((a, b) => b.dia.localeCompare(a.dia) || b.s[1] - a.s[1] || b.s[2] - a.s[2]);
-    const ap = new Set(achados.map(x => x.ip)).size;
+    const ap = new Set(achados.map(x => x.ip)).size, termo = SITES_BUSCA.trim();
     lista.innerHTML = achados.length
-      ? `<div class="mut" style="margin:0 2px 8px">${achados.length} ${achados.length === 1 ? "registro" : "registros"} de "${esc(SITES_BUSCA.trim())}" em ${ap} ${ap === 1 ? "aparelho" : "aparelhos"} (todos os dias guardados)</div>
-         <div class="ap-tab"><table><tr><th>Dia</th><th>Aparelho</th><th>Site</th><th>Tempo</th><th>Consultas</th><th class="hm">Horário</th></tr>${
-         achados.slice(0, 300).map(x => `<tr><td>${esc(rotuloDia(x.dia))}</td><td><b>${esc(x.h.n || x.ip)}</b><div class="mut">${esc(x.ip)}</div></td>
-           <td>${esc(x.s[0])}</td><td>${tempo(x.s[1])}</td><td>${esc(x.s[2])}</td><td class="mut hm">${esc(x.s[3])}–${esc(x.s[4])}</td></tr>`).join("")}</table></div>`
-      : `<div class="vazio">Ninguém acessou nada parecido com "${esc(SITES_BUSCA.trim())}" nos dias guardados (só os ~25 sites mais usados de cada aparelho por dia entram aqui).</div>`;
+      ? `<div class="st-achados"><span class="st-n">${achados.length}</span><span>${achados.length === 1 ? "registro" : "registros"} de <mark>${esc(termo)}</mark> em ${ap} ${ap === 1 ? "aparelho" : "aparelhos"} <span class="mut">· todos os dias guardados</span></span></div>
+         <div class="ap-tab"><table class="tb-busca"><tr><th>Dia</th><th>Aparelho</th><th>Site</th><th>Tempo</th><th>Consultas</th><th class="hm">Horário</th></tr>${
+         achados.slice(0, 300).map(x => `<tr><td class="c-dia" data-label="Dia">${esc(rotuloDia(x.dia))}</td><td class="c-ap" data-label="Aparelho"><b>${esc(x.h.n || x.ip)}</b><div class="mut mono">${esc(x.ip)}</div></td>
+           <td class="c-site" data-label="Site"><span class="st-nome">${destaque(x.s[0], termo)}</span></td><td class="c-tempo" data-label="Tempo">${tempo(x.s[1])}</td><td class="c-cons" data-label="Consultas">${esc(x.s[2])}</td><td class="c-hora mono mut hm" data-label="Horário">${esc(x.s[3])}–${esc(x.s[4])}</td></tr>`).join("")}</table></div>
+         ${achados.length > 300 ? `<div class="aviso">mostrando os 300 primeiros</div>` : ""}`
+      : `<div class="vazio estado"><span class="est-ico">🔎</span><b>Nada encontrado</b><span>Ninguém acessou nada parecido com <mark>${esc(termo)}</mark> nos dias guardados (só os ~25 sites mais usados de cada aparelho por dia entram aqui).</span></div>`;
     return;
   }
   const hosts = Object.entries(doDia).map(([ip, h]) => Object.assign({ip}, h)).sort((a, b) => b.m - a.m || b.q - a.q);
   lista.innerHTML = hosts.map(h => {
     const cor = CORES[String(h.r || "").toUpperCase()] || "#88c0d0", maior = Math.max(...h.s.map(s => s[1]), 1);
+    const topo = h.s.length ? h.s.slice().sort((a, b) => b[1] - a[1])[0][0] : "";
     return `<details class="pasta" data-ip="${esc(h.ip)}" style="--c:${cor}" ${sitesAbertos.has(h.ip) ? "open" : ""}>
       <summary>
         <span class="pico">📱</span>
-        <span class="ptit"><b>${esc(h.n || h.ip)}</b><span class="mut">${esc(h.r ? nomeRede(h.r) + " · " : "")}${esc(h.ip)}</span></span>
+        <span class="ptit"><b>${esc(h.n || h.ip)}</b><span class="mut">${esc(h.r ? nomeRede(h.r) + " · " : "")}<span class="mono">${esc(h.ip)}</span></span>
+          <span class="st-mini">${IC_RELOGIO}<b>${tempo(h.m)}</b>${topo ? `<span class="st-top" title="site com mais tempo">${esc(topo)}</span>` : ""}</span></span>
         <span class="pmb"><b>${h.t} ${h.t === 1 ? "site" : "sites"}</b><span class="mut">${h.q} consultas</span></span>
         <span class="pseta">▸</span>
       </summary>
-      <div class="ap-tab"><table><tr><th>Site</th><th>Tempo</th><th>Consultas</th><th class="hm">Horário</th></tr>${h.s.map(s => linhaSite(s, maior)).join("")}</table>
+      <div class="ap-tab"><table class="tb-sites"><tr><th>Site</th><th>Tempo</th><th>Consultas</th><th class="hm">Horário</th></tr>${h.s.map(s => linhaSite(s, maior)).join("")}</table>
         ${h.t > h.s.length ? `<div class="aviso">+ ${h.t - h.s.length} sites menores não mostrados</div>` : ""}</div>
     </details>`;
-  }).join("") || '<div class="vazio">Nenhum acesso registrado neste dia.</div>';
+  }).join("") || '<div class="vazio estado"><span class="est-ico">🌙</span><b>Nenhum acesso registrado neste dia</b></div>';
   lista.querySelectorAll("details.pasta").forEach(x => x.addEventListener("toggle", () => {
     x.open ? sitesAbertos.add(x.dataset.ip) : sitesAbertos.delete(x.dataset.ip); }));
 }
@@ -668,87 +2024,101 @@ function desenharSites(){
   $("sitesDias").addEventListener("click", e => { const b = e.target.closest("button[data-dia]"); if(!b) return;
     SITES_DIA = b.dataset.dia; SITES_BUSCA = ""; $("sitesBusca").value = ""; desenharSites(); });
   $("sitesBusca").addEventListener("input", e => { SITES_BUSCA = e.target.value; desenharSites(); });
+  const lp = $("sitesLimpar");
+  if(lp) lp.addEventListener("click", () => { SITES_BUSCA = ""; $("sitesBusca").value = ""; desenharSites(); $("sitesBusca").focus(); });
 })();
 
+/* --- 60-shell.js --- */
+// ===== Casca: tema claro/escuro, menu com destaque da seção atual, abas do celular, selo de status =====
+function alternarTema(){
+  const claro = document.documentElement.getAttribute("data-tema") !== "claro";
+  if(claro) document.documentElement.setAttribute("data-tema", "claro"); else document.documentElement.removeAttribute("data-tema");
+  ls.set("monitor_tema", claro ? "claro" : "escuro");
+  const m = document.querySelector("meta[name=theme-color]"); if(m) m.content = claro ? "#eef2fb" : "#060a14";
+}
+(function ligarCasca(){
+  const nav = $("nav"), abas = $("abas");
+  abas.innerHTML = [...nav.querySelectorAll("a")].map(a => a.outerHTML.replace(/<em class="badge" id="navAlertas"><\/em>/, '<em class="badge" id="abaAlertas"></em>')).join("");
+  const links = [...document.querySelectorAll("#nav a, #abas a")];
+  const secs = [...nav.querySelectorAll("a")].map(a => $(a.dataset.sec)).filter(Boolean);
+  const titulos = {}; secs.forEach(s => titulos[s.id] = s.querySelector(".sec-t").textContent.trim());
+  const marcar = id => { links.forEach(a => a.classList.toggle("ativo", a.dataset.sec === id));
+    const t = document.querySelector(".topo h1"); if(t && id) t.textContent = titulos[id] || "Visão geral";
+    const ativa = abas.querySelector("a.ativo"); if(ativa && abas.scrollWidth > abas.clientWidth) ativa.scrollIntoView({inline:"center", block:"nearest"}); };
+  let ticking = false;
+  const espiar = () => { ticking = false; let atual = secs[0] && secs[0].id; const y = innerHeight * .3;
+    secs.forEach(s => { if(s.getBoundingClientRect().top <= y) atual = s.id; });
+    if(innerHeight + scrollY >= document.body.scrollHeight - 4) atual = secs[secs.length - 1].id;
+    marcar(atual); };
+  const topo = document.querySelector(".topo");
+  addEventListener("scroll", () => { topo.classList.toggle("rolou", scrollY > 4); if(!ticking){ ticking = true; requestAnimationFrame(espiar); } }, {passive:true});
+  addEventListener("resize", espiar);
+  document.addEventListener("click", e => { const a = e.target.closest("#nav a, #abas a"); if(!a) return; e.preventDefault();
+    const s = $(a.dataset.sec); if(s){ s.scrollIntoView({behavior:"smooth", block:"start"}); history.replaceState(null, "", "#" + s.id); } });
+  espiar();
+})();
+// chamado por desenhar(): selo de status no menu e contador de alertas
+function desenharCasca(d){
+  const idade = (Date.now() - new Date(d.gerado))/1000, r = d.rede || {}, wan = (r.gateways || [])[0] || {};
+  const online = r.internet_ok != null ? r.internet_ok : /online|none/i.test(wan.status || "");
+  const ok = idade <= 300 && online, p = $("statusPill");
+  const txt = idade > 300 ? "Coletor parado" : (online ? "Tudo no ar" : "Internet fora");
+  p.className = "status-pill " + (ok ? "ok" : "bad");
+  $("statusTxt").textContent = txt;
+  const chip = $("topoChip"); chip.className = "topo-chip " + (ok ? "ok" : "bad"); chip.querySelector(".txt").textContent = txt;
+  document.querySelector(".topo").dataset.estado = ok ? "ok" : "bad";
+  const n = (d.alertas || []).filter(a => (Number(a.nivel) || 3) <= 2 && a.tipo === "ataque").length + (d.saude || []).length;
+  ["navAlertas", "abaAlertas"].forEach(id => { const b = $(id); if(!b) return; b.textContent = n > 99 ? "99+" : n; b.classList.toggle("on", n > 0); });
+}
+
+// "Atualizado há X" sempre fresco (a tela só redesenha a cada 60 s)
+setInterval(() => { if(!GERADO) return; document.querySelectorAll("[data-idade]").forEach(e => { e.textContent = tempoDesde(GERADO); }); }, 10000);
+
+// botão de avisos: o core troca o texto por emoji; reconstrói com ícone para manter o visual
+(function ligarAvisos(){
+  const b = $("btnAvisos"); if(!b) return;
+  const icone = b.querySelector("svg").outerHTML;
+  new MutationObserver(() => { if(b.querySelector("svg")) return;
+    const t = b.textContent.replace(/^[^\p{L}]+/u, "").trim();
+    b.innerHTML = icone + '<span class="rot">' + esc(t) + '</span>'; }).observe(b, {childList:true});
+})();
+
+// login: "Abrindo…" no botão, erro com destaque, sem alterar entrar() do core
+(function ligarLogin(){
+  const btn = document.querySelector(".btn-entrar"), rot = btn.querySelector(".rot"), card = btn.closest(".login-card"), erro = $("erro"), senha = $("senha");
+  let busy = false, guarda = null;
+  const livre = () => { busy = false; clearTimeout(guarda); btn.classList.remove("busy"); btn.removeAttribute("aria-busy"); rot.textContent = "Abrir"; };
+  const ocupar = () => { if(busy) return; busy = true; card.classList.remove("tem-erro");
+    btn.classList.add("busy"); btn.setAttribute("aria-busy", "true"); rot.textContent = "Abrindo…";
+    guarda = setTimeout(livre, 25000); };
+  // captura: roda antes do onclick do botão e do Enter do core; ignora cliques repetidos enquanto abre
+  btn.addEventListener("click", e => { if(busy) e.stopImmediatePropagation(); else ocupar(); }, true);
+  senha.addEventListener("keydown", e => { if(e.key !== "Enter") return; if(busy) e.stopImmediatePropagation(); else ocupar(); }, true);
+  senha.addEventListener("input", () => card.classList.remove("tem-erro"));
+  new MutationObserver(() => { if(!erro.textContent) return; livre(); card.classList.remove("tem-erro"); void card.offsetWidth; card.classList.add("tem-erro"); senha.focus(); })
+    .observe(erro, {childList:true, characterData:true, subtree:true});
+  new MutationObserver(() => { if($("login").style.display === "none") livre(); }).observe($("login"), {attributes:true, attributeFilter:["style"]});
+})();
+
+/* --- 90-desenhar.js --- */
 function desenhar(d){
   ULTIMO = d;
   GERADO = d.gerado;
-  const idade = (Date.now() - new Date(d.gerado))/1000;
-  $("atual").textContent = "Atualizado há " + tempoDesde(d.gerado) + " · renova a cada " + INTERVALO_S + " s";
-  const f = $("faixa");
-  f.style.display = idade > 300 ? "block" : "none";
-  f.textContent = "⚠️ O coletor não envia dados há " + tempoDesde(d.gerado) + ". Confira o container monitor.";
-
-  const r = d.rede || {}, wan = (r.gateways || [])[0] || {};
-  const online = r.internet_ok != null ? r.internet_ok : /online|none/i.test(wan.status || "");
-  const semMonitor = online && parseFloat(wan.perda) >= 100;   // o ping do gateway falhou, mas a internet responde
-  $("resumo").innerHTML = [
-    ["🌍 Internet", online ? "Online" : "Fora do ar", online ? "up" : "down"],
-    ["⏱️ Latência", semMonitor ? "—" : (wan.atraso || "—")], ["📉 Perda", semMonitor ? "—" : (wan.perda || "—")],
-    ["🧠 CPU", r.cpu != null ? r.cpu + "%" : "—"], ["💾 Memória", r.memoria != null ? r.memoria + "%" : "—"],
-    ["🔐 Na VPN", (d.vpn || []).length]
-  ].map(([t,v,s]) => `<div class="card"><div class="t">${s?`<span class="dot ${s}"></span>`:""}${esc(t)}</div><div class="v">${esc(v)}</div></div>`).join("");
-
-  $("redes").innerHTML = (r.redes || []).map(n => {
-    const nome = String(n.nome).toUpperCase(), cor = CORES[nome] || "#88c0d0", up = /up|associated/i.test(n.status);
-    return `<div class="card vlan" style="--c:${cor}"><div class="t"><span class="dot ${up?"up":"down"}"></span>${esc(n.nome)}</div>
-            <div class="mut">${esc(n.ip || "")}</div></div>`;
-  }).join("") || '<div class="vazio">Sem dados das redes.</div>';
-
+  desenharCabecalho(d);
+  desenharCasca(d);
+  desenharResumo(d);
+  desenharRedes(d);
   desenharAparelhos(d.dispositivos);
   desenharUso(d.uso);
   desenharVpn(d.vpn || [], d.uso);
-
   const vistos = new Set(JSON.parse(ls.get("monitor_vistos") || "[]")), primeira = !ls.get("monitor_vistos");
-  const nvl = a => Number(a.nivel) || 3;
-  const al = (d.alertas || []).slice().sort((a, b) => nvl(a) - nvl(b) || String(b.quando).localeCompare(String(a.quando)));
-  al.forEach(a => {
-    a._novo = !vistos.has(a.id) && !primeira;
-    a._pt = traduzirAlerta(a.mensagem);
-    a._lado = ladoAlerta(a);
-    if(a._novo) avisar(a.tipo === "ataque" ? "🚨 Ataque detectado" : "⚠️ Tentativa de login", a._pt);
-  });
-  const itemAlerta = a => `<div class="al n${a.nivel} ${a._novo ? "novo" : ""}"><div>${a.tipo === "ataque" ? "🚨" : "⚠️"}</div>
-      <div><b title="${esc(a.mensagem)}">${esc(a._pt)}</b>${a._novo ? '<span class="tag">NOVO</span>' : ""}
-      <div class="mut">${esc(a.quando)} · ${esc(a.origem)} → ${esc(a.destino)} · nível ${esc(a.nivel)}${ladoTag(a)}</div></div></div>`;
-  const FAIXAS = [
-    ["A:1", "🔴", "Crítico", "nível 1", "#bf616a", a => a.tipo === "ataque" && nvl(a) <= 1],
-    ["A:2", "🟠", "Alto", "nível 2", "#d08770", a => a.tipo === "ataque" && nvl(a) === 2],
-    ["A:3", "🟡", "Médio e baixo", "nível 3 ou mais", "#ebcb8b", a => a.tipo === "ataque" && nvl(a) >= 3],
-    ["A:L", "⚠️", "Tentativas de login", "pfSense", "#b48ead", a => a.tipo !== "ataque"]
-  ];
-  const limpos = limposSet();
-  const base = al.filter(a => !limpos.has(a.id));
-  const alVis = base.filter(a => filtroAlertas === "todos" || a._lado === filtroAlertas);
-  const abrirAlerta = k => pastasAbertas.has(k) || ((k === "A:1" || k === "A:S") && !ls.get("monitor_pastas"));
-  $("alertas").innerHTML = pastaSaude(d.saude || [], abrirAlerta("A:S")) + barraAlertas(base, al.length - base.length) + (alVis.length ? FAIXAS.map(([k, ico, tit, sub, cor, filtro]) => {
-    const lista = alVis.filter(filtro), novos = lista.filter(a => a._novo).length;
-    return `<details class="pasta" data-pasta="${k}" style="--c:${cor}" ${abrirAlerta(k) ? "open" : ""}>
-        <summary>
-          <span class="pico">${ico}</span>
-          <span class="ptit"><b>${tit}</b><span class="mut">${sub}</span></span>
-          <span class="pmb"><b>${lista.length}</b><span class="mut">${novos ? novos + " novo" + (novos > 1 ? "s" : "") : "alertas"}</span></span>
-          <span class="pseta">▸</span>
-        </summary>
-        <div style="padding:12px">${lista.length ? lista.map(itemAlerta).join("") : '<div class="vazio">Nenhum alerta nesta pasta.</div>'}</div>
-      </details>`;
-  }).join("") : '<div class="vazio">' + (al.length ? "Nenhum alerta nesta visão. 🧹" : "Nenhum alerta. 🎉") + '</div>');
-  $("alertas").querySelectorAll("details.corrigir").forEach(x => x.addEventListener("toggle", () => {
-    x.open ? corrigirAbertos.add(x.dataset.id) : corrigirAbertos.delete(x.dataset.id); }));
-  $("alertas").querySelectorAll("details.pasta").forEach(x => x.addEventListener("toggle", () => {
-    x.open ? pastasAbertas.add(x.dataset.pasta) : pastasAbertas.delete(x.dataset.pasta); salvarPastas(); }));
-
-  const ev = d.eventos || [];
-  ev.forEach(e => { const k = "ev:" + e.quando + e.usuario; if(!vistos.has(k) && !primeira) avisar("🔐 VPN", e.usuario + (e.tipo === "vpn-entrou" ? " conectou" : " desconectou")); vistos.add(k); });
+  const al = desenharAlertas(d, vistos, primeira);
+  desenharEventos(d, vistos, primeira);
   al.forEach(a => vistos.add(a.id));
   ls.set("monitor_vistos", JSON.stringify([...vistos].slice(-800)));
-  const coluna = (titulo, classe, lista) => `<div class="col ${classe}"><h3>${titulo} <span class="mut">(${lista.length})</span></h3>${
-    lista.length ? lista.slice(0, 15).map(e => `<div class="ev"><span class="q">${esc(new Date(e.quando).toLocaleDateString("pt-BR", {day:"2-digit", month:"2-digit"}))}<br>${esc(new Date(e.quando).toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"}))}</span>
-      <span><b>${esc(e.usuario)}</b><div class="mut">${e.origem ? "de " + esc(e.origem) : ""}</div></span></div>`).join("")
-    : '<div class="nada">Nenhuma registrada.</div>'}</div>`;
-  $("eventos").innerHTML = `<div class="vpn2">${coluna("🟢 Entradas", "ent", ev.filter(e => e.tipo === "vpn-entrou"))}${coluna("⚪ Saídas", "sai", ev.filter(e => e.tipo !== "vpn-entrou"))}</div>`;
 }
 
+/* --- 99-init.js --- */
 if(ls.get("monitor_senha")){ $("lembrar").checked = true; entrar(); }
 $("senha").addEventListener("keydown", e => { if(e.key === "Enter") entrar(); });
 </script>
