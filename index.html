@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Monitor">
 <title>Monitor da Casa</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='.55' stop-color='%23818cf8'/%3E%3Cstop offset='1' stop-color='%23f472b6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23060a14'/%3E%3Cpath d='M32 10 14 18v13c0 11 7.5 19 18 23 10.5-4 18-12 18-23V18z' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M23 33l6 6 12-13' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<script>try{var t=localStorage.getItem("monitor_tema");var c=t?t==="claro":!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);if(c){document.documentElement.setAttribute("data-tema","claro");document.querySelector('meta[name=theme-color]').content="#f2f2f7"}else{document.querySelector('meta[name=theme-color]').content="#000000"}}catch(e){}</script>
+<script>try{var t=localStorage.getItem("monitor_tema");var c=t==="claro";if(c){document.documentElement.setAttribute("data-tema","claro");document.querySelector('meta[name=theme-color]').content="#eaf0fb"}else{document.querySelector('meta[name=theme-color]').content="#0b2a78"}}catch(e){}</script>
 <style>
 /* --- 00-tokens.css --- */
 /* ===== 00 · Tokens do tema "iOS limpo" =====
@@ -1304,6 +1304,204 @@ th,td{border-bottom-color:var(--line)}
 #painel #sitesSec .sites-corpo{padding:0}
 #painel .ap-prop{display:none}
 .login-card::before,.login-card::after{display:none!important}
+
+/* --- 99-noc.css --- */
+/* ===== 99 · Visual "Central de monitoramento" (NOC) =====
+   Carrega depois de 99-ios.css e sobrescreve: fundo azul-marinho, cartões de números coloridos, mapa da rede,
+   painéis numerados, tabelas de ranking. Escuro por padrão; o tema claro continua funcionando. */
+:root{
+  --noc-bg:#050b18; --noc-bg2:#08122a; --noc-card:#0b1731; --noc-card2:#0f1d3d; --noc-line:#1a2c55; --noc-line2:#27407a;
+  --noc-txt:#e8eefc; --noc-mut:#8ea2cc; --noc-mudo:#3a4a72; --noc-azul:#4f8cff; --noc-ciano:#22d3ee;
+  --bg:var(--noc-bg); --bg-2:var(--noc-bg2); --glass:var(--noc-card); --glass-2:var(--noc-card2); --glass-3:rgba(120,160,255,.12);
+  --line:var(--noc-line); --line-2:var(--noc-line2); --txt:var(--noc-txt); --txt-2:#c4d1ee; --mut:var(--noc-mut);
+  --ok:#2fd37a; --warn:#ffa31a; --bad:#ff4d5e; --info:#4f8cff; --a1:#4f8cff; --a2:#22d3ee; --a3:#7c6cff;
+  --r:10px; --r-sm:7px; --r-lg:14px;
+}
+:root[data-tema="claro"]{
+  --noc-bg:#eaf0fb; --noc-bg2:#e1e9f8; --noc-card:#ffffff; --noc-card2:#f3f6fd; --noc-line:#d3def2; --noc-line2:#b5c6e6;
+  --noc-txt:#0d1b3a; --noc-mut:#546a95; --noc-mudo:#b6c3de;
+  --ok:#14934f; --warn:#c26a00; --bad:#d3202f; --info:#1f5fe0; --a1:#1f5fe0; --a2:#0a90ad; --txt-2:#2a3f6a;
+}
+body{background:radial-gradient(1200px 600px at 12% -10%,rgba(40,90,220,.22),transparent 60%),radial-gradient(900px 500px at 100% 0,rgba(34,211,238,.10),transparent 55%),var(--noc-bg)!important;color:var(--txt)}
+:root[data-tema="claro"] body{background:linear-gradient(180deg,#f3f7ff,var(--noc-bg))!important}
+
+/* ---- estrutura: tela larga em colunas ---- */
+.coluna{max-width:1480px;padding:0 20px}
+main{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;padding:6px 0 60px;align-content:start}
+main>*{grid-column:1/-1;min-width:0}
+#sec-resumo,#sec-redes{display:none!important}   /* substituídos pelo painel #noc (mesmos dados) */
+@media(min-width:1100px){
+  #sec-alertas{grid-column:span 6}#sec-vpn{grid-column:span 6}#sec-uso{grid-column:span 7}#sec-aparelhos{grid-column:span 5}
+  #sec-sites{grid-column:1/-1}#sec-eventos{grid-column:1/-1}
+  .sec.acc>.acc-corpo{display:block!important;animation:none}
+  .sec.acc>.sec-t{cursor:default}.acc-chev{display:none}
+  .sec.acc>.sec-t:active{background:transparent}
+}
+
+/* ---- topo: faixa de título ---- */
+.topo{background:linear-gradient(90deg,#0b2a78 0%,#0d1f55 45%,#0a1536 100%);border:1px solid var(--noc-line2);border-radius:0 0 14px 14px;margin:0 -20px 14px;padding:calc(env(safe-area-inset-top,0px) + 14px) 20px 14px;align-items:center;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 10px 30px -14px rgba(20,60,200,.6);position:sticky}
+:root[data-tema="claro"] .topo{background:linear-gradient(90deg,#1f5fe0,#1546b0);border-color:#1546b0}
+.topo h1{font-size:1.55rem;font-weight:800;letter-spacing:-.01em;color:#fff;display:flex;align-items:center;gap:10px}
+.topo h1::before{content:"";width:30px;height:30px;flex:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 8 12 17v15c0 12.5 8.5 21.5 20 26 11.5-4.5 20-13.5 20-26V17z' fill='%23123a9c' stroke='%2322d3ee' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M22 33l7 7 13-14' fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 0 10px rgba(34,211,238,.6))}
+.topo h1::after{content:"· central de monitoramento";font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#9fc0ff;margin-left:2px}
+.topo .atual-linha,.topo .mut{color:#b8cdf5}
+.topo-chip{background:rgba(255,255,255,.12)!important;color:#fff;border:1px solid rgba(255,255,255,.18)!important}
+button.icone{background:rgba(255,255,255,.12)!important;color:#fff!important;border:1px solid rgba(255,255,255,.16)!important}
+.faixa{grid-column:1/-1;margin:0;border-radius:var(--r);background:rgba(255,163,26,.14);border:1px solid rgba(255,163,26,.5)!important;color:#ffd28a}
+
+/* ---- faixa de números (KPIs) ---- */
+.noc{grid-column:1/-1;display:flex;flex-direction:column;gap:16px}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.kpi{--k1:#2563eb;--k2:#1d4ed8;position:relative;display:flex;align-items:center;gap:12px;min-height:92px;padding:14px 16px;border-radius:var(--r);color:#fff;overflow:hidden;
+  background:linear-gradient(135deg,var(--k1),var(--k2));box-shadow:0 12px 28px -16px var(--k1),inset 0 1px 0 rgba(255,255,255,.22)}
+.kpi::after{content:"";position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.09)}
+.k-ok{--k1:#18a85c;--k2:#0f7e44}.k-warn{--k1:#f59e0b;--k2:#c2710a}.k-bad{--k1:#ef4455;--k2:#b81d2e}.k-azul{--k1:#2f6bff;--k2:#1a45c4}.k-cinza{--k1:#5b6b8c;--k2:#3e4b69}.k-info{--k1:#2f6bff;--k2:#1a45c4}
+.kpi-ico{flex:none;width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.18);display:grid;place-items:center}
+.kpi-ico svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.kpi-txt{display:flex;flex-direction:column;min-width:0;line-height:1.15}
+.kpi-rot{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+.kpi-val{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:2px 0;color:#fff;-webkit-text-fill-color:#fff}
+.kpi-val small{font-size:.9rem;font-weight:700;margin-left:2px;opacity:.9}
+.kpi-sub{font-size:.78rem;opacity:.92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---- painéis numerados ---- */
+.noc-grade{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.noc-grade>*{grid-column:1/-1;min-width:0}
+@media(min-width:1100px){.pn-mapa{grid-column:span 8}.pn-status{grid-column:span 4}.pn-prob{grid-column:span 4}.pn-rank{grid-column:span 8}.pn-vpn{grid-column:1/-1}}
+.pn{background:linear-gradient(180deg,var(--noc-card2),var(--noc-card));border:1px solid var(--noc-line);border-radius:var(--r);overflow:hidden;box-shadow:0 14px 34px -22px rgba(0,0,0,.8)}
+.pn-t{display:flex;align-items:center;gap:9px;margin:0;padding:11px 14px;font-size:.74rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--noc-azul);border-bottom:1px solid var(--noc-line);background:rgba(79,140,255,.06)}
+:root[data-tema="claro"] .pn-t{color:var(--info)}
+.pn-n{display:grid;place-items:center;min-width:20px;height:20px;border-radius:6px;background:var(--noc-azul);color:#fff;font-size:.72rem;letter-spacing:0}
+.pn-t em{margin-left:auto;font-style:normal;font-size:.72rem;letter-spacing:.02em;text-transform:none;font-weight:600;color:var(--noc-mut);display:inline-flex;align-items:center;gap:6px}
+.pn-c{padding:14px}
+
+/* ---- mapa da rede ---- */
+.mapa{display:flex;flex-direction:column;align-items:stretch;gap:0}
+.tm-topo{display:flex;align-items:center;justify-content:center;gap:0}
+.tm-no{position:relative;display:flex;align-items:center;gap:10px;padding:10px 14px 10px 10px;min-width:150px;background:var(--noc-bg2);border:1px solid var(--noc-line2);border-radius:10px}
+:root[data-tema="claro"] .tm-no{background:#f3f7ff}
+.tm-ico{flex:none;width:36px;height:36px;display:grid;place-items:center;border-radius:9px;background:rgba(79,140,255,.14);color:var(--noc-azul)}
+.tm-ico svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tm-txt{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.tm-txt b{font-size:.88rem;color:var(--txt)}
+.tm-txt span{font-size:.72rem;color:var(--noc-mut);white-space:nowrap}
+.tm-led{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--noc-mudo)}
+.tm-no.t-ok{border-color:rgba(47,211,122,.55)}.tm-no.t-ok .tm-led{background:var(--ok);box-shadow:0 0 10px var(--ok)}.tm-no.t-ok .tm-ico{color:var(--ok);background:rgba(47,211,122,.14)}
+.tm-no.t-bad{border-color:rgba(255,77,94,.6)}.tm-no.t-bad .tm-led{background:var(--bad);box-shadow:0 0 10px var(--bad)}.tm-no.t-bad .tm-ico{color:var(--bad);background:rgba(255,77,94,.14)}
+.tm-no.t-warn{border-color:rgba(255,163,26,.6)}.tm-no.t-warn .tm-led{background:var(--warn);box-shadow:0 0 10px var(--warn)}.tm-no.t-warn .tm-ico{color:var(--warn);background:rgba(255,163,26,.14)}
+.tm-no.t-info{border-color:rgba(79,140,255,.6)}.tm-no.t-info .tm-led{background:var(--info);box-shadow:0 0 10px var(--info)}
+.tm-lig{flex:1 1 28px;min-width:24px;max-width:90px;height:3px;border-radius:3px;position:relative;overflow:hidden;background:linear-gradient(90deg,rgba(47,211,122,.25),rgba(47,211,122,.25))}
+.tm-lig::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,#6dffb0,transparent);transform:translateX(-100%);animation:tm-fluxo 2.2s linear infinite}
+.tm-lig.off{background:rgba(255,77,94,.3)}.tm-lig.off::after{display:none}
+.tm-lig.mudo{background:var(--noc-mudo)}.tm-lig.mudo::after{display:none}
+@keyframes tm-fluxo{to{transform:translateX(100%)}}
+.tm-tronco{align-self:center;width:3px;height:26px;margin-top:0;border-radius:3px;background:rgba(47,211,122,.4);position:relative;overflow:hidden}
+.tm-tronco::after{content:"";position:absolute;left:0;right:0;height:60%;background:linear-gradient(180deg,transparent,#6dffb0,transparent);animation:tm-desce 1.8s linear infinite}
+.tm-tronco.off{background:rgba(255,77,94,.35)}.tm-tronco.off::after{display:none}
+@keyframes tm-desce{from{top:-60%}to{top:100%}}
+.tm-redes{display:grid;grid-template-columns:repeat(var(--cols,4),minmax(0,1fr));gap:26px 12px;padding-top:14px;position:relative}
+.tm-rede{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;padding:12px 8px 10px;background:var(--noc-bg2);border:1px solid var(--noc-line2);border-radius:10px}
+:root[data-tema="claro"] .tm-rede{background:#f3f7ff}
+.tm-rede::before{content:"";position:absolute;left:50%;top:-14px;width:2px;height:14px;margin-left:-1px;background:var(--noc-line2)}
+.tm-rede::after{content:"";position:absolute;top:-14px;left:-6px;right:-6px;height:2px;background:var(--noc-line2)}
+.tm-rede.p::after{left:50%}.tm-rede.u::after{right:50%}.tm-rede.p.u::after{display:none}
+.tm-rede.up{border-color:color-mix(in srgb,var(--c) 55%,var(--noc-line2))}
+.tm-rede.up::before{background:rgba(47,211,122,.7);box-shadow:0 0 8px rgba(47,211,122,.6)}
+.tm-rede.down{opacity:.6;border-style:dashed}.tm-rede.down::before{background:var(--bad)}
+.tm-rede .tm-ico{width:34px;height:34px;background:color-mix(in srgb,var(--c) 16%,transparent)}
+.tm-rede b{font-size:.84rem;color:var(--txt);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tm-ip{font-family:var(--mono);font-size:.66rem;color:var(--noc-mut)}
+.tm-qtd{white-space:nowrap;display:inline-flex;align-items:center;gap:5px;margin-top:3px;padding:2px 8px;border-radius:999px;background:rgba(120,160,255,.1);font-size:.7rem;font-weight:700;color:var(--txt-2);font-variant-numeric:tabular-nums}
+.dot.up{background:var(--ok);box-shadow:0 0 8px var(--ok)}.dot.down{background:var(--bad);box-shadow:0 0 8px var(--bad)}
+
+/* ---- rosca de status ---- */
+.status-bloco{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+.rosca{position:relative;width:150px;height:150px;flex:none}
+.rosca svg{width:100%;height:100%}
+.rosca svg circle{fill:none;stroke-width:11;stroke-linecap:butt}
+.rosca-trilho{stroke:var(--noc-line)!important}
+.rosca svg circle:not(.rosca-trilho){filter:drop-shadow(0 0 5px currentColor)}
+.rosca-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.rosca-c b{font-size:2.3rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--txt)}
+.rosca-c span{font-size:.72rem;color:var(--noc-mut);margin-top:4px;text-transform:uppercase;letter-spacing:.1em}
+.rosca-leg{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:170px;flex:1}
+.rosca-leg li{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--txt-2)}
+.rosca-leg li i{width:9px;height:9px;border-radius:50%;flex:none}
+.rosca-leg li b{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--txt)}
+
+/* ---- problemas recentes ---- */
+.prob{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;padding:9px 0;border-bottom:1px solid var(--noc-line)}
+.prob:last-child{border-bottom:0}
+.prob-pill{grid-row:span 2;padding:3px 9px;border-radius:6px;font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#fff;background:var(--info)}
+.prob.t-bad .prob-pill{background:var(--bad)}.prob.t-warn .prob-pill{background:#e08a00}
+.prob-t{font-size:.82rem;color:var(--txt);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.prob-q{font-size:.7rem;color:var(--noc-mut);font-variant-numeric:tabular-nums}
+.prob-ok{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:140px;color:var(--ok);text-align:center}
+.prob-ok svg{width:38px;height:38px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px var(--ok))}
+.prob-ok span{font-size:.8rem;color:var(--noc-mut)}
+
+/* ---- tabelas de ranking ---- */
+.tab-rolar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.noc-tab{width:100%;border-collapse:collapse;background:transparent!important;font-size:.82rem}
+.noc-tab th{text-align:left;padding:8px 10px;font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--noc-mut);background:rgba(79,140,255,.08)!important;border-bottom:1px solid var(--noc-line);white-space:nowrap}
+.noc-tab td{padding:9px 10px;border-bottom:1px solid var(--noc-line);color:var(--txt-2);vertical-align:middle;white-space:nowrap}
+.noc-tab tr:last-child td{border-bottom:0}
+.noc-tab td b{color:var(--txt);font-weight:700}
+.noc-tab .n{width:28px;color:var(--noc-mut);font-variant-numeric:tabular-nums}
+.noc-tab .sub{display:block;font-family:var(--mono);font-size:.66rem;color:var(--noc-mut)}
+.tag-rede{display:inline-block;padding:2px 8px;border-radius:5px;font-size:.68rem;font-weight:800;letter-spacing:.04em;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);border:1px solid color-mix(in srgb,var(--c) 40%,transparent)}
+.barra-td{min-width:190px}
+.barra-td .mbar{display:inline-block;vertical-align:middle;width:90px;height:6px;border-radius:4px;background:var(--noc-line);margin-right:10px;overflow:hidden}
+.barra-td .mbar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--noc-azul),var(--noc-ciano))}
+.sit{display:inline-block;min-width:66px;text-align:center;padding:3px 10px;border-radius:5px;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.sit.on{background:rgba(47,211,122,.16);color:var(--ok);border:1px solid rgba(47,211,122,.5)}
+.sit.off{background:rgba(142,162,204,.14);color:var(--noc-mut);border:1px solid var(--noc-line2)}
+
+/* ---- seções existentes viram painéis do mesmo estilo ---- */
+.sec.acc{background:linear-gradient(180deg,var(--noc-card2),var(--noc-card));border:1px solid var(--noc-line);border-radius:var(--r);box-shadow:0 14px 34px -22px rgba(0,0,0,.8)}
+.sec.acc>.sec-t{min-height:46px;padding:8px 14px;background:rgba(79,140,255,.06);border-bottom:1px solid var(--noc-line)}
+.sec.acc>.sec-t:active{background:rgba(79,140,255,.12)}
+.acc-tit{font-size:.74rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--noc-azul)}
+:root[data-tema="claro"] .acc-tit{color:var(--info)}
+.sec-t svg.acc-ico{width:26px;height:26px;padding:5px;border-radius:7px;background:var(--noc-azul)!important}
+.acc-res{font-size:.78rem;color:var(--noc-mut)}
+.card,.pasta,.uso,.vpn2 .col,.al,.vazio,.ap-tab,table{background:var(--noc-bg2);border:1px solid var(--noc-line)}
+:root[data-tema="claro"] .card,:root[data-tema="claro"] .pasta,:root[data-tema="claro"] .uso,:root[data-tema="claro"] .vpn2 .col,:root[data-tema="claro"] .al,:root[data-tema="claro"] .vazio{background:#f3f7ff}
+.noc-tab{border:0!important}
+.pasta,.uso,.vcard,.al{border-radius:9px}
+.vazio{border-style:dashed;color:var(--noc-mut)}
+.mini,.pa-btn,button.mini{background:rgba(79,140,255,.14);color:#9fc0ff;border:1px solid var(--noc-line2)}
+:root[data-tema="claro"] .mini,:root[data-tema="claro"] .pa-btn{color:var(--info)}
+.mini.ativo{background:var(--noc-azul);color:#fff;border-color:var(--noc-azul)}
+.uso .barra i,.pshare i,.ap-prop i,.ap-mb i{background:linear-gradient(90deg,var(--noc-azul),var(--noc-ciano))!important}
+#ficha{background:var(--noc-card2);border:1px solid var(--noc-line2);color:var(--txt)}
+.rodape{grid-column:1/-1}
+#login{background:radial-gradient(900px 500px at 50% 0,rgba(40,90,220,.3),transparent 60%),var(--noc-bg)}
+.login-card{background:var(--noc-card)!important;border:1px solid var(--noc-line2)!important;box-shadow:0 30px 80px -30px rgba(30,80,255,.5)!important}
+.btn-entrar{background:linear-gradient(135deg,#2f6bff,#1a45c4)!important}
+
+/* ---- telas médias e celular ---- */
+@media(max-width:1099px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){
+  .coluna{padding:0 12px}
+  .topo{margin:0 -12px 12px;padding-left:12px;padding-right:12px;border-radius:0 0 12px 12px}
+  .topo h1{font-size:1.2rem}.topo h1::after{display:none}.topo h1::before{width:26px;height:26px}
+  main{gap:12px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .kpi{min-height:84px;padding:12px;gap:10px}.kpi-ico{width:34px;height:34px}.kpi-ico svg{width:19px;height:19px}.kpi-val{font-size:1.55rem}
+  .pn-c{padding:12px}
+  .tm-topo{flex-direction:column;align-items:center;gap:0}
+  .tm-topo .tm-no{width:100%}
+  .tm-topo .tm-lig{flex:none;width:3px;min-width:0;max-width:none;height:16px}
+  .tm-topo .tm-lig::after{background:linear-gradient(180deg,transparent,#6dffb0,transparent);animation-name:tm-desce}
+  .c-rede,.c-tempo{display:none}
+  .barra-td{min-width:0}.barra-td .mbar{width:60px}
+  .tm-tronco{height:20px}
+  .tm-redes{gap:24px 10px}
+  .status-bloco{justify-content:center}
+  .noc-tab{font-size:.78rem}
+}
+@media(prefers-reduced-motion:reduce){.tm-lig::after,.tm-tronco::after{animation:none}}
 </style>
 </head>
 <body>
@@ -2217,7 +2415,7 @@ function alternarTema(){
   const claro = document.documentElement.getAttribute("data-tema") !== "claro";
   if(claro) document.documentElement.setAttribute("data-tema", "claro"); else document.documentElement.removeAttribute("data-tema");
   ls.set("monitor_tema", claro ? "claro" : "escuro");
-  const m = document.querySelector("meta[name=theme-color]"); if(m) m.content = claro ? "#f2f2f7" : "#000000";
+  const m = document.querySelector("meta[name=theme-color]"); if(m) m.content = claro ? "#eaf0fb" : "#0b2a78";
 }
 (function ligarCasca(){
   const nav = $("nav"), abas = $("abas");
@@ -2337,6 +2535,175 @@ function iosAtualizar(d){
   set("sec-eventos", ev.length + (ev.length === 1 ? " registro" : " registros"), ev.length > 0);
 }
 
+/* --- 80-noc.js --- */
+// ===== Visual "Central de monitoramento" (NOC): faixa de números, mapa da rede, rosca de status, problemas e rankings =====
+// Só lê os dados já carregados (d). Não muda nenhuma função de dados nem os ids do HTML.
+const NOC_IC = {
+  net:   '<path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3"/>',
+  tempo: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/>',
+  cpu:   '<rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 1.5v3M15 1.5v3M9 19.5v3M15 19.5v3M19.5 9h3M19.5 15h3M1.5 9h3M1.5 15h3"/>',
+  mem:   '<rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 11v2M10 11v2M14 11v2M18 11v2M6 17v3M18 17v3"/>',
+  vpn:   '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  alerta:'<path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.01"/>',
+  pc:    '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+  fw:    '<path d="M12 3 4 6v6c0 4.5 3.4 7.7 8 9 4.6-1.3 8-4.5 8-9V6z"/><path d="M4 12h16M12 3v18"/>',
+  cloud: '<path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4.75 4.75 0 0 1-.5 9.5z"/>',
+  ok:    '<path d="M12 3 4 6v6c0 4.5 3.4 7.7 8 9 4.6-1.3 8-4.5 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>'
+};
+const nocSvg = (k, cls) => `<svg class="${cls || ""}" viewBox="0 0 24 24" aria-hidden="true">${NOC_IC[k] || (typeof IC_RES !== "undefined" && IC_RES[k]) || NOC_IC.net}</svg>`;
+const nocSvgRede = nome => `<svg viewBox="0 0 24 24" aria-hidden="true">${(typeof IC_RES !== "undefined" && IC_RES[nome]) || IC_RES.rede}</svg>`;
+
+let NOC_COLS = 0;
+const nocMq = window.matchMedia ? matchMedia("(max-width:760px)") : null;
+function nocColunas(n){ const max = nocMq && nocMq.matches ? 2 : (innerWidth > 1100 ? 8 : 4); return Math.max(1, Math.min(n, max)); }
+
+function nocKpi(tom, icone, rotulo, valor, sub, extra){
+  return `<div class="kpi k-${tom}"><div class="kpi-ico">${nocSvg(icone)}</div>
+    <div class="kpi-txt"><span class="kpi-rot">${esc(rotulo)}</span><b class="kpi-val">${valor}</b><span class="kpi-sub">${sub}</span></div>${extra || ""}</div>`;
+}
+
+function nocRosca(partes, centro, legenda){
+  const tot = partes.reduce((t, p) => t + p.v, 0) || 1;
+  let acc = 0;
+  const arcos = partes.filter(p => p.v > 0).map(p => {
+    const len = p.v / tot * 100, a = `<circle cx="50" cy="50" r="38" pathLength="100" stroke="${p.c}" stroke-dasharray="${Math.max(0, len - (partes.filter(x => x.v > 0).length > 1 ? 1.2 : 0))} 100" stroke-dashoffset="${-acc}" transform="rotate(-90 50 50)"/>`;
+    acc += len; return a;
+  }).join("");
+  return `<div class="rosca"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="rosca-trilho" cx="50" cy="50" r="38"/>${arcos}</svg>
+    <div class="rosca-c"><b>${centro}</b><span>${esc(legenda)}</span></div></div>`;
+}
+
+function nocMapa(d){
+  const r = d.rede || {}, wan = (r.gateways || [])[0] || {};
+  const online = r.internet_ok != null ? r.internet_ok : /online|none/i.test(wan.status || "");
+  const redes = (r.redes || []).map(n => Object.assign({}, n, {up: /up|associated/i.test(n.status)}));
+  const disp = d.dispositivos || [];
+  const hostsUso = ((d.uso && d.uso.hosts) || []);
+  const contar = nome => {
+    const k = String(nome).toUpperCase();
+    const a = disp.filter(x => String(x.rede || "").toUpperCase() === k);
+    const on = a.length ? a.filter(x => x.online).length : hostsUso.filter(h => String(h.rede || "").toUpperCase() === k && !h.vpn && estaOnline(h)).length;
+    return {on, total: a.length};
+  };
+  const cols = nocColunas(redes.length); NOC_COLS = cols;
+  const nVpn = (d.vpn || []).length;
+  const cpu = r.cpu != null ? Math.round(r.cpu) : null, mem = r.memoria != null ? Math.round(r.memoria) : null;
+  const lat = parseFloat(wan.atraso);
+  const tomN = online ? "ok" : "bad";
+
+  const no = (cls, tom, icone, tit, l1, l2) => `<div class="tm-no ${cls} t-${tom}"><span class="tm-ico">${nocSvg(icone)}</span>
+    <div class="tm-txt"><b>${esc(tit)}</b><span>${l1}</span>${l2 ? `<span>${l2}</span>` : ""}</div><i class="tm-led" aria-hidden="true"></i></div>`;
+
+  const topo = `<div class="tm-topo">
+    ${no("tm-net", tomN, "cloud", "Internet", online ? "Online" : "Fora do ar", !isNaN(lat) && online ? esc(wan.atraso) : "")}
+    <i class="tm-lig ${online ? "" : "off"}" aria-hidden="true"></i>
+    ${no("tm-fw", online ? "ok" : "warn", "fw", "pfSense", "CPU " + (cpu != null ? cpu + "%" : "—"), "Mem. " + (mem != null ? mem + "%" : "—"))}
+    <i class="tm-lig ${nVpn ? "" : "mudo"}" aria-hidden="true"></i>
+    ${no("tm-vpn", nVpn ? "info" : "nd", "vpn", "VPN", nVpn + (nVpn === 1 ? " conectado" : " conectados"), nVpn ? esc((d.vpn || []).slice(0, 2).map(v => v.usuario).join(", ")) : "ninguém agora")}
+  </div>`;
+
+  const nos = redes.map((n, i) => {
+    const nome = String(n.nome).toUpperCase(), cor = (typeof CORES !== "undefined" && CORES[nome]) || "#88c0d0", c = contar(n.nome);
+    const col = i % cols, ult = col === cols - 1 || i === redes.length - 1;
+    return `<div class="tm-rede ${n.up ? "up" : "down"} ${col === 0 ? "p" : ""} ${ult ? "u" : ""}" style="--c:${cor}" title="${esc(n.status || "")}">
+      <span class="tm-ico" style="color:${cor}">${nocSvgRede(nome)}</span><b>${esc(n.nome)}</b><span class="tm-ip">${esc(n.ip || "—")}</span>
+      <span class="tm-qtd">${n.up ? `<i class="dot up"></i>${c.on}${c.total ? " / " + c.total : ""} on` : `<i class="dot down"></i>fora`}</span></div>`;
+  }).join("");
+
+  return topo + `<div class="tm-tronco ${online ? "" : "off"}" aria-hidden="true"></div>
+    <div class="tm-redes" style="--cols:${cols}">${nos || '<div class="vazio">Nenhuma rede encontrada.</div>'}</div>`;
+}
+
+function nocProblemas(d){
+  const lista = [];
+  (d.saude || []).forEach(s => lista.push({tom: Number(s.grav) <= 2 ? "bad" : "warn", t: s.titulo || "Aviso de saúde", q: ""}));
+  (d.alertas || []).slice().sort((a, b) => (Number(a.nivel) || 3) - (Number(b.nivel) || 3)).slice(0, 8).forEach(a => {
+    const n = Number(a.nivel) || 3;
+    lista.push({tom: n <= 1 ? "bad" : n === 2 ? "warn" : "info", t: a.mensagem || "Alerta", q: a.quando || ""});
+  });
+  if(!lista.length) return `<div class="prob-ok">${nocSvg("ok")}<b>Nenhum problema</b><span>Tudo certo por aqui.</span></div>`;
+  return lista.slice(0, 5).map(p => `<div class="prob t-${p.tom}"><span class="prob-pill">${p.tom === "bad" ? "Crítico" : p.tom === "warn" ? "Atenção" : "Info"}</span>
+    <span class="prob-t">${esc(p.t)}</span>${p.q ? `<span class="prob-q">${esc(p.q)}</span>` : ""}</div>`).join("");
+}
+
+function nocRankingUso(d){
+  const hosts = ((d.uso && d.uso.hosts) || []).filter(h => !h.vpn).slice().sort((a, b) => (b.bytes || 0) - (a.bytes || 0)).slice(0, 7);
+  if(!hosts.length) return '<div class="vazio">Sem dados de uso ainda.</div>';
+  const max = Math.max(...hosts.map(h => h.bytes || 0), 1);
+  return `<div class="tab-rolar"><table class="noc-tab"><thead><tr><th>#</th><th>Aparelho</th><th class="c-rede">Rede</th><th>Consumo hoje</th><th class="c-tempo">Tempo</th><th>Situação</th></tr></thead><tbody>` +
+    hosts.map((h, i) => { const on = estaOnline(h), cor = (typeof CORES !== "undefined" && CORES[String(h.rede || "").toUpperCase()]) || "#88c0d0";
+      return `<tr><td class="n">${i + 1}</td><td><b>${esc(h.nome || h.ip)}</b><span class="sub">${esc(h.ip)}</span></td>
+      <td class="c-rede"><span class="tag-rede" style="--c:${cor}">${esc(h.rede || "—")}</span></td>
+      <td class="barra-td"><span class="mbar"><i style="width:${Math.max(4, (h.bytes || 0) / max * 100)}%"></i></span><b>${esc(mb(h.bytes))}</b></td>
+      <td class="c-tempo">${esc(tempo(h.minutos))}</td><td><span class="sit ${on ? "on" : "off"}">${on ? "Online" : "Inativo"}</span></td></tr>`; }).join("") +
+    `</tbody></table></div>`;
+}
+
+function nocTabelaVpn(d){
+  const v = d.vpn || [];
+  if(!v.length) return '<div class="vazio">Ninguém conectado na VPN agora.</div>';
+  return `<div class="tab-rolar"><table class="noc-tab"><thead><tr><th>#</th><th>Usuário</th><th>Origem</th><th>Desde</th><th>Baixou</th><th>Enviou</th></tr></thead><tbody>` +
+    v.slice(0, 7).map((x, i) => `<tr><td class="n">${i + 1}</td><td><b>${esc(x.usuario)}</b><span class="sub">${esc(x.ip_vpn || "")}</span></td><td>${esc(x.origem || "—")}</td><td>${esc(x.desde || "—")}</td><td>${esc(mb(x.recebido))}</td><td>${esc(mb(x.enviado))}</td></tr>`).join("") +
+    `</tbody></table></div>`;
+}
+
+function nocPainel(num, titulo, corpo, cls, extra){
+  return `<section class="pn ${cls || ""}"><h3 class="pn-t"><span class="pn-n">${num}</span>${esc(titulo)}${extra ? `<em>${extra}</em>` : ""}</h3><div class="pn-c">${corpo}</div></section>`;
+}
+
+function nocDesenhar(d){
+  let el = $("noc");
+  if(!el){
+    el = document.createElement("section"); el.id = "noc"; el.className = "noc";
+    const main = document.querySelector("main"); main.insertBefore(el, $("faixa").nextSibling);
+  }
+  const r = d.rede || {}, wan = (r.gateways || [])[0] || {};
+  const online = r.internet_ok != null ? r.internet_ok : /online|none/i.test(wan.status || "");
+  const semMonitor = online && parseFloat(wan.perda) >= 100;
+  const lat = semMonitor ? NaN : parseFloat(wan.atraso);
+  const cpu = r.cpu != null ? Math.round(r.cpu) : null, mem = r.memoria != null ? Math.round(r.memoria) : null;
+  const nVpn = (d.vpn || []).length;
+  const redes = r.redes || [], noAr = redes.filter(n => /up|associated/i.test(n.status)).length;
+  const disp = d.dispositivos || [], alertas = d.alertas || [], saude = d.saude || [];
+  const hostsUso = ((d.uso && d.uso.hosts) || []);
+  const aparOn = disp.length ? disp.filter(x => x.online).length : hostsUso.filter(h => !h.vpn && estaOnline(h)).length;
+  const aparTotal = disp.length || hostsUso.filter(h => !h.vpn).length;
+  const graves = alertas.filter(a => (Number(a.nivel) || 3) <= 2).length + saude.length;
+  const parado = (Date.now() - new Date(d.gerado)) / 1000 > 300;
+
+  const tLat = isNaN(lat) ? "nd" : lat > 150 ? "bad" : lat > 60 ? "warn" : "ok";
+  const tCpu = cpu == null ? "nd" : cpu > 85 ? "bad" : cpu >= 60 ? "warn" : "ok";
+  const tMem = mem == null ? "nd" : mem > 85 ? "bad" : mem >= 60 ? "warn" : "ok";
+  const rotTom = {ok: "Normal", warn: "Atenção", bad: "Crítico", nd: "Sem dado"};
+
+  const kpis = [
+    nocKpi(online ? "ok" : "bad", "net", "Internet", online ? "Online" : "Fora", online ? (parado ? "coletor parado" : "conexão estável") : "sem internet"),
+    nocKpi(tLat === "nd" ? "azul" : tLat, "tempo", "Latência", isNaN(lat) ? "—" : `${esc(String(wan.atraso).replace(/\s*ms/i, ""))}<small>ms</small>`, isNaN(lat) ? "sem medição" : tLat === "ok" ? "ótima" : "alta"),
+    nocKpi(tCpu === "nd" ? "azul" : tCpu, "cpu", "CPU pfSense", cpu == null ? "—" : `${cpu}<small>%</small>`, rotTom[tCpu]),
+    nocKpi(tMem === "nd" ? "azul" : tMem, "mem", "Memória", mem == null ? "—" : `${mem}<small>%</small>`, rotTom[tMem]),
+    nocKpi(nVpn ? "azul" : "cinza", "vpn", "Na VPN", String(nVpn), nVpn === 1 ? "pessoa online" : nVpn ? "pessoas online" : "ninguém agora"),
+    nocKpi(graves ? "bad" : alertas.length ? "warn" : "ok", "alerta", "Alertas", String(graves || alertas.length), graves ? (graves === 1 ? "importante" : "importantes") : alertas.length ? "de baixa gravidade" : "tudo limpo")
+  ].join("");
+
+  const offApar = Math.max(0, aparTotal - aparOn);
+  const rosca = nocRosca([{v: aparOn, c: "var(--ok)"}, {v: offApar, c: "var(--noc-mudo)"}], aparOn, "online");
+  const legenda = `<ul class="rosca-leg">
+    <li><i style="background:var(--ok)"></i>Aparelhos online<b>${aparOn}</b></li>
+    <li><i style="background:var(--noc-mudo)"></i>Sem sinal<b>${offApar}</b></li>
+    <li><i style="background:var(--info)"></i>Redes no ar<b>${noAr}/${redes.length}</b></li>
+    <li><i style="background:${graves ? "var(--bad)" : "var(--ok)"}"></i>Alertas importantes<b>${graves}</b></li></ul>`;
+
+  el.innerHTML = `<div class="kpis">${kpis}</div>
+    <div class="noc-grade">
+      ${nocPainel("1", "Mapa da rede", `<div class="mapa">${nocMapa(d)}</div>`, "pn-mapa", `<span class="dot ${online ? "up" : "down"}"></span>${noAr}/${redes.length} redes no ar`)}
+      ${nocPainel("2", "Status da rede", `<div class="status-bloco">${rosca}${legenda}</div>`, "pn-status")}
+      ${nocPainel("3", "Problemas recentes", nocProblemas(d), "pn-prob", graves ? `${graves} importante${graves === 1 ? "" : "s"}` : "")}
+      ${nocPainel("4", "Ranking de uso · hoje", nocRankingUso(d), "pn-rank")}
+      ${nocPainel("5", "Conectados na VPN", nocTabelaVpn(d), "pn-vpn", nVpn ? nVpn + " online" : "")}
+    </div>`;
+}
+if(nocMq){ const refazer = () => { if(typeof ULTIMO !== "undefined" && ULTIMO && $("noc")) nocDesenhar(ULTIMO); }; (nocMq.addEventListener ? nocMq.addEventListener("change", refazer) : nocMq.addListener(refazer)); addEventListener("resize", () => { const c = nocColunas(((ULTIMO && ULTIMO.rede && ULTIMO.rede.redes) || []).length); if(c !== NOC_COLS) refazer(); }); }
+
 /* --- 90-desenhar.js --- */
 function desenhar(d){
   ULTIMO = d;
@@ -2345,6 +2712,7 @@ function desenhar(d){
   desenharCasca(d);
   desenharResumo(d);
   desenharRedes(d);
+  try{ nocDesenhar(d); }catch(e){ console.warn("noc", e); }
   desenharAparelhos(d.dispositivos);
   desenharUso(d.uso);
   desenharVpn(d.vpn || [], d.uso);
