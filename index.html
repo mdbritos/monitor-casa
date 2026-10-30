@@ -1330,8 +1330,8 @@ body{background:radial-gradient(1200px 600px at 12% -10%,rgba(40,90,220,.22),tra
 main{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;padding:6px 0 60px;align-content:start}
 main>*{grid-column:1/-1;min-width:0}
 #sec-resumo,#sec-redes{display:none!important}   /* substituídos pelo painel #noc (mesmos dados) */
-/* ordem da página: topo NOC, VPN, uso, aparelhos, sites, alertas, problemas/ranking, entradas e saídas por último */
-.faixa{order:0}.noc{order:1}#sec-vpn{order:2}#sec-uso{order:3}#sec-aparelhos{order:4}#sec-sites{order:5}#sec-alertas{order:6}#nocBaixo{order:7}#sec-eventos{order:8}.rodape{order:9}
+/* ordem da página: topo NOC, VPN, uso, aparelhos, sites, problemas/ranking, entradas e saídas e, por último, alertas (no rodapé) */
+.faixa{order:0}.noc{order:1}#sec-vpn{order:2}#sec-uso{order:3}#sec-aparelhos{order:4}#sec-sites{order:5}#nocBaixo{order:6}#sec-eventos{order:7}#sec-alertas{order:8}.rodape{order:9}
 @media(min-width:1100px){
   #sec-vpn{grid-column:1/-1}#sec-uso{grid-column:span 7}#sec-aparelhos{grid-column:span 5}
   #sec-sites,#sec-alertas,#sec-eventos{grid-column:1/-1}
