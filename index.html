@@ -1502,6 +1502,14 @@ button.icone{background:rgba(255,255,255,.12)!important;color:#fff!important;bor
   .noc-tab{font-size:.78rem}
 }
 @media(prefers-reduced-motion:reduce){.tm-lig::after,.tm-tronco::after{animation:none}}
+
+/* ---- sub-aba do ponto de acesso dentro de "Uso por usuário" ---- */
+.ap-sub{margin:0!important;border-left:3px solid var(--c)!important}
+.ap-sub>summary .pico{font-size:1.2rem}
+.ap-sub .grade-uso{padding:10px 0 0}
+.ap-self{margin-top:10px;padding-top:10px;border-top:1px dashed var(--noc-line2);display:flex;flex-direction:column;gap:6px}
+.ap-self>.mut{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+@media(min-width:900px){.ap-self .uso{max-width:420px}}
 </style>
 </head>
 <body>
@@ -2007,6 +2015,21 @@ function desenharVpn(vpn, u){
   el.querySelectorAll("details.uso").forEach(d => d.addEventListener("toggle", () => { d.open ? abertos.add(d.dataset.ip) : abertos.delete(d.dataset.ip); }));
 }
 
+// Ponto de acesso (AP): aparelho com nome REDE_xxx. Os aparelhos da mesma rede (VLAN) ficam numa sub-aba dentro dele.
+const ehAP = h => /^rede_/i.test(String(h.nome || ""));
+function gradeGrupo(lista, maior, k){
+  const aps = lista.filter(ehAP);
+  if(aps.length !== 1 || lista.length < 2) return `<div class="grade-uso">${lista.map(h => cartaoUso(h, maior)).join("")}</div>`;
+  const ap = aps[0], filhos = lista.filter(h => h !== ap), cor = CORES[String(ap.rede || "").toUpperCase()] || "#88c0d0";
+  const total = filhos.reduce((t, h) => t + (h.bytes || 0), 0), id = "AP:" + ap.ip;
+  return `<details class="pasta ap-sub" data-pasta="${esc(id)}" style="--c:${cor}" ${pastasAbertas.has(id) ? "open" : ""}>
+    <summary><span class="pico">📡</span>
+      <span class="ptit"><b>${esc(ap.nome)} · ponto de acesso</b><span class="mut pmeta"><span class="pc">${filhos.length} ${filhos.length === 1 ? "aparelho conectado" : "aparelhos conectados"}</span><span class="pon"><span class="sdot on"></span>${filhos.filter(estaOnline).length} online</span></span></span>
+      <span class="pmb"><b>${mb(total)}</b><span class="mut">consumo dos conectados</span></span><span class="pseta">${ic("chev")}</span></summary>
+    <div class="grade-uso">${filhos.map(h => cartaoUso(h, maior)).join("")}</div>
+    <div class="ap-self"><span class="mut">O próprio AP:</span> ${cartaoUso(ap, maior)}</div>
+  </details>`;
+}
 function desenharUso(u){
   const el = $("uso");
   HOSTS = {}; ((u && u.hosts) || []).forEach(h => HOSTS[h.ip] = h);
@@ -2043,7 +2066,7 @@ function desenharUso(u){
           <span class="pmb"><b>${mb(total)}</b><span class="mut">mais uso: ${esc(maiorUso.nome || maiorUso.ip)}</span></span>
           <span class="pseta">${ic("chev")}</span>
         </summary>
-        <div class="grade-uso">${lista.map(h => cartaoUso(h, maior)).join("")}</div>
+        ${gradeGrupo(lista, maior, k)}
       </details>`;
     }).join("") +
     `<p class="aviso">Clique numa pasta para abrir. Passe o mouse (no PC) ou segure o dedo (no celular) sobre um usuário para ver a ficha dele; clique nele para ver a lista de sites. Valores de hoje desde ${esc(u.desde || "00:00")}. Tempo = minutos com tráfego para o site (estimativa). Em sites com HTTPS aparece só o domínio, nunca a página.</p>`;
@@ -2697,10 +2720,16 @@ function nocDesenhar(d){
     <div class="noc-grade">
       ${nocPainel("1", "Mapa da rede", `<div class="mapa">${nocMapa(d)}</div>`, "pn-mapa", `<span class="dot ${online ? "up" : "down"}"></span>${noAr}/${redes.length} redes no ar`)}
       ${nocPainel("2", "Status da rede", `<div class="status-bloco">${rosca}${legenda}</div>`, "pn-status")}
-      ${nocPainel("3", "Problemas recentes", nocProblemas(d), "pn-prob", graves ? `${graves} importante${graves === 1 ? "" : "s"}` : "")}
-      ${nocPainel("4", "Ranking de uso · hoje", nocRankingUso(d), "pn-rank")}
-      ${nocPainel("5", "Conectados na VPN", nocTabelaVpn(d), "pn-vpn", nVpn ? nVpn + " online" : "")}
+      ${nVpn ? nocPainel("3", "Conectados na VPN", nocTabelaVpn(d), "pn-vpn", nVpn + " online") : ""}
     </div>`;
+  // problemas recentes e ranking ficam lá embaixo, depois das seções (pedido do Mike)
+  let bx = $("nocBaixo");
+  if(!bx){
+    bx = document.createElement("section"); bx.id = "nocBaixo"; bx.className = "noc-grade noc-baixo";
+    const main = document.querySelector("main"); main.insertBefore(bx, main.querySelector(".rodape"));
+  }
+  bx.innerHTML = nocPainel("A", "Problemas recentes", nocProblemas(d), "pn-prob", graves ? `${graves} importante${graves === 1 ? "" : "s"}` : "") +
+    nocPainel("B", "Ranking de uso · hoje", nocRankingUso(d), "pn-rank");
 }
 if(nocMq){ const refazer = () => { if(typeof ULTIMO !== "undefined" && ULTIMO && $("noc")) nocDesenhar(ULTIMO); }; (nocMq.addEventListener ? nocMq.addEventListener("change", refazer) : nocMq.addListener(refazer)); addEventListener("resize", () => { const c = nocColunas(((ULTIMO && ULTIMO.rede && ULTIMO.rede.redes) || []).length); if(c !== NOC_COLS) refazer(); }); }
 
