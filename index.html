@@ -2658,7 +2658,7 @@ function nocMapa(d){
 function nocProblemas(d){
   const lista = [];
   (d.saude || []).forEach(s => lista.push({tom: Number(s.grav) <= 2 ? "bad" : "warn", t: s.titulo || "Aviso de saúde", q: ""}));
-  (d.alertas || []).slice().sort((a, b) => (Number(a.nivel) || 3) - (Number(b.nivel) || 3)).slice(0, 8).forEach(a => {
+  (d.alertas || []).filter(a => (Number(a.nivel) || 3) <= 2).slice().sort((a, b) => (Number(a.nivel) || 3) - (Number(b.nivel) || 3)).slice(0, 8).forEach(a => {
     const n = Number(a.nivel) || 3;
     lista.push({tom: n <= 1 ? "bad" : n === 2 ? "warn" : "info", t: a.mensagem || "Alerta", q: a.quando || ""});
   });
@@ -2804,4 +2804,3 @@ $("senha").addEventListener("keydown", e => { if(e.key === "Enter") entrar(); })
 </script>
 </body>
 </html>
-<!-- build 113151 -->
