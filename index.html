@@ -1330,12 +1330,14 @@ body{background:radial-gradient(1200px 600px at 12% -10%,rgba(40,90,220,.22),tra
 main{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;padding:6px 0 60px;align-content:start}
 main>*{grid-column:1/-1;min-width:0}
 #sec-resumo,#sec-redes{display:none!important}   /* substituídos pelo painel #noc (mesmos dados) */
+/* ordem da página: topo NOC, VPN, uso, aparelhos, sites, alertas, problemas/ranking, entradas e saídas por último */
+.faixa{order:0}.noc{order:1}#sec-vpn{order:2}#sec-uso{order:3}#sec-aparelhos{order:4}#sec-sites{order:5}#sec-alertas{order:6}#nocBaixo{order:7}#sec-eventos{order:8}.rodape{order:9}
 @media(min-width:1100px){
-  #sec-alertas{grid-column:span 6}#sec-vpn{grid-column:span 6}#sec-uso{grid-column:span 7}#sec-aparelhos{grid-column:span 5}
-  #sec-sites{grid-column:1/-1}#sec-eventos{grid-column:1/-1}
-  .sec.acc>.acc-corpo{display:block!important;animation:none}
-  .sec.acc>.sec-t{cursor:default}.acc-chev{display:none}
-  .sec.acc>.sec-t:active{background:transparent}
+  #sec-vpn{grid-column:1/-1}#sec-uso{grid-column:span 7}#sec-aparelhos{grid-column:span 5}
+  #sec-sites,#sec-alertas,#sec-eventos{grid-column:1/-1}
+  .sec.acc:not(#sec-sites)>.acc-corpo{display:block!important;animation:none}
+  .sec.acc:not(#sec-sites)>.sec-t{cursor:default}.sec.acc:not(#sec-sites)>.sec-t .acc-chev{display:none}
+  .sec.acc:not(#sec-sites)>.sec-t:active{background:transparent}
 }
 
 /* ---- topo: faixa de título ---- */
@@ -1510,6 +1512,22 @@ button.icone{background:rgba(255,255,255,.12)!important;color:#fff!important;bor
 .ap-self{margin-top:10px;padding-top:10px;border-top:1px dashed var(--noc-line2);display:flex;flex-direction:column;gap:6px}
 .ap-self>.mut{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
 @media(min-width:900px){.ap-self .uso{max-width:420px}}
+
+/* ---- alertas: sub-abas na horizontal ---- */
+.al-abas{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;margin:0 0 12px;border-bottom:1px solid var(--noc-line);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.al-abas::-webkit-scrollbar{display:none}
+.al-aba{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:9px;border:1px solid var(--noc-line2);background:var(--noc-bg2);color:var(--txt-2);font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.al-aba::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+.al-aba i{font-style:normal;min-width:22px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--txt);font-size:.74rem;text-align:center;font-variant-numeric:tabular-nums}
+.al-aba.zero{opacity:.6}
+.al-aba.ativa{background:color-mix(in srgb,var(--c) 18%,var(--noc-bg2));border-color:var(--c);color:var(--txt);opacity:1}
+#alertas.al-tabs .al-resumo{display:none}
+#alertas.al-tabs details.pasta:not(.aba-ativa){display:none}
+#alertas.al-tabs details.pasta.aba-ativa{border:0;background:transparent;margin:0}
+#alertas.al-tabs details.pasta.aba-ativa>summary{display:none}
+#alertas.al-tabs .pcorpo{padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));align-items:start}
+#alertas.al-tabs .pcorpo>.vazio{grid-column:1/-1}
+#alertas .al-barra{margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -2720,7 +2738,6 @@ function nocDesenhar(d){
     <div class="noc-grade">
       ${nocPainel("1", "Mapa da rede", `<div class="mapa">${nocMapa(d)}</div>`, "pn-mapa", `<span class="dot ${online ? "up" : "down"}"></span>${noAr}/${redes.length} redes no ar`)}
       ${nocPainel("2", "Status da rede", `<div class="status-bloco">${rosca}${legenda}</div>`, "pn-status")}
-      ${nVpn ? nocPainel("3", "Conectados na VPN", nocTabelaVpn(d), "pn-vpn", nVpn + " online") : ""}
     </div>`;
   // problemas recentes e ranking ficam lá embaixo, depois das seções (pedido do Mike)
   let bx = $("nocBaixo");
@@ -2728,10 +2745,37 @@ function nocDesenhar(d){
     bx = document.createElement("section"); bx.id = "nocBaixo"; bx.className = "noc-grade noc-baixo";
     const main = document.querySelector("main"); main.insertBefore(bx, main.querySelector(".rodape"));
   }
-  bx.innerHTML = nocPainel("A", "Problemas recentes", nocProblemas(d), "pn-prob", graves ? `${graves} importante${graves === 1 ? "" : "s"}` : "") +
-    nocPainel("B", "Ranking de uso · hoje", nocRankingUso(d), "pn-rank");
+  bx.innerHTML = nocPainel("3", "Problemas recentes", nocProblemas(d), "pn-prob", graves ? `${graves} importante${graves === 1 ? "" : "s"}` : "") +
+    nocPainel("4", "Ranking de uso · hoje", nocRankingUso(d), "pn-rank");
 }
 if(nocMq){ const refazer = () => { if(typeof ULTIMO !== "undefined" && ULTIMO && $("noc")) nocDesenhar(ULTIMO); }; (nocMq.addEventListener ? nocMq.addEventListener("change", refazer) : nocMq.addListener(refazer)); addEventListener("resize", () => { const c = nocColunas(((ULTIMO && ULTIMO.rede && ULTIMO.rede.redes) || []).length); if(c !== NOC_COLS) refazer(); }); }
+
+// ===== Alertas em sub-abas na horizontal: uma aba por pasta (Precisam de correção, Crítico, Alto...) =====
+let ALERTA_ABA = ls.get("monitor_aba_alertas") || "";
+function nocAlertasAbas(){
+  const raiz = $("alertas"); if(!raiz) return;
+  const pastas = [...raiz.querySelectorAll(":scope > details.pasta")];
+  const velha = raiz.querySelector(".al-abas"); if(velha) velha.remove();
+  raiz.classList.toggle("al-tabs", pastas.length > 0);
+  if(!pastas.length) return;
+  const info = pastas.map(d => ({d, k: d.dataset.pasta, c: d.style.getPropertyValue("--c"),
+    t: (d.querySelector(".ptit b") || {}).textContent || "", n: (d.querySelector(".pmb b") || {}).textContent || "0"}));
+  let ativa = info.find(i => i.k === ALERTA_ABA);
+  if(!ativa) ativa = info.find(i => i.k === "A:S") || info.find(i => Number(i.n) > 0) || info[0];
+  const barra = document.createElement("div"); barra.className = "al-abas"; barra.setAttribute("role", "tablist");
+  barra.innerHTML = info.map(i => `<button type="button" role="tab" class="al-aba ${i === ativa ? "ativa" : ""} ${Number(i.n) ? "" : "zero"}" data-k="${esc(i.k)}" style="--c:${i.c}" aria-selected="${i === ativa}"><span class="al-aba-t">${esc(i.t)}</span><i>${esc(i.n)}</i></button>`).join("");
+  const ancora = raiz.querySelector(".al-barra");
+  raiz.insertBefore(barra, raiz.firstChild);
+  info.forEach(i => { i.d.classList.toggle("aba-ativa", i === ativa); i.d.open = true; });
+  barra.addEventListener("click", e => {
+    const b = e.target.closest(".al-aba"); if(!b) return;
+    ALERTA_ABA = b.dataset.k; ls.set("monitor_aba_alertas", ALERTA_ABA);
+    barra.querySelectorAll(".al-aba").forEach(x => { const on = x === b; x.classList.toggle("ativa", on); x.setAttribute("aria-selected", on); });
+    info.forEach(i => i.d.classList.toggle("aba-ativa", i.k === ALERTA_ABA));
+  });
+}
+// o chip antigo "ir para a pasta" agora seleciona a aba
+irPasta = function(k){ ALERTA_ABA = k; ls.set("monitor_aba_alertas", k); nocAlertasAbas(); };
 
 /* --- 90-desenhar.js --- */
 function desenhar(d){
@@ -2749,6 +2793,7 @@ function desenhar(d){
   const al = desenharAlertas(d, vistos, primeira);
   desenharEventos(d, vistos, primeira);
   iosAtualizar(d);
+  try{ nocAlertasAbas(); }catch(e){ console.warn("abas", e); }
   al.forEach(a => vistos.add(a.id));
   ls.set("monitor_vistos", JSON.stringify([...vistos].slice(-800)));
 }
